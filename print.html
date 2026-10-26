@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2B59E6">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Таблица">
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="app.css">
+<title>Печатные материалы — Таблица без зубрёжки</title>
+<meta name="robots" content="noindex">
+<style>
+.pt{border-collapse:collapse;margin:12px auto;font:700 18px var(--f-head)}
+.pt caption{font:700 24px var(--f-head);margin-bottom:8px}
+.pt th,.pt td{border:2px solid var(--edge);width:2.2em;height:2.2em;text-align:center}
+.pt th{background:var(--yellow);color:var(--on-yellow)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.cd{border:2px dashed var(--edge);border-radius:8px;padding:12px;background:var(--card);break-inside:avoid}
+.cd .q{font:700 36px var(--f-head);text-align:center;padding:10px 0}
+.cd .fold{font-size:12px;text-align:center;color:var(--ink2);border-top:1px dashed var(--edge);padding-top:4px}
+.cd .a{text-align:center}.cd .a b{font:700 30px var(--f-head);color:var(--blue)}
+.cd .a p{margin:6px 0 0;font-size:15px}
+@media print{.noprint{display:none!important}body{background:#fff}.cd,.pt th,.pt td{border-color:#000}.pt th{background:#eee}.pgb{break-before:page}}
+</style>
+</head>
+<body class="docpage">
+<div class="wrap">
+  <header class="top noprint"><a class="brand" href="./" style="text-decoration:none"><i aria-hidden="true"><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b></i>Таблица без зубрёжки</a></header>
+  <main>
+  <section class="card noprint"><h1>Печатные материалы</h1><p>Распечатайте квадрат Пифагора и карточки трудных примеров. Карточки вырежьте и согните по пунктирной линии: сверху пример, снизу ответ и подсказка.</p><p><button type="button" class="btn" id="pr">Печать</button> <a class="btn ghost" href="trainer.html" style="text-decoration:none;display:inline-flex;align-items:center">← К тренажёру</a></p></section>
+  <section class="card" style="margin-top:14px"><table class="pt"><caption>Квадрат Пифагора</caption><tr><th>×</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th></tr><tr><th>1</th><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td></tr><tr><th>2</th><td>2</td><td>4</td><td>6</td><td>8</td><td>10</td><td>12</td><td>14</td><td>16</td><td>18</td><td>20</td></tr><tr><th>3</th><td>3</td><td>6</td><td>9</td><td>12</td><td>15</td><td>18</td><td>21</td><td>24</td><td>27</td><td>30</td></tr><tr><th>4</th><td>4</td><td>8</td><td>12</td><td>16</td><td>20</td><td>24</td><td>28</td><td>32</td><td>36</td><td>40</td></tr><tr><th>5</th><td>5</td><td>10</td><td>15</td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td><td>45</td><td>50</td></tr><tr><th>6</th><td>6</td><td>12</td><td>18</td><td>24</td><td>30</td><td>36</td><td>42</td><td>48</td><td>54</td><td>60</td></tr><tr><th>7</th><td>7</td><td>14</td><td>21</td><td>28</td><td>35</td><td>42</td><td>49</td><td>56</td><td>63</td><td>70</td></tr><tr><th>8</th><td>8</td><td>16</td><td>24</td><td>32</td><td>40</td><td>48</td><td>56</td><td>64</td><td>72</td><td>80</td></tr><tr><th>9</th><td>9</td><td>18</td><td>27</td><td>36</td><td>45</td><td>54</td><td>63</td><td>72</td><td>81</td><td>90</td></tr><tr><th>10</th><td>10</td><td>20</td><td>30</td><td>40</td><td>50</td><td>60</td><td>70</td><td>80</td><td>90</td><td>100</td></tr></table></section>
+  <section class="card pgb" style="margin-top:14px"><h2>Карточки трудных примеров</h2><div class="cards"><div class="cd"><div class="q">6 × 7</div><div class="fold">согни здесь</div><div class="a"><b>42</b><p>Сначала 5 × 7 = 35. Прибавь ещё одну семёрку. Получится 42.</p></div></div><div class="cd"><div class="q">6 × 8</div><div class="fold">согни здесь</div><div class="a"><b>48</b><p>Сначала 6 × 4 = 24. Потом удвой. 24 + 24 = 48.</p></div></div><div class="cd"><div class="q">7 × 8</div><div class="fold">согни здесь</div><div class="a"><b>56</b><p>Запомни ряд чисел 5, 6, 7, 8. Первые два числа 5 и 6 дают 56. Последние два числа 7 и 8 — это множители.</p></div></div><div class="cd"><div class="q">7 × 9</div><div class="fold">согни здесь</div><div class="a"><b>63</b><p>10 × 7 = 70. Вычти 7. Получится 63.</p></div></div><div class="cd"><div class="q">8 × 9</div><div class="fold">согни здесь</div><div class="a"><b>72</b><p>10 × 8 = 80. Вычти 8. Получится 72.</p></div></div></div></section>
+  </main>
+  <footer class="foot"><span class="age" title="Возрастная маркировка">6+</span><a href="how.html">Как хранятся данные</a><a href="offer.html">Оферта</a><a href="privacy.html">Политика конфиденциальности</a><a href="notice.html">Уведомление о хранении данных</a></footer>
+</div>
+<script src="print.js"></script>
+</body>
+</html>
