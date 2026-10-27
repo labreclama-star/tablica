@@ -81,7 +81,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .bar i.on{background:var(--cell-a);border-color:var(--edge)}
 .bar i.now{background:var(--yellow);border-color:var(--edge)}
 .phase{font:500 13px var(--f-head);letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);margin-bottom:6px}
-.goal{font:600 28px var(--f-hand);color:var(--blue);margin:0 0 8px}
+.goal{font:600 28px var(--f-head);color:var(--blue);margin:0 0 8px}
 .demo{margin:16px 0;padding:14px;border:2px dashed var(--edge);border-radius:8px;background:var(--paper);display:grid;gap:14px;min-width:0}
 .eq{font:700 clamp(34px,9vw,52px)/1.1 var(--f-head);font-variant-numeric:tabular-nums;margin:6px 0 14px;overflow-wrap:anywhere}
 .eq.sm{font-size:clamp(20px,5vw,28px);margin:0}
