@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /print.html
+Disallow: /print.js
+Disallow: /tools/
+Disallow: /src/
+
+Sitemap: https://example.com/sitemap.xml

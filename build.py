@@ -105,15 +105,157 @@ HEAD_COMMON='''<meta charset="utf-8">
 <meta name="apple-mobile-web-app-title" content="Таблица">
 <link rel="stylesheet" href="fonts.css">
 <link rel="stylesheet" href="app.css">'''
-FOOT='''<footer class="foot"><span class="age" title="Возрастная маркировка">6+</span><a href="how.html">Как хранятся данные</a><a href="offer.html">Оферта</a><a href="privacy.html">Политика конфиденциальности</a><a href="notice.html">Уведомление о хранении данных</a></footer>'''
+FOOT='''<footer class="foot"><span class="age" title="Возрастная маркировка">6+</span><a href="about.html">О нас</a><a href="blog.html">Блог</a><a href="partners.html">Для партнёров</a><a href="contacts.html">Связаться с нами</a><a href="offer.html">Оферта</a><a href="privacy.html">Политика конфиденциальности</a><a href="how.html">Как хранятся данные</a><a href="notice.html">Уведомление о хранении данных</a></footer>'''
 BRAND='<i aria-hidden="true"><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b></i>Таблица без зубрёжки'
+# ---------- SEO, блог, информационные страницы ----------
+import html as _html, datetime
+SITE_URL=os.environ.get('SITE_URL','https://example.com').rstrip('/')   # адрес сайта: задайте перед выкладкой (README)
+CONTACT_EMAIL=''      # email поддержки; пусто = показывается заглушка [email поддержки]
+CONTACT_TG=''         # ссылка на Telegram, например https://t.me/name; пусто = заглушка
+TODAY=datetime.date.today().isoformat()
+MONTHS=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря']
+def date_ru(d):
+    y,m,dd=d.split('-'); return '%d %s %s'%(int(dd),MONTHS[int(m)-1],y)
+def E(t): return _html.escape(str(t),quote=True)
+def ld_script(obj): return '<script type="application/ld+json">'+json.dumps(obj,ensure_ascii=False).replace('</','<\\/')+'</script>'
+def abs_url(path): return SITE_URL+'/'+path if path else SITE_URL+'/'
+def seo_head(path,title,desc,keywords,typ='website',ld=(),robots=None,published=None):
+    u=abs_url(path); img=SITE_URL+'/img/og.png'
+    h='<title>%s</title>\n<meta name="description" content="%s">\n<meta name="keywords" content="%s">\n<link rel="canonical" href="%s">\n'%(E(title),E(desc),E(keywords),E(u))
+    if robots: h+='<meta name="robots" content="%s">\n'%robots
+    h+='<meta property="og:type" content="%s">\n<meta property="og:site_name" content="Таблица без зубрёжки">\n<meta property="og:locale" content="ru_RU">\n<meta property="og:title" content="%s">\n<meta property="og:description" content="%s">\n<meta property="og:url" content="%s">\n<meta property="og:image" content="%s">\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n'%(typ,E(title),E(desc),E(u),E(img))
+    if published: h+='<meta property="article:published_time" content="%s">\n'%published
+    h+='<meta name="twitter:card" content="summary_large_image">\n<meta name="twitter:title" content="%s">\n<meta name="twitter:description" content="%s">\n<meta name="twitter:image" content="%s">\n'%(E(title),E(desc),E(img))
+    for o in ld: h+=ld_script(o)+'\n'
+    return h
+# --- мета-данные страниц: ключ -> (title, description, keywords)
+META={
+ 'index':('Таблица умножения без слёз: онлайн-тренажёр для детей 1–5 классов','Интерактивный тренажёр таблицы умножения и деления для 1–5 классов. Объясняет смысл наглядно, без зубрёжки. Попробуйте бесплатно, без регистрации.','таблица умножения, тренажёр таблицы умножения, умножение для детей, таблица умножения онлайн, как выучить таблицу умножения'),
+ 'trainer':('Тренажёр таблицы умножения и деления онлайн — Таблица без зубрёжки','Онлайн-тренажёр: короткие уроки с картинками, проверка после каждого блока, объяснение другими словами при ошибке. Работает в браузере, без регистрации.','тренажёр таблицы умножения, умножение онлайн, деление для детей, обучение умножению'),
+ 'blog':('Блог о таблице умножения: советы родителям и игры для детей','Статьи для родителей: как объяснить умножение, выучить таблицу умножения на 9, на 5 и 10, какие игры помогут во 2 классе и что делать, если ребёнок не понимает.','блог про таблицу умножения, как выучить таблицу умножения, советы родителям, обучение детей математике'),
+ 'about':('О нас: зачем мы сделали тренажёр таблицы умножения','Почему появился сервис «Таблица без зубрёжки», во что мы верим и как устроено обучение: понимание вместо зубрёжки, маленькие шаги, никакой рекламы.','о нас, таблица без зубрёжки, тренажёр умножения, миссия'),
+ 'contacts':('Связаться с нами — Таблица без зубрёжки','Как написать в поддержку сервиса «Таблица без зубрёжки»: email, Telegram и реквизиты исполнителя. Отвечаем на вопросы про доступ, коды и работу тренажёра.','контакты, поддержка, таблица без зубрёжки'),
+ 'partners':('Для партнёров: реферальная программа для блогеров и педагогов','Условия сотрудничества с сервисом «Таблица без зубрёжки»: 50% от продаж платных тарифов для блогеров, педагогов и авторов образовательных каналов.','партнёрская программа, реферальная программа, образовательные блогеры, сотрудничество'),
+ 'offer':('Публичная оферта — Таблица без зубрёжки','Условия предоставления доступа к сервису «Таблица без зубрёжки»: тарифы, порядок оплаты и доступа, ответственность сторон.','публичная оферта, условия использования, тарифы'),
+ 'privacy':('Политика конфиденциальности — Таблица без зубрёжки','Какие данные получает и не получает сервис «Таблица без зубрёжки»: нет регистрации, нет аналитики, прогресс хранится только на вашем устройстве.','политика конфиденциальности, персональные данные, безопасность детей'),
+ 'how':('Как хранятся данные — Таблица без зубрёжки','Прогресс ребёнка хранится только в браузере на вашем устройстве. Рассказываем, как сохранить его в файл, перенести на другой телефон и не потерять.','хранение данных, прогресс тренажёра, экспорт прогресса'),
+ 'notice':('Уведомление о хранении данных — Таблица без зубрёжки','Уведомление о локальном хранении учебного прогресса: что хранится в браузере, что не собирается, как очистить или перенести данные.','уведомление о хранении данных, локальное хранение, конфиденциальность')}
+# --- блог
+BLOG=json.load(open(os.path.join(ROOT,'blog_data.json'),encoding='utf-8'))
+ARTS=BLOG['articles']
+for _a in ARTS: _a['file']='blog-'+_a['slug']+'.html'
+SLUG2FILE={a['slug']:a['file'] for a in ARTS}
+def md_inline(s):
+    s=E(s)
+    def lk(m):
+        t,u=m.group(1),m.group(2)
+        if u.startswith('blog:'): return '<a href="%s">%s</a>'%(SLUG2FILE[u[5:]],t)
+        if u=='trainer': return '<a href="trainer.html">%s</a>'%t
+        return '<a href="%s" rel="nofollow noopener" target="_blank">%s</a>'%(u,t)
+    return re.sub(r'\[([^\]]+)\]\(([^)]+)\)',lk,s)
+def render_body(blocks):
+    out=[];ul=[]
+    def flush():
+        if ul: out.append('<ul>'+''.join('<li>%s</li>'%x for x in ul)+'</ul>'); ul.clear()
+    for b in blocks:
+        if b.startswith('- '): ul.append(md_inline(b[2:])); continue
+        flush()
+        if b.startswith('### '): out.append('<h3>%s</h3>'%md_inline(b[4:]))
+        elif b.startswith('## '): out.append('<h2>%s</h2>'%md_inline(b[3:]))
+        else: out.append('<p>%s</p>'%md_inline(b))
+    flush(); return '\n'.join(out)
+CTA_TEXT='Попробуйте наш интерактивный тренажёр. Он объясняет умножение наглядно, без слёз и скучной зубрёжки.'
+CTA_HTML='<aside class="cta"><p>'+CTA_TEXT+'</p><a class="btn" href="trainer.html">Попробовать тренажёр бесплатно</a></aside>'
+def article_inner(a):
+    others=[x for x in ARTS if x is not a]
+    rel='<h2>Читайте также</h2><ul class="related">'+''.join('<li><a href="%s">%s</a></li>'%(x['file'],E(x['title'])) for x in others)+'</ul>'
+    return ('<nav class="crumbs" aria-label="Хлебные крошки"><a href="./">Главная</a> / <a href="blog.html">Блог</a></nav><h1>'+E(a['h1'])+'</h1>'
+      '<p class="post-meta">Автор: '+E(a['author'])+' · <time datetime="'+a['date']+'">'+date_ru(a['date'])+'</time> · Время чтения: '+E(a['read'])+'</p>'
+      +CTA_HTML+render_body(a['body'])+CTA_HTML+rel)
+def blog_inner():
+    cards=''.join('<article class="post-card"><h2><a href="%s">%s</a></h2><p>%s</p><p class="post-meta"><time datetime="%s">%s</time> · Время чтения: %s</p><a class="btn ghost" href="%s">Читать статью</a></article>'%(a['file'],E(a['title']),E(a['description']),a['date'],date_ru(a['date']),E(a['read']),a['file']) for a in ARTS)
+    return '<h1>Блог о таблице умножения</h1><p class="lead">Практические статьи для родителей: как объяснить умножение, какие приёмы помогают и во что играть дома. Без обещаний «за три дня», зато с понятными шагами.</p><div class="blog-grid">'+cards+'</div>'+CTA_HTML
+def article_ld(a):
+    return {"@context":"https://schema.org","@type":"Article","headline":a['h1'],"description":a['description'],"inLanguage":"ru","image":[SITE_URL+'/img/og.png'],"datePublished":a['date'],"dateModified":a['date'],"author":{"@type":"Organization","name":a['author']},"publisher":{"@type":"Organization","name":"Таблица без зубрёжки","logo":{"@type":"ImageObject","url":SITE_URL+'/icons/icon-512.png'}},"mainEntityOfPage":{"@type":"WebPage","@id":abs_url(a['file'])},"keywords":a['keywords']}
+# --- информационные страницы
+FILL='<div class="draft"><b>Заполните поля.</b> Замените значения в квадратных скобках и удалите эту плашку.</div>'
+def _mail():
+    return '<a href="mailto:%s">%s</a>'%(E(CONTACT_EMAIL),E(CONTACT_EMAIL)) if CONTACT_EMAIL else PH('email поддержки')
+ABOUT=FILL+'''<h1>О нас</h1>
+<p class="lead">Мы верим, что математика — это не про зубрёжку, а про понимание.</p>
+<h2>Зачем мы сделали этот сервис</h2>
+<p>Таблица умножения — первое место, где многие дети решают, что «математика не для меня». Они заучивают ответы, путаются, забывают, их торопят, и слёзы над тетрадью становятся привычными. При этом почти каждый пример можно понять: увидеть на картинке, найти закономерность, собрать из уже знакомого. Тогда запоминание получается само, а не через давление.</p>
+<p>Так появился тренажёр «Таблица без зубрёжки». Он учит умножению и делению маленькими шагами: короткое объяснение с картинкой, затем задания, затем проверка. Если ребёнок ошибся, сервис не ругает, а показывает тот же приём другими словами.</p>
+<h2>Кто это делает</h2>
+<p>'''+PH('2–3 предложения о вас или команде: кто вы, чем занимаетесь, почему занялись этим сервисом')+'''</p>
+<h2>Во что мы верим</h2>
+<ul>
+<li><b>Понимание важнее скорости.</b> Сначала смысл, потом запоминание, потом скорость.</li>
+<li><b>Маленькие шаги.</b> Один приём за раз, пять-десять минут в день.</li>
+<li><b>Ошибка — не провал.</b> На неё отвечают подсказкой и другим объяснением.</li>
+<li><b>Никакого давления.</b> В тренажёре нет таймеров на вопросах, рейтингов и очков.</li>
+<li><b>Приватность по умолчанию.</b> Мы не собираем имена, телефоны и почты, нет рекламы и трекеров. Прогресс хранится на вашем устройстве.</li>
+</ul>
+<h2>Что дальше</h2>
+<p>Мы продолжаем добавлять блоки, игры и статьи для родителей в <a href="blog.html">блоге</a>. Если у вас есть идея или вы заметили ошибку, напишите нам: <a href="contacts.html">контакты</a>. А попробовать тренажёр можно бесплатно и без регистрации: <a href="trainer.html">открыть тренажёр</a>.</p>'''
+def _tg():
+    return '<p><a class="btn" href="%s" rel="noopener">Написать в Telegram</a></p>'%E(CONTACT_TG) if CONTACT_TG else '<p>Telegram: '+PH('ссылка на Telegram')+'</p>'
+CONTACTS=FILL+'''<h1>Связаться с нами</h1>
+<p class="lead">Напишите, если нужна помощь с доступом, кодом или работой тренажёра, есть идея или вопрос.</p>
+<h2>Как написать</h2>
+<p>Email поддержки: '''+_mail()+'''</p>
+'''+_tg()+'''
+<p class="small">Формы на сайте нет: у сервиса нет собственного сервера, и мы не собираем данные. Поэтому достаточно написать письмо или сообщение. Отвечаем в течение '''+PH('2')+''' рабочих дней.</p>
+<h2>Что указать в письме</h2>
+<ul>
+<li>Что случилось и на каком устройстве (телефон, планшет, компьютер) и в каком браузере.</li>
+<li>Если вопрос про доступ, номер заказа или время оплаты. Сам код доступа присылать не нужно.</li>
+<li>Не присылайте персональные данные ребёнка. Они нам не нужны.</li>
+</ul>
+<h2>Реквизиты исполнителя</h2>
+<p>'''+PH('ФИО или наименование, статус: ИП, самозанятый или юридическое лицо, ИНН, ОГРН или ОГРНИП, адрес для заявлений')+'''</p>
+<p class="small">Юридические документы: <a href="offer.html">оферта</a>, <a href="privacy.html">политика конфиденциальности</a>, <a href="how.html">как хранятся данные</a>.</p>'''
+PARTNERS=DRAFT+'''<h1>Для партнёров</h1>
+<p class="lead">Если вы ведёте блог, канал, сообщество или занимаетесь с детьми, давайте работать вместе. Вы получаете 50% от продаж платных тарифов, которые пришли по вашей рекомендации.</p>
+<h2>Кому подойдёт</h2>
+<ul>
+<li>Блогеры и авторы каналов о детях, школе и воспитании.</li>
+<li>Репетиторы и педагоги, которые рекомендуют родителям тренажёры.</li>
+<li>Администраторы родительских сообществ и чатов классов.</li>
+</ul>
+<h2>Условия</h2>
+<ul>
+<li><b>Вознаграждение:</b> 50% от стоимости платных тарифов («Стандарт» и «Продвинутый»), оплаченных по вашей ссылке или с вашим промокодом. Бесплатная версия вознаграждения не приносит.</li>
+<li><b>Как учитываются продажи:</b> '''+PH('опишите механизм: партнёрская ссылка или промокод платёжного сервиса, как вы сверяете продажи; сайт сам аналитику не ведёт')+'''</li>
+<li><b>Выплаты:</b> '''+PH('периодичность, минимальная сумма, способ и налоговый статус партнёра')+'''</li>
+<li><b>Что мы даём:</b> описание сервиса для вашей аудитории, скриншоты и бесплатный доступ к тарифу «Продвинутый», чтобы вы могли честно оценить его до рекомендации.</li>
+</ul>
+<h2>Правила рекомендаций</h2>
+<ul>
+<li>Рассказывайте о сервисе честно: не обещайте гарантированный результат и сроки, не выдумывайте отзывы.</li>
+<li>Соблюдайте законодательство о рекламе, включая маркировку рекламных материалов.</li>
+<li>Не используйте чужие бренды и не выдавайте себя за сотрудников сервиса.</li>
+</ul>
+<h2>Как начать</h2>
+<p>Напишите нам через страницу <a href="contacts.html">«Связаться с нами»</a>: расскажите о своей площадке и аудитории. Мы ответим и пришлём материалы. А чтобы узнать сервис лучше, прочитайте <a href="about.html">о нас</a> и посмотрите <a href="blog.html">блог</a>.</p>'''
+EXTRA_DOCS={'about':('О нас',ABOUT),'contacts':('Связаться с нами',CONTACTS),'partners':('Для партнёров',PARTNERS)}
+
+FAQ=[('Нужна ли установка?','Нет, всё работает прямо в браузере. Сайт можно добавить на экран «Домой», тогда он откроется как приложение и будет работать без интернета.'),
+ ('Безопасно ли для ребёнка?','Да. Мы не собираем персональные данные, нет регистрации, рекламы и аналитики. Прогресс хранится только на вашем устройстве.'),
+ ('Что будет с прогрессом, если сменить телефон?','В разделе «Родителям» есть сохранение прогресса в файл и загрузка его на новом устройстве.'),
+ ('Как получить код после оплаты?','Оплата проходит на странице платёжного сервиса. После неё там появится код доступа. Введите его в разделе «Родителям» тренажёра, и тариф откроется.')]
+def faq_html(): return '\n'.join('<details><summary>%s</summary><p>%s</p></details>'%(E(q),E(a)) for q,a in FAQ)
+def faq_ld(): return {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":q,"acceptedAnswer":{"@type":"Answer","text":a}} for q,a in FAQ]}
+def preview_links(h):
+    h=h.replace('href="trainer.html"','href="#" data-lp="free"')
+    return re.sub(r'href="([\w-]+)\.html"',r'href="#\1"',h)
+
 
 INDEX='''<!doctype html>
 <html lang="ru">
 <head>
 '''+HEAD_COMMON+'''
-<title>Таблица без зубрёжки</title>
-<meta name="description" content="Тренажёр умножения и деления для детей, 6+. Без регистрации, прогресс хранится на вашем устройстве.">
+'''+seo_head('trainer.html',*META['trainer'])+'''
 </head>
 <body>
 <div class="wrap">
@@ -126,6 +268,7 @@ INDEX='''<!doctype html>
       <button type="button" data-v="stickers" hidden>Награды</button>
       <button type="button" data-v="table">Квадрат</button>
       <button type="button" data-v="parent">Родителям</button>
+      <a href="blog.html">Блог</a>
     </nav>
     <button type="button" class="adv-sw" role="switch" aria-checked="false" data-act="adv"><span class="knob" aria-hidden="true"></span>Продвинутый режим</button>
   </header>
@@ -138,19 +281,19 @@ INDEX='''<!doctype html>
 </html>
 '''
 
-def doc_page(title,body):
+HEADER_SIMPLE='<header class="top"><a class="brand" href="./" style="text-decoration:none">'+BRAND+'</a><nav class="nav" aria-label="Разделы"><a href="trainer.html">Тренажёр</a><a href="blog.html">Блог</a></nav></header>'
+def content_page(path,title,desc,kw,inner,ld=(),typ='website',back=True,published=None):
     return '''<!doctype html>
 <html lang="ru">
 <head>
 '''+HEAD_COMMON+'''
-<title>'''+title+''' — Таблица без зубрёжки</title>
-<meta name="robots" content="noindex">
+'''+seo_head(path,title,desc,kw,typ=typ,ld=ld,published=published)+'''
 </head>
 <body class="docpage">
 <div class="wrap">
-  <header class="top"><a class="brand" href="./" style="text-decoration:none">'''+BRAND+'''</a></header>
-  <main><article class="card doc">'''+body+'''</article>
-  <p style="margin-top:14px"><a class="btn ghost" href="trainer.html" style="text-decoration:none;display:inline-flex;align-items:center">← К тренажёру</a></p></main>
+  '''+HEADER_SIMPLE+'''
+  <main><article class="card doc">'''+inner+'''</article>
+  '''+('<p style="margin-top:14px"><a class="btn ghost" href="trainer.html" style="text-decoration:none;display:inline-flex;align-items:center">← К тренажёру</a></p>' if back else '')+'''</main>
   '''+FOOT+'''
 </div>
 </body>
@@ -242,10 +385,10 @@ def landing_body(preview,hero_src):
       +lp_plan('Продвинутый','Всё включено',PRICE_PRO,rows_pro,lp_btn('pro','Выбрать тариф','',preview),True))
     fig=('<figure><img src="%s" alt="Экран тренажёра: объяснение умножения на клеточках" width="%d" height="%d"><figcaption>Так выглядит урок: картинка, короткое объяснение, затем задание.</figcaption></figure>'%((hero_src,)+HERO_WH)) if hero_src else ''
     code=('<button type="button" class="linkb" data-lp="code">ввести код</button>' if preview else '<a href="trainer.html#parent">ввести код</a>')
-    foot=('<footer class="lp-foot"><span class="age" title="Возрастная маркировка">6+</span><a href="offer.html">Оферта</a><a href="privacy.html">Политика конфиденциальности</a><a href="how.html">Как хранятся данные</a><span>Контакты: '+PH('email поддержки')+'</span></footer>')
-    if preview: foot=foot.replace('offer.html','#offer').replace('privacy.html','#privacy').replace('how.html','#how')
+    foot=FOOT
+    if preview: foot=preview_links(foot)
     return '''<div class="lp">
-<header class="lp-top"><span class="brand" style="cursor:default">'''+BRAND+'''</span>'''+('' if preview else '<a href="#tariffs">Тарифы</a>')+'''</header>
+<header class="lp-top"><span class="brand" style="cursor:default">'''+BRAND+'''</span>'''+'<nav class="lp-nav" aria-label="Разделы">'+('<a href="#blog">Блог</a>' if preview else '<a href="#tariffs">Тарифы</a><a href="blog.html">Блог</a>')+'</nav>'+'''</header>
 <section class="lp-hero"><div>
 <p class="kicker">Умножение и деление</p>
 <h1>Таблица умножения без слёз и вечерних скандалов. Ребёнок поймёт, а не просто зазубрит.</h1>
@@ -273,10 +416,7 @@ def landing_body(preview,hero_src):
 <div class="lp-plans">'''+plans+'''</div>
 <p class="lp-note">Платёж один раз, без подписки, доступ без ограничения срока. Сервис предоставляется «как есть». Сначала попробуйте бесплатную версию: возврат средств за цифровой товар надлежащего качества не предусмотрен. Уже купили? Можно '''+code+'''.</p>
 <h2>Вопросы и ответы</h2>
-<details><summary>Нужна ли установка?</summary><p>Нет, всё работает прямо в браузере. Сайт можно добавить на экран «Домой», тогда он откроется как приложение и будет работать без интернета.</p></details>
-<details><summary>Безопасно ли для ребёнка?</summary><p>Да. Мы не собираем персональные данные, нет регистрации, рекламы и аналитики. Прогресс хранится только на вашем устройстве.</p></details>
-<details><summary>Что будет с прогрессом, если сменить телефон?</summary><p>В разделе «Родителям» есть сохранение прогресса в файл и загрузка его на новом устройстве.</p></details>
-<details><summary>Как получить код после оплаты?</summary><p>Оплата проходит на странице платёжного сервиса. После неё там появится код доступа. Введите его в разделе «Родителям» тренажёра, и тариф откроется.</p></details>
+'''+faq_html()+'''
 '''+foot+'''
 </div>'''
 def hero_data():
@@ -285,12 +425,13 @@ def hero_data():
 _hd=hero_data()
 import struct
 HERO_WH=struct.unpack('>II',_hd[16:24]) if _hd else (480,640)
+_pn=lambda s:re.sub(r'\D','',s)
+SOFTAPP_LD={"@context":"https://schema.org","@type":"SoftwareApplication","name":"Таблица без зубрёжки","description":META['index'][1],"url":abs_url(''),"applicationCategory":"EducationalApplication","operatingSystem":"Web (любой современный браузер)","inLanguage":"ru","image":SITE_URL+'/img/og.png',"audience":{"@type":"PeopleAudience","suggestedMinAge":6},"offers":[{"@type":"Offer","name":"Бесплатный","price":"0","priceCurrency":"RUB"},{"@type":"Offer","name":"Стандарт","price":_pn(PRICE_STD),"priceCurrency":"RUB","url":PAY_STD},{"@type":"Offer","name":"Продвинутый","price":_pn(PRICE_PRO),"priceCurrency":"RUB","url":PAY_PRO}]}
 LANDING=('''<!doctype html>
 <html lang="ru">
 <head>
 '''+HEAD_COMMON+'''
-<title>Таблица без зубрёжки: тренажёр умножения и деления для детей</title>
-<meta name="description" content="Интерактивный тренажёр таблицы умножения и деления для 1–5 классов. Объясняет смысл, а не заставляет зубрить. Всего 10 минут в день. Без регистрации.">
+'''+seo_head('',*META['index'],ld=[SOFTAPP_LD,faq_ld()])+'''
 <style>'''+LCSS+'''</style>
 </head>
 <body>
@@ -303,13 +444,28 @@ LANDING=('''<!doctype html>
 # --- боевые файлы
 wr('trainer.html',INDEX)
 wr('index.html',LANDING)
-for k,(t,b) in DOCS.items(): wr(k+'.html',doc_page(t,b))
+ALLDOCS=dict(DOCS); ALLDOCS.update(EXTRA_DOCS)
+for k,(t,body_) in ALLDOCS.items(): wr(k+'.html',content_page(k+'.html',*META[k],body_))
+wr('blog.html',content_page('blog.html',*META['blog'],blog_inner(),ld=[{"@context":"https://schema.org","@type":"Blog","name":"Блог о таблице умножения","url":abs_url('blog.html'),"inLanguage":"ru","blogPost":[{"@type":"BlogPosting","headline":a['h1'],"url":abs_url(a['file']),"datePublished":a['date']} for a in ARTS]}],back=False))
+for a in ARTS: wr(a['file'],content_page(a['file'],a['title'],a['description'],a['keywords'],article_inner(a),ld=[article_ld(a)],typ='article',back=False,published=a['date']))
+# sitemap.xml, robots.txt
+_pages=[('',1.0,'weekly',TODAY),('trainer.html',0.9,'weekly',TODAY),('blog.html',0.8,'weekly',max(a['date'] for a in ARTS))]
+_pages+=[(a['file'],0.7,'monthly',a['date']) for a in ARTS]
+_pages+=[('about.html',0.5,'yearly',TODAY),('contacts.html',0.5,'yearly',TODAY),('partners.html',0.4,'yearly',TODAY),('offer.html',0.3,'yearly',TODAY),('privacy.html',0.3,'yearly',TODAY),('how.html',0.3,'yearly',TODAY),('notice.html',0.3,'yearly',TODAY)]
+wr('sitemap.xml','<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+''.join('  <url>\n    <loc>%s</loc>\n    <lastmod>%s</lastmod>\n    <changefreq>%s</changefreq>\n    <priority>%.1f</priority>\n  </url>\n'%(E(abs_url(p)),lm,cf,pr) for p,pr,cf,lm in _pages)+'</urlset>\n')
+wr('robots.txt','User-agent: *\nAllow: /\nDisallow: /print.html\nDisallow: /print.js\nDisallow: /tools/\nDisallow: /src/\n\nSitemap: '+SITE_URL+'/sitemap.xml\n')
+# service-worker: список страниц
+_sw=rd('service-worker.js'); _pg=['index.html','trainer.html','blog.html','print.html']+[a['file'] for a in ARTS]+[k+'.html' for k in ALLDOCS]
+_sw=re.sub(r"/\*PAGES\*/.*?/\*END\*/","/*PAGES*/ "+", ".join("'%s'"%p for p in _pg)+", /*END*/",_sw,flags=re.S); wr('service-worker.js',_sw)
 
 # --- предпросмотр (один файл для артефакта: без service worker, шрифты с Google Fonts)
 css=rd('app.css')
 js=rd('app.js')
-docs_js=json.dumps({k:b.replace('href="notice.html"','href="#notice"') for k,(t,b) in DOCS.items()},ensure_ascii=False).replace('</','<\\/')
-foot_prev=FOOT.replace('privacy.html','#privacy').replace('how.html','#how').replace('offer.html','#offer').replace('notice.html','#notice')
+_pd={k:preview_links(body_) for k,(t,body_) in ALLDOCS.items()}
+_pd['blog']=preview_links(blog_inner())
+for a in ARTS: _pd[a['file'][:-5]]=preview_links(article_inner(a))
+docs_js=json.dumps(_pd,ensure_ascii=False).replace('</','<\\/')
+foot_prev=preview_links(FOOT)
 LP_PREV=landing_body(True,('data:image/png;base64,'+base64.b64encode(_hd).decode()) if _hd else '')
 prev='''<meta charset="utf-8">
 <title>Таблица без зубрёжки</title>
@@ -333,6 +489,7 @@ prev='''<meta charset="utf-8">
       <button type="button" data-v="stickers" hidden>Награды</button>
       <button type="button" data-v="table">Квадрат</button>
       <button type="button" data-v="parent">Родителям</button>
+      <a href="blog.html">Блог</a>
     </nav>
     <button type="button" class="adv-sw" role="switch" aria-checked="false" data-act="adv"><span class="knob" aria-hidden="true"></span>Продвинутый режим</button>
   </header>
@@ -343,9 +500,10 @@ prev='''<meta charset="utf-8">
 <script>'''+rd('landing.js')+'''</script>
 <script>(function(){var L=document.getElementById('landing'),W=document.getElementById('appwrap');
 function show(h){L.hidden=true;W.hidden=false;window.scrollTo(0,0);if(h==='')document.querySelector('#appwrap .brand').click();else location.hash=h;}
-document.addEventListener('click',function(e){var x=e.target.closest('[data-lp]');if(!x)return;var k=x.dataset.lp;
+document.addEventListener('click',function(e){var x=e.target.closest('[data-lp]');if(!x)return;e.preventDefault();var k=x.dataset.lp;
 if(k==='back'){W.hidden=true;L.hidden=false;window.scrollTo(0,0);return;}
-show(k==='free'?'':(k==='code'?'parent':'buy'));});})();</script>
+show(k==='free'?'':(k==='code'?'parent':'buy'));});
+window.addEventListener('hashchange',function(){if(window.__DOCS__[location.hash.slice(1)]){L.hidden=true;W.hidden=false;window.scrollTo(0,0);}});})();</script>
 <script>
 '''+js+'''
 </script>
@@ -399,5 +557,6 @@ PRINT='''<!doctype html>
 wr('print.html',PRINT)
 wr('print.js',"document.getElementById('pr').addEventListener('click',function(){window.print();});\n")
 
+prev=prev.replace('<a href="blog.html">Блог</a>','<a href="#blog">Блог</a>')
 wr('preview/tablica-preview.html',prev)
 print('built', len(prev))

@@ -1,10 +1,11 @@
 /* Офлайн-режим. Меняйте VERSION при каждом обновлении сайта,
    иначе у пользователей останется старая версия из кэша. */
-const VERSION = 'v9-2026-10-27';
+const VERSION = 'v7-2026-10-27';
 const CACHE = 'tablica-' + VERSION;
 const ASSETS = [
-  './', 'index.html', 'app.css', 'fonts.css', 'app.js',
-  'trainer.html', 'privacy.html', 'img/hero.png', 'how.html', 'offer.html', 'notice.html', 'print.html', 'print.js', 'landing.js', 'manifest.json',
+  './', 'app.css', 'fonts.css', 'app.js',
+  /*PAGES*/ 'index.html', 'trainer.html', 'blog.html', 'print.html', 'blog-tablica-umnozheniya-na-9.html', 'blog-metodika-ahmadullina.html', 'blog-rebenok-ne-ponimaet-tablicu-umnozheniya.html', 'blog-igry-tablica-umnozheniya-1-2-klass.html', 'blog-umnozhenie-na-5-i-10.html', 'privacy.html', 'how.html', 'offer.html', 'notice.html', 'about.html', 'contacts.html', 'partners.html', /*END*/
+  'img/hero.png', 'img/og.png', 'print.js', 'landing.js', 'manifest.json',
   'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png',
   'fonts/rubik-cyrillic-500-normal.woff2', 'fonts/rubik-latin-500-normal.woff2',
   'fonts/rubik-cyrillic-700-normal.woff2', 'fonts/rubik-latin-700-normal.woff2',
