@@ -6,3 +6,5 @@ Disallow: /tools/
 Disallow: /src/
 
 Sitemap: https://umnozhayka.tuqo.ru/sitemap.xml
+
+Sitemap: https://umnozhayka.tuqo.ru/sitemap.xml
