@@ -110,8 +110,8 @@ BRAND='<i aria-hidden="true"><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b
 # ---------- SEO, блог, информационные страницы ----------
 import html as _html, datetime
 SITE_URL=os.environ.get('SITE_URL','https://example.com').rstrip('/')   # адрес сайта: задайте перед выкладкой (README)
-CONTACT_EMAIL=''      # email поддержки; пусто = показывается заглушка [email поддержки]
-CONTACT_TG=''         # ссылка на Telegram, например https://t.me/name; пусто = заглушка
+CONTACT_EMAIL = "labreclama@gmail.com"      # email поддержки; пусто = показывается заглушка [email поддержки]
+CONTACT_TG = "@Andreascors"         # ссылка на Telegram, например https://t.me/name; пусто = заглушка
 TODAY=datetime.date.today().isoformat()
 MONTHS=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря']
 def date_ru(d):
