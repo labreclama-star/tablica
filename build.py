@@ -388,6 +388,7 @@ def landing_body(preview,hero_src):
     foot=FOOT
     if preview: foot=preview_links(foot)
     return '''<div class="lp">
+<main>
 <header class="lp-top"><span class="brand" style="cursor:default">'''+BRAND+'''</span>'''+'<nav class="lp-nav" aria-label="Разделы">'+('<a href="#blog">Блог</a>' if preview else '<a href="#tariffs">Тарифы</a><a href="blog.html">Блог</a>')+'</nav>'+'''</header>
 <section class="lp-hero"><div>
 <p class="kicker">Умножение и деление</p>
