@@ -98,7 +98,7 @@ HEAD_COMMON='''<meta charset="utf-8">
 <meta name="yandex-verification" content="73b3544d9deeac4e" />
 <meta name="google-site-verification" content="oaPBgIsXMc0ltcgUDEdRqV1Kcd8Sn7BnaIkOcplcHh4" />
 <meta name="theme-color" content="#2B59E6">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://mc.yandex.ru https://yastatic.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://mc.yandex.ru; font-src 'self'; connect-src 'self' https://mc.yandex.ru; object-src 'none'; base-uri 'self'; form-action 'self'">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -258,6 +258,7 @@ INDEX='''<!doctype html>
 <head>
 '''+HEAD_COMMON+'''
 '''+seo_head('trainer.html',*META['trainer'])+'''
+<script src="metrika.js" defer></script>
 </head>
 <body>
 <div class="wrap">
@@ -290,6 +291,7 @@ def content_page(path,title,desc,kw,inner,ld=(),typ='website',back=True,publishe
 <head>
 '''+HEAD_COMMON+'''
 '''+seo_head(path,title,desc,kw,typ=typ,ld=ld,published=published)+'''
+<script src="metrika.js" defer></script>
 </head>
 <body class="docpage">
 <div class="wrap">
@@ -436,6 +438,7 @@ LANDING=('''<!doctype html>
 '''+HEAD_COMMON+'''
 '''+seo_head('',*META['index'],ld=[SOFTAPP_LD,faq_ld()])+'''
 <style>'''+LCSS+'''</style>
+<script src="metrika.js" defer></script>
 </head>
 <body>
 '''+landing_body(False,'img/hero.png' if _hd else '')+'''
@@ -542,6 +545,7 @@ PRINT='''<!doctype html>
 .cd .a p{margin:6px 0 0;font-size:15px}
 @media print{.noprint{display:none!important}body{background:#fff}.cd,.pt th,.pt td{border-color:#000}.pt th{background:#eee}.pgb{break-before:page}}
 </style>
+<script src="metrika.js" defer></script>
 </head>
 <body class="docpage">
 <div class="wrap">
