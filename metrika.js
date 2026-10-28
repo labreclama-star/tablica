@@ -40,8 +40,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   document.addEventListener('click', (e) => {
-    const buyBtn = e.target.closest('[data-lp="std"], [data-lp="pro"]');
-    if (buyBtn && typeof window.ym !== 'undefined') {
+    if (typeof window.ym === 'undefined') return;
+    
+    // Клик по кнопке "Попробовать бесплатно" или переход в тренажер с лендинга
+    const tryBtn = e.target.closest('a[href="trainer.html"]');
+    if (tryBtn) {
+      window.ym(YM_ID, 'reachGoal', 'click_try');
+    }
+    
+    // Клик по кнопке оплаты (ссылки ведут на страницу платежного агрегатора)
+    const buyBtn = e.target.closest('a[href*="pay"], a[href*="example.com/pay"], .lp-plan .btn');
+    if (buyBtn) {
       window.ym(YM_ID, 'reachGoal', 'click_buy');
     }
   });
