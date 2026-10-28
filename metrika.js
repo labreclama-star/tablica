@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
   } else if (!consent) {
     const banner = document.createElement('div');
     banner.id = 'cookie-banner';
-    banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:var(--card);padding:16px;border-top:2px solid var(--edge);display:flex;justify-content:space-between;align-items:center;z-index:9999;flex-wrap:wrap;gap:10px;box-shadow:0 -4px 10px rgba(0,0,0,.1);font-family:var(--f-body);';
+    banner.style.cssText = 'position:fixed;bottom:70px;left:16px;right:16px;max-width:800px;margin:0 auto;background:var(--card);padding:16px;border:2px solid var(--edge);border-radius:8px;display:flex;justify-content:space-between;align-items:center;z-index:9999;flex-wrap:wrap;gap:10px;box-shadow:0 4px 12px rgba(0,0,0,.15);font-family:var(--f-body);';
     banner.innerHTML = `
       <p style="margin:0;font-size:15px;max-width:70%;">Мы используем cookie для аналитики (Яндекс.Метрика). Это помогает нам делать сайт лучше. <a href="/privacy.html" style="color:var(--blue);">Подробнее</a>.</p>
       <div style="display:flex;gap:10px;">
