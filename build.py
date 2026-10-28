@@ -96,6 +96,7 @@ DOCS={'privacy':('Политика конфиденциальности',PRIVACY
 HEAD_COMMON='''<meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="yandex-verification" content="73b3544d9deeac4e" />
+<meta name="google-site-verification" content="oaPBgIsXMc0ltcgUDEdRqV1Kcd8Sn7BnaIkOcplcHh4" />
 <meta name="theme-color" content="#2B59E6">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <link rel="manifest" href="manifest.json">
