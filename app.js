@@ -739,7 +739,7 @@ function dueList(){var t=iso(),o=[];for(var k in P.sr){if(P.sr[k].due<=t){var p=
 function shuffle(a){for(var i=a.length-1;i>0;i--){var j=ri(0,i),t=a[i];a[i]=a[j];a[j]=t;}return a;}
 function syncChrome(){var sw=document.querySelector('.adv-sw');if(sw)sw.setAttribute('aria-checked',P.adv?'true':'false');
   var g=document.querySelector('.nav [data-v="games"]');if(g)g.hidden=!can('games');var sk=document.querySelector('.nav [data-v="stickers"]');if(sk)sk.hidden=!can('stickers');}
-function setAdv(on){if(on&&tier()==='free'){go({name:'buy',why:'feature',need:'standard',title:'Продвинутый режим'});return;}
+function setAdv(on){if(on&&tier()==='free'){go({name:'buy',why:'plans'});return;}
   P.adv=!!on;if(!P.adv&&['games','hard','stickers'].indexOf(view.name)>=0)view={name:'home'};save();syncChrome();render();}
 
 /* что вспомнить до объяснения и что рассказать после */
