@@ -393,7 +393,7 @@ def landing_body(preview,hero_src):
     plans=(lp_plan('Бесплатный','Чтобы попробовать','0 ₽',rows_free,lp_btn('free','Попробовать бесплатно','ghost',preview))
       +lp_plan('Стандарт','Всё для изучения таблицы',PRICE_STD,rows_std,lp_btn('std','Выбрать тариф','',preview))
       +lp_plan('Продвинутый','Всё включено',PRICE_PRO,rows_pro,lp_btn('pro','Выбрать тариф','',preview),True))
-    fig=('<figure><img src="%s" alt="Экран тренажёра: объяснение умножения на клеточках" width="%d" height="%d"><figcaption>Так выглядит урок: картинка, короткое объяснение, затем задание.</figcaption></figure>'%((hero_src,)+HERO_WH)) if hero_src else ''
+    fig=('<figure><img src="%s" alt="Экран тренажёра: объяснение умножения на клеточках" title="Урок в тренажёре Умножай-ка" width="%d" height="%d"><figcaption>Так выглядит урок: картинка, короткое объяснение, затем задание.</figcaption></figure>'%((hero_src,)+HERO_WH)) if hero_src else ''
     code=('<button type="button" class="linkb" data-lp="code">ввести код</button>' if preview else '<a href="trainer.html#parent">ввести код</a>')
     foot=FOOT
     if preview: foot=preview_links(foot)
@@ -402,7 +402,7 @@ def landing_body(preview,hero_src):
 <header class="lp-top"><span class="brand" style="cursor:default">'''+BRAND+'''</span>'''+'<nav class="lp-nav" aria-label="Разделы">'+('<a href="#blog">Блог</a>' if preview else '<a href="#tariffs">Тарифы</a><a href="blog.html">Блог</a>')+'</nav>'+THEME_BTN+'''</header>
 <section class="lp-hero"><div>
 <p class="kicker">Умножение и деление</p>
-<h1>Таблица умножения без слёз и вечерних скандалов. Ребёнок поймёт, а не просто зазубрит.</h1>
+<h1>Таблица умножения без слёз и скандалов. Поймёт, а не зазубрит.</h1>
 <p class="lead">Интерактивный тренажёр для 1–5 классов. Превращает скучные столбики в понятную игру. Всего 10 минут в день.</p>
 <p style="margin:20px 0 10px">'''+free+'''</p>
 <p class="small">Без регистрации. Прогресс хранится на вашем устройстве.</p>
