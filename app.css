@@ -331,3 +331,19 @@ summary{padding-block:10px;min-height:44px}
 .modart{display:block;width:calc(100% + 32px);margin:-14px -16px 10px;height:auto;aspect-ratio:300/120;border-radius:6px 6px 0 0}
 .mod{overflow:hidden}
 .card .modart{width:100%;margin:0 0 12px;border-radius:14px;max-height:170px}
+
+/* Фикс прыгающих кнопок в шапке */
+.top { 
+  flex-wrap: nowrap !important; 
+  justify-content: flex-start !important; 
+  overflow-x: auto; 
+}
+.nav { 
+  margin: 0 auto !important; 
+  flex-wrap: nowrap !important; 
+}
+[data-theme-toggle], .adv-sw { 
+  flex-shrink: 0 !important; 
+  margin-left: 10px !important; 
+  white-space: nowrap;
+}
