@@ -332,18 +332,28 @@ summary{padding-block:10px;min-height:44px}
 .mod{overflow:hidden}
 .card .modart{width:100%;margin:0 0 12px;border-radius:14px;max-height:170px}
 
-/* Фикс прыгающих кнопок в шапке */
+/* Гибкая шапка для PWA и десктопа */
 .top { 
-  flex-wrap: nowrap !important; 
-  justify-content: flex-start !important; 
-  overflow-x: auto; 
+  flex-wrap: wrap !important; 
+  justify-content: space-between !important; 
+  gap: 10px !important;
 }
 .nav { 
-  margin: 0 auto !important; 
-  flex-wrap: nowrap !important; 
+  display: flex;
+  flex-wrap: wrap !important; 
+  gap: 4px;
 }
 [data-theme-toggle], .adv-sw { 
   flex-shrink: 0 !important; 
-  margin-left: 10px !important; 
-  white-space: nowrap;
+}
+
+/* Фикс обрезки картинок */
+.hero svg, .demo svg, .card img {
+  max-width: 100%;
+  height: auto !important;
+  object-fit: contain !important;
+}
+.hero {
+  height: auto !important;
+  max-height: 300px;
 }
