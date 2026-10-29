@@ -347,13 +347,19 @@ summary{padding-block:10px;min-height:44px}
   flex-shrink: 0 !important; 
 }
 
-/* Фикс обрезки картинок */
-.hero svg, .demo svg, .card img {
-  max-width: 100%;
+/* Полный фикс обрезки SVG-иллюстраций */
+[class*="art"], [class*="img"], [class*="hero"], .demo svg, .card svg, svg {
   height: auto !important;
+  max-height: none !important;
+  min-height: min-content !important;
+  overflow: visible !important;
+  aspect-ratio: auto !important;
   object-fit: contain !important;
 }
-.hero {
-  height: auto !important;
-  max-height: 300px;
+
+/* Убираем фиксированную высоту у контейнеров с картинками */
+div[class*="art"], div[class*="img"], div[class*="hero"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
