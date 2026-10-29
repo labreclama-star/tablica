@@ -383,12 +383,32 @@ function banners(){
   return o;}
 function locked(i){return PAYWALL&&tier()==='free'&&!FREE_IDS[MODS[i].id];}
 function lockSvg(){return '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" style="vertical-align:-2px;margin-right:4px"><rect x="5" y="11" width="14" height="9" rx="2" fill="currentColor"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2"/></svg>';}
+/* ---------- картинки к блокам уроков (встроенные SVG) ---------- */
+function ensureSprite(){if(!document.getElementById('f-apple'))document.body.insertAdjacentHTML('beforeend',SPRITE);}
+function fu(k,x,y,s){return '<use href="#f-'+k+'" x="'+x+'" y="'+y+'" width="'+s+'" height="'+s+'"/>';}
+function fgrid(k,x,y,cols,rows,s,g){var o='';for(var j=0;j<rows;j++)for(var i=0;i<cols;i++)o+=fu(k,x+i*(s+g),y+j*(s+g),s);return o;}
+function bsk(x,y,w){return '<path d="M'+x+' '+y+'h'+w+'l-6 22h-'+(w-12)+'z" fill="#C98A46"/><rect x="'+(x-3)+'" y="'+(y-3)+'" width="'+(w+6)+'" height="7" rx="3.500" fill="#A86E2F"/>';}
+function tx(x,y,t,s,c){return '<text x="'+x+'" y="'+y+'" font-family="Rubik,Arial,sans-serif" font-weight="800" font-size="'+s+'" fill="'+(c||'#fff')+'" text-anchor="middle">'+t+'</text>';}
+var ART_BG={m1:['#2B59E6','#5B7FF0'],m2:['#7A2FC4','#B05CF0'],m3:['#0E8F6A','#2FC79A'],m4:['#E8590C','#FF9A3D'],m5:['#C2255C','#FF6F91'],m6:['#0B6E99','#35B2E0'],m7:['#2E6F40','#58B878'],m8:['#4B3FD0','#7C6BF0'],m9:['#B8541E','#F08A4B'],m10:['#1E3FB8','#4B7BFF']};
+function modArt(id){
+  var bg=ART_BG[id];if(!bg)return '';ensureSprite();var o='';
+  if(id==='m1'){o=bsk(30,70,100)+fgrid('apple',42,38,4,1,20,4)+bsk(170,70,100)+fgrid('apple',182,38,4,1,20,4)+tx(150,34,'4 × 2',24)+tx(150,112,'4 + 4 = 8',16,'#FFE9A8');}
+  else if(id==='m2'){o=fgrid('pear',30,6,4,3,24,3)+tx(160,56,'↔',36,'#FFE9A8')+fgrid('pear',200,4,3,4,20,3)+tx(75,112,'3 × 4',18)+tx(235,112,'4 × 3',18);}
+  else if(id==='m3'){var c=['#fff','#FFE9A8'];for(var j=0;j<5;j++)for(var i=0;i<5;i++)o+='<rect x="'+(30+i*30)+'" y="'+(8+j*21)+'" width="26" height="18" rx="4" fill="'+c[(i+j)%2]+'" opacity=".9"/>';o+=tx(240,66,'5×5',34)+tx(240,96,'= 25',22,'#FFE9A8');}
+  else if(id==='m4'){o=fu('apple',30,36,36)+tx(48,100,'× 1',20)+fgrid('orange',110,14,5,2,30,4)+tx(210,112,'× 10',22,'#FFE9A8');}
+  else if(id==='m5'){o=fu('melon',24,28,40)+fu('melon',70,28,40)+tx(66,100,'× 2',20)+fgrid('melon',150,10,2,2,34,4)+fgrid('melon',210,10,2,2,34,4)+tx(210,112,'× 4',22,'#FFE9A8');}
+  else if(id==='m6'){o=fgrid('apple',24,20,5,1,34,4)+fgrid('apple',24,64,5,1,34,4)+tx(236,56,'× 5',34)+tx(236,92,'= 10',20,'#FFE9A8');}
+  else if(id==='m7'){for(var i=0;i<10;i++){var h=i===3?26:[44,58,68,60,60,68,58,44,44,44][i]*1;var hh=i===3?26:h;o+='<rect x="'+(24+i*24)+'" y="'+(100-hh)+'" width="18" height="'+hh+'" rx="9" fill="'+(i===3?'#E8B98A':'#FFD9B0')+'"/>';}o+='<rect x="14" y="84" width="256" height="30" rx="14" fill="#FFD9B0"/>'+tx(150,112,'9 × 4 = 36',0,'#fff');o+=tx(285,30,'9×',22)}
+  else if(id==='m8'){o=tx(60,76,'7',72,'#FFE9A8')+tx(130,76,'8',72)+fgrid('pear',190,14,5,3,18,4)+tx(150,112,'3 · 6 · 7 · 8',16);}
+  else if(id==='m9'){o=fgrid('pear',20,12,6,2,22,3)+bsk(20,80,70)+bsk(115,80,70)+bsk(210,80,70)+fgrid('pear',27,60,3,1,18,3)+fgrid('pear',122,60,3,1,18,3)+fgrid('pear',217,60,3,1,18,3)+tx(250,32,'12 ÷ 3',20,'#fff');}
+  else if(id==='m10'){o=fgrid('apple',24,18,4,3,24,4)+tx(165,50,'⇄',46,'#FFE9A8')+tx(235,48,'3 × 4 = 12',15)+tx(235,78,'12 ÷ 3 = 4',15)+tx(235,100,'12 ÷ 4 = 3',15,'#FFE9A8');}
+  return '<svg class="modart" viewBox="0 0 300 120" preserveAspectRatio="xMidYMid slice" role="img" aria-hidden="true" focusable="false"><defs><linearGradient id="ag-'+id+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+bg[0]+'"/><stop offset="1" stop-color="'+bg[1]+'"/></linearGradient></defs><rect width="300" height="120" fill="url(#ag-'+id+')"/><circle cx="270" cy="10" r="46" fill="#fff" opacity=".1"/>'+o+'</svg>';}
 function rHome(){
   var next=null,idx=-1;for(var i=0;i<MODS.length;i++){if(!P.done[MODS[i].id]&&!locked(i)){next=MODS[i];idx=i;break;}}
   var freeDone=!next&&MODS.some(function(m,i){return locked(i);});
   var cards=MODS.map(function(m,i){var d=P.done[m.id];
     var st=d?'<span class="stars" aria-label="'+(P.stars[m.id]||2)+' из 3">'+starsStr(P.stars[m.id]||2)+'</span> пройдено':(locked(i)?lockSvg()+'Стандарт и выше':(next&&next.id===m.id?'Следующий':'Новое'));
-    return '<button type="button" class="mod'+(d?' done':'')+'" data-start="'+m.id+'"><span class="mod-n">Блок '+(i+1)+'</span><span class="mod-tag">'+m.tag+'</span><span class="mod-t">'+m.title+'</span><span class="mod-s">'+st+'</span></button>';}).join('');
+    return '<button type="button" class="mod'+(d?' done':'')+'" data-start="'+m.id+'">'+modArt(m.id)+'<span class="mod-n">Блок '+(i+1)+'</span><span class="mod-tag">'+m.tag+'</span><span class="mod-t">'+m.title+'</span><span class="mod-s">'+st+'</span></button>';}).join('');
   var today=next?'<div><b>Сегодня: блок '+(idx+1)+'</b><span>'+next.title+'. Хватит 5–10 минут.</span></div><button type="button" class="btn" data-start="'+next.id+'">'+(idx===0&&!Object.keys(P.done).length?'Начать':'Продолжить')+'</button>':'<div><b>Все блоки пройдены</b><span>Тренажёр подберёт примеры, которые пока даются труднее.</span></div><button type="button" class="btn" data-v="train">В тренажёр</button>';
   if(freeDone)today='<div><b>Бесплатные блоки пройдены</b><span>Остальные блоки откроет Стандарт.</span></div><button type="button" class="btn" data-v="buy">Открыть все блоки</button>';
   app.innerHTML=banners()+'<section class="card lift"><p class="kicker">Умножение и деление</p><h1>Таблица без зубрёжки</h1><p class="lead" style="margin-top:12px">Сначала понимаем, потом запоминаем. В каждом блоке коротко объясняем, даём несколько задач и проверку. Не понял? Нажми «Объясни по-другому». Ошибка здесь часть учёбы.</p><div class="today">'+today+'</div></section><h2>Блоки</h2><div class="mods">'+cards+'</div><p class="small" style="margin-top:18px">Один блок удобно проходить 3–7 дней: в первый день урок и проверка, потом по 5 минут в тренажёре.</p>';homeAdv();}
@@ -423,7 +443,7 @@ function variantsFor(it){
 function rExplain(it){
   var vs=variantsFor(it);if(it.v===undefined)it.v=0;
   var card=h('<section class="card lift"></section>');
-  card.innerHTML=barHtml()+'<div class="phase">'+(it.alt?'Посмотрим по-другому':'Узнаём')+'</div>'+((can('stickers')&&it.first&&!it.alt)?hero(it.mod.id,64):'')+((it.first&&!it.alt)?'<p class="goal">'+it.mod.goal+'</p>':'')+'<h3>'+it.step.title+'</h3><p class="expl" id="expl" aria-live="polite"></p><p class="vcap small" id="vcap"></p><div class="demo"></div><div class="row act"></div>';
+  card.innerHTML=barHtml()+'<div class="phase">'+(it.alt?'Посмотрим по-другому':'Узнаём')+'</div>'+((can('stickers')&&it.first&&!it.alt)?hero(it.mod.id,64):'')+((it.first&&!it.alt)?modArt(it.mod.id):'')+((it.first&&!it.alt)?'<p class="goal">'+it.mod.goal+'</p>':'')+'<h3>'+it.step.title+'</h3><p class="expl" id="expl" aria-live="polite"></p><p class="vcap small" id="vcap"></p><div class="demo"></div><div class="row act"></div>';
   function paint(){card.querySelector('#expl').textContent=vs[it.v%vs.length];card.querySelector('#vcap').textContent=vs.length>1?'Объяснение '+(it.v%vs.length+1)+' из '+vs.length:'';}
   paint();
   it.step.mount(card.querySelector('.demo'));sayBox(card,it);
@@ -432,18 +452,65 @@ function rExplain(it){
   if(vs.length>1){var al=h('<button type="button" class="btn ghost alt">'+ICON+'Объясни по-другому</button>');
     al.onclick=function(){it.v++;countAlt();paint();var e=card.querySelector('#expl');e.classList.remove('swap');void e.offsetWidth;e.classList.add('swap');};rw.appendChild(al);}
   if(can('tts')){var sp=ttsBtn(function(){return it.step.title+'. '+vs[it.v%vs.length];});if(sp)rw.appendChild(sp);}
+  if(VIS_MOD[it.mod.id]){var vw=visWidget(function(){return VIS_MOD[it.mod.id];},true);rw.appendChild(vw.btn);rw.parentNode.insertBefore(vw.panel,rw);}
   var nx=h('<button type="button" class="btn">Дальше</button>');nx.onclick=function(){R.i++;render();window.scrollTo(0,0);};rw.appendChild(nx);
   app.appendChild(card);app.insertAdjacentHTML('beforeend',restNote());}
 
 var OKS=['Верно!','Да, точно!','Правильно!','Отлично!'];
 var TRY=['Почти. Давай посмотрим вместе.','Хорошая попытка. Вот подсказка.','Тут легко запутаться. Смотри.'];
+/* ---------- «Показать визуально»: инфографика с корзинками и фруктами ---------- */
+var FRUITS=[['apple','яблоки'],['pear','груши'],['melon','арбузы'],['orange','апельсины']];
+var SPRITE='<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>'
+ +'<symbol id="f-apple" viewBox="0 0 24 24"><path d="M12 6.5c-2-1.6-7-1.4-7 4.6 0 4.6 3 9.4 5.2 9.4 1 0 1.2-.6 1.8-.6s.8.6 1.8.6c2.2 0 5.2-4.800 5.200-9.400 0-6-5-6.200-7-4.600z" fill="#E5383B"/><path d="M12 6.500c0-2 1-3.500 2.800-4" stroke="#6B4423" stroke-width="1.600" fill="none" stroke-linecap="round"/><path d="M13 5c1.500-1.800 3.500-1.800 4.500-1-1 1.800-3 2.400-4.500 1z" fill="#3DBE7A"/></symbol>'
+ +'<symbol id="f-pear" viewBox="0 0 24 24"><path d="M12 5c-2 0-2.600 2.200-3 3.600C8.400 10.600 5 12 5 16c0 3.400 3 5.500 7 5.500s7-2.100 7-5.500c0-4-3.400-5.400-4-7.400C14.600 7.200 14 5 12 5z" fill="#A9D43C"/><path d="M12 5c0-1.600.8-2.800 2-3.400" stroke="#6B4423" stroke-width="1.600" fill="none" stroke-linecap="round"/><path d="M9 14c0 2 .8 3.400 2 4" stroke="#fff" stroke-opacity=".5" stroke-width="1.600" fill="none" stroke-linecap="round"/></symbol>'
+ +'<symbol id="f-melon" viewBox="0 0 24 24"><path d="M2.500 9a9.500 9.500 0 0 0 19 0z" fill="#E5383B"/><path d="M2.500 9h19a9.500 9.500 0 0 1-.4 2.800H2.900A9.500 9.500 0 0 1 2.500 9z" fill="#3DBE7A"/><path d="M2.900 11.800h18.200" stroke="#E9F7C8" stroke-width="1.200"/><circle cx="8" cy="14.500" r=".9" fill="#222"/><circle cx="12" cy="16.500" r=".9" fill="#222"/><circle cx="16" cy="14.500" r=".9" fill="#222"/></symbol>'
+ +'<symbol id="f-orange" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8.500" fill="#FF9A1F"/><path d="M12 4.500c0-1.200.6-2 1.600-2.500" stroke="#6B4423" stroke-width="1.400" fill="none" stroke-linecap="round"/><path d="M12.500 5c1.600-1.600 4-1.400 5-.4-1.400 1.600-3.600 1.800-5 .4z" fill="#3DBE7A"/><path d="M7.500 11c.6-1.800 2-3 3.800-3.200" stroke="#fff" stroke-opacity=".45" stroke-width="1.600" fill="none" stroke-linecap="round"/></symbol>'
+ +'</defs></svg>';
+var VISICON='<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M12 5c-5 0-9 4.500-10 7 1 2.500 5 7 10 7s9-4.500 10-7c-1-2.500-5-7-10-7z" fill="none" stroke="currentColor" stroke-width="2.200" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.200" fill="currentColor"/></svg>';
+var VIS_MOD={m1:[{t:'mul',a:4,b:2},{t:'mul',a:3,b:4},{t:'mul',a:5,b:3}],m2:[{t:'mul',a:3,b:4},{t:'mul',a:4,b:3},{t:'mul',a:2,b:5},{t:'mul',a:5,b:2}],m3:[{t:'mul',a:3,b:3},{t:'mul',a:4,b:4},{t:'mul',a:5,b:5}],
+ m4:[{t:'mul',a:6,b:1},{t:'mul',a:10,b:3},{t:'mul',a:10,b:4}],m5:[{t:'mul',a:2,b:6},{t:'mul',a:4,b:3},{t:'mul',a:4,b:5}],m6:[{t:'mul',a:5,b:4},{t:'mul',a:5,b:6},{t:'mul',a:10,b:3}],
+ m7:[{t:'mul',a:9,b:3},{t:'mul',a:9,b:4},{t:'mul',a:9,b:2}],m8:[{t:'mul',a:3,b:6},{t:'mul',a:7,b:3},{t:'mul',a:6,b:4}],m9:[{t:'div',n:12,d:3},{t:'div',n:20,d:4},{t:'div',n:15,d:5}],m10:[{t:'div',n:12,d:3},{t:'div',n:18,d:3},{t:'div',n:24,d:4}]};
+function visSpec(q){var m=q&&q.meta;if(!m)return null;
+  if(m.t==='mul'&&m.a>=1&&m.b>=1&&m.a<=10&&m.b<=10)return {t:'mul',a:m.a,b:m.b};
+  if(m.t==='div'&&m.d>=2&&m.d<=10&&m.n/m.d<=10&&m.n%m.d===0)return {t:'div',n:m.n,d:m.d};return null;}
+function fIcons(k,n,cls){var s='';for(var i=0;i<n;i++)s+='<svg class="vf" viewBox="0 0 24 24" aria-hidden="true"><use href="#f-'+k+'"/></svg>';return '<div class="'+cls+'">'+s+'</div>';}
+function visHtml(s,reveal){
+  var fr=FRUITS[((s.a||s.n)+(s.b||s.d))%4],k=fr[0],out='',per=s.t==='mul'?s.a:s.n/s.d,cnt=s.t==='mul'?s.b:s.d,tot=s.t==='mul'?s.a*s.b:s.n;
+  var baskets='';
+  for(var i=0;i<cnt;i++){
+    var inner=(s.t==='div'&&!reveal)?'<div class="vfs vempty"><span>?</span></div>':fIcons(k,per,'vfs');
+    baskets+='<div class="vbk">'+inner+'<div class="vb"><span>'+((s.t==='div'&&!reveal)?'?':per)+'</span></div></div>';}
+  out+='<p class="vis-t">Считаем '+fr[1]+'</p>';
+  if(s.t==='div')out+='<div class="vis-pile" aria-label="Всего '+s.n+'">'+fIcons(k,s.n,'vfs')+'<span class="vtot">Всего '+s.n+'</span></div>';
+  out+='<div class="vis-baskets" role="img" aria-label="'+cnt+' корзинок, в каждой '+per+'">'+baskets+'</div>';
+  if(s.t==='mul'){
+    var sum=cnt<=7?Array(cnt).fill(per).join(' + '):per+' + '+per+' + … ('+cnt+' раз)';
+    out+='<p class="vis-x"><b>Корзинок: '+cnt+'.</b> В каждой: '+per+' <svg class="vf vf-i" viewBox="0 0 24 24" aria-hidden="true"><use href="#f-'+k+'"/></svg></p>'
+      +'<p class="vis-eq">'+sum+' = <b>'+(reveal?tot:'?')+'</b></p>'
+      +'<p class="vis-eq">Короче: '+s.a+' × '+s.b+' = <b>'+(reveal?tot:'?')+'</b></p>'
+      +(reveal&&s.a!==s.b?'<p class="vis-x">Переставим: '+s.b+' корзинок по '+s.a+'? Нет, теперь корзинок '+s.a+', а в каждой '+s.b+'. Всего всё равно '+tot+'.</p>':'')
+      +(!reveal?'<p class="vis-x">Сосчитай фрукты в одной корзинке и сложи столько раз, сколько корзинок.</p>':'');
+  }else{
+    out+='<p class="vis-x"><b>Раскладываем '+s.n+' поровну в '+s.d+' корзинок.</b></p>'
+      +'<p class="vis-eq">'+s.n+' ÷ '+s.d+' = <b>'+(reveal?per:'?')+'</b></p>'
+      +'<p class="vis-eq">Проверим умножением: '+s.d+' × '+(reveal?per:'?')+' = '+s.n+'</p>';}
+  return out;}
+function visWidget(getSpecs,reveal){
+  var btn=h('<button type="button" class="btn ghost vis-btn" aria-expanded="false">'+VISICON+'<span>Показать визуально</span></button>'),
+      panel=h('<div class="vis-panel" hidden></div>'),k=0,specs=null;
+  if(!document.getElementById('f-apple'))document.body.insertAdjacentHTML('beforeend',SPRITE);
+  function paint(){panel.innerHTML=visHtml(specs[k%specs.length],reveal)+(specs.length>1?'<button type="button" class="btn ghost vis-next">Другой пример</button>':'');
+    var n=panel.querySelector('.vis-next');if(n)n.onclick=function(){k++;paint();};}
+  btn.onclick=function(){specs=specs||getSpecs();var open=panel.hidden;panel.hidden=!open;btn.setAttribute('aria-expanded',open?'true':'false');btn.querySelector('span').textContent=open?'Скрыть картинку':'Показать визуально';if(open)paint();};
+  return {btn:btn,panel:panel};}
 function rAsk(it){
   var q=it.q;if(it.w===undefined)it.w=0;
   var card=h('<section class="card lift"></section>');
-  card.innerHTML=barHtml()+'<div class="phase">'+(R.mode==='train'?'Тренажёр':it.phase)+'</div><p class="ask-lead">'+q.lead+'</p>'+(q.vis||'')+'<div class="eq">'+q.eq+'</div><div class="answer"><input class="ans" id="ans" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="Твой ответ"><button type="button" class="btn" id="chk">Проверить</button></div><div id="fb" aria-live="polite"></div><div class="row" style="margin-top:14px"><button type="button" class="btn ghost alt" id="alt">'+ICON+'Объясни по-другому</button></div>';
+  card.innerHTML=barHtml()+'<div class="phase">'+(R.mode==='train'?'Тренажёр':it.phase)+'</div><p class="ask-lead">'+q.lead+'</p>'+(q.vis||'')+'<div class="eq">'+q.eq+'</div><div class="answer"><input class="ans" id="ans" type="text" inputmode="numeric" enterkeyhint="go" pattern="[0-9]*" autocomplete="off" aria-label="Твой ответ"><button type="button" class="btn" id="chk">Проверить</button></div><div id="fb" aria-live="polite"></div><div class="row" style="margin-top:14px"><button type="button" class="btn ghost alt" id="alt">'+ICON+'Объясни по-другому</button></div>';
   app.appendChild(card);app.insertAdjacentHTML('beforeend',restNote());
   var inp=card.querySelector('#ans'),chk=card.querySelector('#chk'),fb=card.querySelector('#fb'),alt=card.querySelector('#alt');
   inp.focus({preventScroll:true});
+  var vsp=visSpec(q);if(vsp){var vq=visWidget(function(){return [vsp];},false),rq=card.querySelector('.row');rq.appendChild(vq.btn);rq.parentNode.insertBefore(vq.panel,rq);}
   if(can('tts')){var sp2=ttsBtn(function(){return q.lead+' '+q.eq;});if(sp2)card.querySelector('.row').appendChild(sp2);}
   function next(){R.i++;render();window.scrollTo(0,0);}
   function done(msg){
@@ -469,7 +536,7 @@ function rAsk(it){
     if(it.w===2){
       fb.innerHTML='<div class="fb try"><strong>Давай объясню по-другому.</strong><div class="hint">'+simpleHint(q)+'</div><span>Попробуй ещё раз.</span></div>';inp.focus();return;}
     fb.innerHTML='<div class="fb try"><strong>'+TRY[(it.w-1)%TRY.length]+'</strong><div class="hint">'+hint(q,it.w)+'</div>'+(can('compare')?compareHtml(q,v):'')+'<span>Попробуй ещё раз.</span></div>';inp.focus();}
-  chk.onclick=check;inp.onkeydown=function(e){if(e.key==='Enter')check();};}
+  chk.onclick=check;inp.onkeydown=function(e){if(e.key==='Enter'||e.keyCode===13)check();};}
 
 /* перемена: проба Струпа, без баллов и без таймера */
 var SC=[['красный','var(--c-red)'],['синий','var(--c-blue)'],['зелёный','var(--c-green)'],['фиолетовый','var(--c-purple)']];
@@ -523,7 +590,7 @@ function tryCode(code,msg,ok){
 function codeForm(){return '<div class="answer"><input class="ans" style="width:14ch;font-size:24px" id="code" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Код доступа"><button type="button" class="btn" id="codego">Открыть доступ</button></div><p class="small" id="codemsg" aria-live="polite"></p>';}
 function wireCode(after){var inp=document.getElementById('code'),msg=document.getElementById('codemsg');
   function go2(){tryCode(inp.value,msg,after);}
-  document.getElementById('codego').onclick=go2;inp.onkeydown=function(e){if(e.key==='Enter')go2();};}
+  document.getElementById('codego').onclick=go2;inp.onkeydown=function(e){if(e.key==='Enter'||e.keyCode===13)go2();};}
 function planHtml(name,price,url,items,pro){
   return '<div class="plan'+(pro?' pro':'')+'"><h3>'+name+'</h3><p class="price">'+price+' <span class="small">один раз</span></p><ul>'+items.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul><a class="btn'+(pro?'':' ghost')+'" href="'+url+'" rel="noopener" target="_blank">Купить '+name+'</a></div>';}
 function plansHtml(){
@@ -737,7 +804,7 @@ function rChoice(it){
 /* вопрос «что ты помнишь» до объяснения */
 function rPre(it){
   var d=PRE[it.mod.id],card=h('<section class="card lift"></section>');
-  card.innerHTML=barHtml()+'<div class="phase">Сначала вспомним</div><p class="ask-lead">'+d.lead+'</p><div class="eq sm">'+d.eq+'</div><p class="small">Угадай. Ошибиться не страшно: сейчас всё разберём.</p><div class="answer"><input class="ans" id="ans" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="Твой ответ"><button type="button" class="btn" id="chk">Ответить</button><button type="button" class="btn ghost" id="idk">Не знаю</button></div><div id="fb" aria-live="polite"></div>';
+  card.innerHTML=barHtml()+'<div class="phase">Сначала вспомним</div><p class="ask-lead">'+d.lead+'</p><div class="eq sm">'+d.eq+'</div><p class="small">Угадай. Ошибиться не страшно: сейчас всё разберём.</p><div class="answer"><input class="ans" id="ans" type="text" inputmode="numeric" enterkeyhint="go" pattern="[0-9]*" autocomplete="off" aria-label="Твой ответ"><button type="button" class="btn" id="chk">Ответить</button><button type="button" class="btn ghost" id="idk">Не знаю</button></div><div id="fb" aria-live="polite"></div>';
   app.appendChild(card);
   var inp=card.querySelector('#ans'),chk=card.querySelector('#chk'),idk=card.querySelector('#idk'),fb=card.querySelector('#fb'),done=false;
   inp.focus({preventScroll:true});
@@ -745,7 +812,7 @@ function rPre(it){
   function fin(msg){done=true;inp.disabled=true;idk.hidden=true;chk.textContent='Дальше';chk.onclick=next;chk.focus();fb.innerHTML=msg;}
   function check(){if(done){next();return;}var v=parseInt(inp.value,10);if(isNaN(v)){inp.focus();return;}
     fin(v===d.ans?'<div class="fb ok"><strong>Ты уже многое знаешь!</strong><span>Сейчас разберёмся, почему так.</span></div>':'<div class="fb"><strong>Правильный ответ: '+d.ans+'.</strong><span>Сейчас разберёмся, как к нему прийти.</span></div>');}
-  chk.onclick=check;inp.onkeydown=function(e){if(e.key==='Enter')check();};
+  chk.onclick=check;inp.onkeydown=function(e){if(e.key==='Enter'||e.keyCode===13)check();};
   idk.onclick=function(){fin('<div class="fb"><strong>Ничего страшного.</strong><span>Правильный ответ: '+d.ans+'. Сейчас разберёмся, как к нему прийти.</span></div>');};}
 
 /* объяснить вслух */
@@ -788,11 +855,11 @@ function startFinal(){
 function allowedFactsAll(){var o=[];for(var a=2;a<=10;a++)for(var b=a;b<=10;b++)o.push([a,b]);return o;}
 function rFinalQ(it){
   var q=it.q,last=R.i===R.items.length-1,card=h('<section class="card lift"></section>');
-  card.innerHTML=barHtml()+'<div class="phase">Итоговая проверка</div><p class="step-n">Задание '+(R.i+1)+' из '+R.items.length+'</p><p class="ask-lead">'+q.lead+'</p><div class="eq">'+q.eq+'</div><div class="answer"><input class="ans" id="ans" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="Твой ответ"><button type="button" class="btn" id="chk">'+(last?'Закончить':'Дальше')+'</button></div><p class="small">Здесь нет подсказок: так видно, что ты знаешь сам. Если не знаешь, оставь поле пустым и нажми кнопку.</p>';
+  card.innerHTML=barHtml()+'<div class="phase">Итоговая проверка</div><p class="step-n">Задание '+(R.i+1)+' из '+R.items.length+'</p><p class="ask-lead">'+q.lead+'</p><div class="eq">'+q.eq+'</div><div class="answer"><input class="ans" id="ans" type="text" inputmode="numeric" enterkeyhint="go" pattern="[0-9]*" autocomplete="off" aria-label="Твой ответ"><button type="button" class="btn" id="chk">'+(last?'Закончить':'Дальше')+'</button></div><p class="small">Здесь нет подсказок: так видно, что ты знаешь сам. Если не знаешь, оставь поле пустым и нажми кнопку.</p>';
   app.appendChild(card);
   var inp=card.querySelector('#ans');inp.value=it.val===undefined||it.val===null?'':String(it.val);inp.focus({preventScroll:true});
   function go2(){var v=parseInt(inp.value,10);it.val=isNaN(v)?null:v;R.i++;render();window.scrollTo(0,0);}
-  card.querySelector('#chk').onclick=go2;inp.onkeydown=function(e){if(e.key==='Enter')go2();};}
+  card.querySelector('#chk').onclick=go2;inp.onkeydown=function(e){if(e.key==='Enter'||e.keyCode===13)go2();};}
 function finishFinal(){
   var ok=0,wrong=[];
   R.items.forEach(function(it){var q=it.q,good=it.val===q.answer;if(good)ok++;else wrong.push(q);if(q.fact)rec(q.fact,good);});
@@ -1078,6 +1145,12 @@ document.addEventListener('click',function(e){
   var hd=e.target.closest('[data-hard]');if(hd){go({name:'hard',k:hd.dataset.hard||null});return;}
   var gg=e.target.closest('[data-g]');if(gg){go({name:'games',g:gg.dataset.g||null});return;}
   var v=e.target.closest('[data-v]');if(v){NAMES.run='home';if(v.dataset.v==='train')R=null;if(location.hash&&PREVIEW)history.replaceState(null,'',location.pathname+location.search);go({name:v.dataset.v});}});
+/* экранная клавиатура на телефонах: не даём ей закрыть поле ответа и кнопку */
+function revealField(){var a=document.activeElement;if(!a||(a.tagName!=='INPUT'&&a.tagName!=='TEXTAREA'))return;
+  var box=a.closest('.answer')||a,r=box.getBoundingClientRect(),vv=window.visualViewport,h=vv?vv.height:window.innerHeight,top=vv?vv.offsetTop:0;
+  if(r.bottom+16>top+h)window.scrollBy(0,r.bottom+16-(top+h));}
+document.addEventListener('focusin',function(e){if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')setTimeout(revealField,350);});
+if(window.visualViewport)window.visualViewport.addEventListener('resize',function(){setTimeout(revealField,60);});
 window.addEventListener('hashchange',route);
 setInterval(function(){if(!document.hidden&&(view.name==='run'||view.name==='train'||view.name==='table')){var k=dayKey();if(P.days[k]===undefined)P.sessions=(P.sessions||0)+1;P.days[k]=(P.days[k]||0)+5;save();}},5000);
 if(!PREVIEW&&'serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){window.addEventListener('load',function(){navigator.serviceWorker.register('service-worker.js').catch(function(){});});}

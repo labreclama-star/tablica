@@ -2,9 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="yandex-verification" content="73b3544d9deeac4e" />
-<meta name="google-site-verification" content="oaPBgIsXMc0ltcgUDEdRqV1Kcd8Sn7BnaIkOcplcHh4" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
 <meta name="theme-color" content="#2B59E6">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://mc.yandex.ru https://yastatic.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://mc.yandex.ru; font-src 'self'; connect-src 'self' https://mc.yandex.ru; object-src 'none'; base-uri 'self'; form-action 'self'">
 <link rel="manifest" href="manifest.json">
@@ -15,6 +13,7 @@
 <meta name="apple-mobile-web-app-title" content="Таблица">
 <link rel="stylesheet" href="fonts.css">
 <link rel="stylesheet" href="app.css">
+<script src="theme.js"></script>
 <title>Таблица умножения без слёз: онлайн-тренажёр для детей 1–5 классов</title>
 <meta name="description" content="Интерактивный тренажёр таблицы умножения и деления для 1–5 классов. Объясняет смысл наглядно, без зубрёжки. Попробуйте бесплатно, без регистрации.">
 <meta name="keywords" content="таблица умножения, тренажёр таблицы умножения, умножение для детей, таблица умножения онлайн, как выучить таблицу умножения">
@@ -82,18 +81,20 @@
 @media(max-width:780px){.lp-hero{grid-template-columns:1fr}.lp-sec{grid-template-columns:1fr}}
 </style>
 <script src="metrika.js" defer></script>
+<meta name="yandex-verification" content="73b3544d9deeac4e" />
+<meta name="google-site-verification" content="oaPBgIsXMc0ltcgUDEdRqV1Kcd8Sn7BnaIkOcplcHh4" />
 </head>
 <body>
 <div class="lp">
 <main>
-<header class="lp-top"><span class="brand" style="cursor:default"><i aria-hidden="true"><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b></i>Таблица без зубрёжки</span><nav class="lp-nav" aria-label="Разделы"><a href="#tariffs">Тарифы</a><a href="blog.html">Блог</a></nav></header>
+<header class="lp-top"><span class="brand" style="cursor:default"><i aria-hidden="true"><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b></i>Таблица без зубрёжки</span><nav class="lp-nav" aria-label="Разделы"><a href="#tariffs">Тарифы</a><a href="blog.html">Блог</a></nav><button type="button" class="theme-sw" data-theme-toggle aria-label="Включить тёмную тему" aria-pressed="false"><svg class="ic-moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z" fill="currentColor"/></svg><svg class="ic-sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="theme-txt">Тёмная</span></button></header>
 <section class="lp-hero"><div>
 <p class="kicker">Умножение и деление</p>
 <h1>Таблица умножения без слёз и вечерних скандалов. Ребёнок поймёт, а не просто зазубрит.</h1>
 <p class="lead">Интерактивный тренажёр для 1–5 классов. Превращает скучные столбики в понятную игру. Всего 10 минут в день.</p>
 <p style="margin:20px 0 10px"><a class="btn big" href="trainer.html">Попробовать бесплатно</a></p>
 <p class="small">Без регистрации. Прогресс хранится на вашем устройстве.</p>
-</div><figure><img src="img/hero.png" alt="Экран тренажёра: объяснение умножения на клеточках" width="512" height="800"><figcaption>Так выглядит урок: картинка, короткое объяснение, затем задание.</figcaption></figure></section>
+</div><figure><img src="img/hero.png" alt="Экран тренажёра: объяснение умножения на клеточках" width="672" height="1049"><figcaption>Так выглядит урок: картинка, короткое объяснение, затем задание.</figcaption></figure></section>
 <section class="card lift lp-demo" id="demo-sec"><h2>Попробуй прямо сейчас</h2>
 <p class="lead">Проверьте сами. Нажмите на кнопку, чтобы увидеть, как сервис объясняет сложный пример. Никакой регистрации.</p>
 <div class="demo"><div class="eq">7 × 8 = ?</div><div id="dx" aria-live="polite"></div><div class="row"><button type="button" class="btn ghost alt" id="dbtn">Покажи, как посчитать</button></div><noscript><p class="small">Для демо нужен включённый JavaScript.</p></noscript></div>
@@ -119,6 +120,7 @@
 <details><summary>Что будет с прогрессом, если сменить телефон?</summary><p>В разделе «Родителям» есть сохранение прогресса в файл и загрузка его на новом устройстве.</p></details>
 <details><summary>Как получить код после оплаты?</summary><p>Оплата проходит на странице платёжного сервиса. После неё там появится код доступа. Введите его в разделе «Родителям» тренажёра, и тариф откроется.</p></details>
 <footer class="foot"><span class="age" title="Возрастная маркировка">6+</span><a href="about.html">О нас</a><a href="blog.html">Блог</a><a href="partners.html">Для партнёров</a><a href="contacts.html">Связаться с нами</a><a href="offer.html">Оферта</a><a href="privacy.html">Политика конфиденциальности</a><a href="how.html">Как хранятся данные</a><a href="notice.html">Уведомление о хранении данных</a></footer>
+</main>
 </div>
 <script src="landing.js" defer></script>
 </body>
