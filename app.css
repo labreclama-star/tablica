@@ -50,7 +50,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 /* карточки */
 .card{background:var(--card);border:2px solid var(--edge);border-radius:8px;padding:clamp(16px,4vw,26px)}
 .lift{box-shadow:4px 4px 0 var(--edge)}
-.kicker{font:700 15px var(--f-head);font-size:22px;color:var(--blue);margin:0 0 4px}
+.kicker{font:700 15px var(--f-hand);font-size:22px;color:var(--blue);margin:0 0 4px}
 .lead{color:var(--ink2);max-width:62ch}
 .mono{font-family:var(--f-head);font-weight:500}
 .small{font-size:15px;color:var(--ink2)}
@@ -287,12 +287,12 @@ mark.ph{background:var(--yellow);color:var(--on-yellow);padding:0 .2em;border-ra
 .related{display:grid;gap:6px;padding-left:20px}
 
 /* ---- переключатель темы ---- */
-.theme-sw{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;min-width:44px;padding:6px 12px;background:var(--card);border:2px solid var(--edge);border-radius:22px;font:700 15px var(--f-head);color:var(--ink)}
-.theme-sw svg{width:20px;height:20px;flex:none}
+.theme-sw{display:inline-flex;align-items:center;justify-content:center;flex:none;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;background:var(--card);border:2px solid var(--edge);border-radius:50%;color:var(--ink)}
+.theme-sw svg{width:22px;height:22px;flex:none}
+.theme-sw .theme-txt{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .theme-sw .ic-sun{display:none}
 :root[data-theme="dark"] .theme-sw .ic-sun{display:block}
 :root[data-theme="dark"] .theme-sw .ic-moon{display:none}
-@media (max-width:520px){.theme-sw{padding:6px 10px}.theme-sw .theme-txt{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}}
 
 /* ---- сенсорные экраны: крупные области нажатия ---- */
 button,.btn,summary,.opt,.mod,.grow,.nav a,label.btn{touch-action:manipulation;-webkit-tap-highlight-color:rgba(43,89,230,.22)}
@@ -328,38 +328,6 @@ summary{padding-block:10px;min-height:44px}
 @media (max-width:440px){.vfs{grid-template-columns:repeat(var(--vc,5),22px)}.vfs .vf{width:22px;height:22px}.vb{min-width:66px}}
 
 /* ---- картинки блоков ---- */
-.modart{display:block;width:calc(100% + 32px);margin:-14px -16px 10px;height:auto;aspect-ratio:300/120;border-radius:6px 6px 0 0}
+.modart{display:block;flex:none;align-self:start;width:calc(100% + 32px);max-width:none;margin:-14px -16px 10px;height:auto;aspect-ratio:300/120;border-radius:6px 6px 0 0;overflow:hidden}
 .mod{overflow:hidden}
 .card .modart{width:100%;margin:0 0 12px;border-radius:14px;max-height:170px}
-
-/* Гибкая шапка для PWA и десктопа */
-.top { 
-  flex-wrap: wrap !important; 
-  justify-content: space-between !important; 
-  gap: 10px !important;
-}
-.nav { 
-  display: flex;
-  flex-wrap: wrap !important; 
-  gap: 4px;
-}
-[data-theme-toggle], .adv-sw { 
-  flex-shrink: 0 !important; 
-}
-
-/* Полный фикс обрезки SVG-иллюстраций */
-[class*="art"], [class*="img"], [class*="hero"], .demo svg, .card svg, svg {
-  height: auto !important;
-  max-height: none !important;
-  min-height: min-content !important;
-  overflow: visible !important;
-  aspect-ratio: auto !important;
-  object-fit: contain !important;
-}
-
-/* Убираем фиксированную высоту у контейнеров с картинками */
-div[class*="art"], div[class*="img"], div[class*="hero"] {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}

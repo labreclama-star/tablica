@@ -22,7 +22,7 @@ var CODES_PRO=["0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c
 var RANK={free:0,standard:1,pro:2},TIER_NAME={free:'Бесплатный',standard:'Стандарт',pro:'Продвинутый'};
 /* какой тариф нужен для каждой возможности продвинутого режима */
 var FEAT={anchors:'standard',story:'standard',mix:'standard',hard:'standard',compare:'standard',goals:'standard',final:'standard',
-  pre:'pro',sr:'pro',pickx:'pro',say:'pro',games:'pro',stickers:'pro',tts:'pro',tips:'pro',week:'pro',print:'pro'};
+  pre:'pro',sr:'pro',pickx:'pro',say:'pro',games:'pro',stickers:'pro',tips:'pro',week:'pro',print:'pro'};
 function tier(){return RANK[P.tier]!==undefined?P.tier:'free';}
 function can(f){return !!P.adv&&RANK[tier()]>=RANK[FEAT[f]];}
 
@@ -80,7 +80,7 @@ function rec(f,ok){if(!f)return;var k=fk(f);var s=P.stats[k]||(P.stats[k]={ok:0,
 
 /* ---------- наглядность ---------- */
 function rect(a,b,o){o=o||{};var s='';for(var r=0;r<b;r++)for(var c=0;c<a;c++)s+='<i'+(((o.split&&c>=o.split)||(o.rowSplit&&r>=o.rowSplit))?' class="c2"':'')+'></i>';
-  return '<div class="rect" style="--cols:'+a+'" role="img" aria-label="Прямоугольник: '+b+' рядов по '+a+' клеток">'+s+'</div>';}
+  return '<div class="rect" style="--cols:'+a+'" role="img" aria-label="Прямоугольник: '+b+' '+pl(b,'ряд','ряда','рядов')+' по '+a+' '+po(a,'клетке','клетки','клеток')+'">'+s+'</div>';}
 function groups(a,b){var g='';for(var i=0;i<b;i++)g+='<div class="grp" style="--gc:'+Math.min(a,5)+'">'+'<b></b>'.repeat(a)+'</div>';
   return '<div class="groups" role="img" aria-label="'+b+' групп по '+a+'">'+g+'</div>';}
 function sumLine(a,b){var x=a,t=b;if(b>6&&a<=6){x=b;t=a;}return Array(t).fill(x).join(' + ')+' = ?';}
@@ -130,7 +130,7 @@ function mPyth(box,o){var r=0,c=0;var wrap=h('<div></div>');var rd=h('<p class="
 function mTen(box,mode){var n=3;var out=h('<div style="display:grid;gap:12px"></div>');
   function draw(){out.innerHTML=mode==='one'
     ?groups(n,1)+'<div class="eq sm">'+n+' × 1 = <b>'+n+'</b></div><p class="small" style="margin:0">Одна группа по '+n+'. Сколько было, столько и осталось.</p>'
-    :'<div class="chain"><span class="tile">'+n+'</span><span class="op">дописываем справа</span><span class="tile z">0</span></div><div class="eq sm">'+n+' × 10 = <b>'+n+'0</b></div><p class="small" style="margin:0">Десять групп по '+n+' — это '+n+' десятков.</p>';}
+    :'<div class="chain"><span class="tile">'+n+'</span><span class="op">дописываем справа</span><span class="tile z">0</span></div><div class="eq sm">'+n+' × 10 = <b>'+n+'0</b></div><p class="small" style="margin:0">Десять групп по '+n+' — это '+n+' '+pl(n,'десяток','десятка','десятков')+'.</p>';}
   box.append(row(stepper('Число',1,9,n,function(v){n=v;draw();})),out);draw();}
 function mDouble(box){var n=3;var out=h('<div style="display:grid;gap:12px"></div>');
   function draw(){out.innerHTML='<div class="chain"><span class="chip">'+n+'</span><span class="op">удвоить</span><span class="chip soft">'+2*n+'</span><span class="op">удвоить ещё раз</span><span class="chip hl">'+4*n+'</span></div><div class="eq sm">'+n+' × 2 = '+n+' + '+n+' = <b>'+2*n+'</b></div><div class="eq sm">'+n+' × 4 = '+2*n+' + '+2*n+' = <b>'+4*n+'</b></div>';}
@@ -191,13 +191,15 @@ function seq(d,upto){var s=[];for(var i=1;i<=Math.max(upto,1);i++)s.push(d*i);re
 function hint(q,level){
   if(q.h&&q.h[level-1])return q.h[level-1]();
   var m=q.meta;
-  if(m.t==='mul')return level===1?'<p>'+m.a+' × '+m.b+' значит: число '+m.a+' берём '+m.b+' раз. Вот '+m.b+' рядов по '+m.a+' клеток.</p>'+rect(m.a,m.b)+'<p class="mono">'+sumLine(m.a,m.b)+'</p>':'<p>'+strat(m.a,m.b)+'</p>';
+  if(m.t==='mul')return level===1?'<p>'+m.a+' × '+m.b+' значит: число '+m.a+' берём '+times(m.b)+'. Вот '+m.b+' '+pl(m.b,'ряд','ряда','рядов')+' по '+m.a+' '+po(m.a,'клетке','клетки','клеток')+'.</p>'+rect(m.a,m.b)+'<p class="mono">'+sumLine(m.a,m.b)+'</p>':'<p>'+strat(m.a,m.b)+'</p>';
   if(m.t==='div'){var qq=m.n/m.d;return level===1?'<p>Разложим '+m.n+' по '+m.d+'. Сколько групп получится? Посчитай их.</p>'+groups(m.d,qq):'<p>Считай по '+m.d+'. Скажи вслух: '+seq(m.d,qq-1)+', … Сколько раз по '+m.d+' нужно взять, чтобы получить '+m.n+'? Вспомни: '+m.d+' × ? = '+m.n+'.</p>';}
   if(m.t==='missing')return level===1?'<p>Поменяем множители местами: '+m.b+' × ? = '+m.x*m.b+'. Сколько раз по '+m.b+' нужно взять? Посчитай группы.</p>'+groups(m.b,m.x):'<p>Считай по '+m.b+'. Скажи вслух: '+seq(m.b,m.x-1)+', … Когда дойдёшь до '+m.x*m.b+', сколько раз ты взял '+m.b+'?</p>';
   return '';}
 
 /* ---------- вспомогательное ---------- */
 var ICON='<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M20 12a8 8 0 1 1-2.5-5.8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function pl(n,o,f,m){n=Math.abs(n)%100;var d=n%10;if(n>10&&n<20)return m;if(d===1)return o;if(d>=2&&d<=4)return f;return m;}
+function po(n,o,f,m){return n===1?o:pl(n,o,f,m);}
 function times(n){var a=n%10,b=n%100;return n+' '+((a>=2&&a<=4&&!(b>=12&&b<=14))?'раза':'раз');}
 function simpleHint(q){var m=q.meta;
   if(q.h&&q.h[0])return q.h[0]();
@@ -231,8 +233,8 @@ var TX={
 'm8.1':{A:'Ты знаешь 4 × 5 = 20. А 4 × 6? Добавь ещё одну четвёрку: 20 и ещё 4.',B:'Знаешь 4 × 5 = 20? Тогда 4 × 6 — это 20 и ещё 4. Каждый шаг добавляет одно число.',D:''},
 'm9.0':{A:'У тебя конфеты. Положим их в мешочки поровну. Сколько мешочков получится? Выбери пример.',B:'12 ÷ 3. Раскладываем 12 конфет по 3 в мешочек. Получается 4 мешочка. Выбери пример.',D:'Деление — разбиение на равные части: 12 ÷ 3 = 4 значит, что тройка помещается в 12 четыре раза. Исследуй примеры.'},
 'm9.1':{A:'Теперь поделим поровну между друзьями. У каждого друга одинаково. Нажми «Делим поровну».',B:'Раздай 12 конфет 3 друзьям поровну. Каждому достанется 4. Нажми «Делим поровну».',D:'У деления два смысла: «сколько раз содержится» и «разделить на равные части». Результат одинаков.'},
-'m10.0':{A:'Три числа — это четыре игры: две про умножение, две про деление. Выбери пару и смотри.',B:'Три числа — четыре примера: два на умножение и два на деление. Выбери пару.',D:'Умножение и деление взаимно обратны: из a × b = p следуют p ÷ a = b и p ÷ b = a. Проверь на разных числах.'},
-'m10.1':{A:'Не помнишь деление? Спроси умножение! Нажми кнопку и увидишь.',B:'Чтобы разделить 56 на 7, спроси себя: 7 умножить на сколько будет 56? Нажми кнопку.',D:'Деление — поиск неизвестного множителя: p ÷ a = x равносильно a × x = p. Опирайся на таблицу умножения.'}
+'m10.0':{A:'Три числа — это четыре примера: два про умножение и два про деление. Выбери пару и смотри.',B:'Три числа — четыре примера: два на умножение и два на деление. Выбери пару.',D:'Умножение и деление взаимно обратны: из a × b = p следуют p ÷ a = b и p ÷ b = a. Проверь на разных числах.'},
+'m10.1':{A:'Не помнишь деление? Спроси умножение! Нажми кнопку и увидишь.',B:'Чтобы разделить 56 на 7, спроси себя: на какое число нужно умножить 7, чтобы получилось 56? Нажми кнопку.',D:'Деление — поиск неизвестного множителя: p ÷ a = x равносильно a × x = p. Опирайся на таблицу умножения.'}
 };
 var ALT_A={
 m1:'Вот 3 коробки. В каждой по 2 игрушки. Сколько игрушек всего? Посчитаем вместе: две, четыре, шесть. Всего шесть игрушек.',
@@ -272,7 +274,7 @@ var MODS=[
  steps:[
   {title:'Строка, столбец, клетка',text:'Это вся таблица умножения на одном листе. Нажми на клетку: число в ней равно строке, умноженной на столбец.',mount:function(b){mPyth(b,{});}},
   {title:'Диагональ и зеркало',text:'По диагонали стоят квадраты: 1, 4, 9, 16 и дальше. Слева и справа от диагонали числа повторяются зеркально. Нажми на клетку и найди пару.',mount:function(b){mPyth(b,{diag:true});}}],
- alt:{text:'Сложи квадрат пополам по диагонали. Каждое число ляжет на такое же. Значит достаточно знать только одну половину.',mount:function(b){b.append(h(pyth({r:3,c:7,diag:true})));}},
+ alt:{text:'Сложи квадрат пополам по диагонали. Каждое число ляжет на такое же. Значит, достаточно знать только одну половину.',mount:function(b){b.append(h(pyth({r:3,c:7,diag:true})));}},
  practice:function(){return build([function(){var r=ri(2,6),c=ri(2,6);return Q({key:'c'+r+'c'+c,lead:'Строка '+r+', столбец '+c+'. Какое число в клетке?',eq:r+' × '+c+' = ?',answer:r*c,meta:{t:'tbl',r:r,c:c},fact:[r,c],h:tblHints(r,c)});}],3);},
  test:function(){return build([function(){var r=ri(2,9),c=ri(2,9);return Q({key:'c'+r+'c'+c,lead:'Строка '+r+', столбец '+c+'. Какое число в клетке?',eq:r+' × '+c+' = ?',answer:r*c,meta:{t:'tbl',r:r,c:c},fact:[r,c],h:tblHints(r,c)});},function(){var r=ri(2,9),c=ri(2,9);if(r===c)c=r===9?8:r+1;return Q({key:'z'+r+'z'+c,lead:'В клетке (строка '+r+', столбец '+c+') стоит '+r*c+'. Что стоит в зеркальной клетке (строка '+c+', столбец '+r+')?',eq:'?',answer:r*c,meta:{t:'tbl',r:r,c:c},h:tblHints(r,c)});},function(){var r=ri(2,9);return Q({key:'g'+r,lead:'Какое число стоит на диагонали в строке '+r+'?',eq:r+' × '+r+' = ?',answer:r*r,meta:{t:'tbl',r:r,c:r},fact:[r,r],h:tblHints(r,r)});}],5);}},
 
@@ -327,7 +329,7 @@ var MODS=[
 {id:'m10',tag:'3×4 ↔ 12÷3',title:'Умножение и деление — родственники',goal:'Научиться делить через умножение: 56 ÷ 7 — это 7 × ? = 56.',
  steps:[
   {title:'Одна семья из четырёх примеров',text:'Три числа дают четыре записи. Выбери пару и посмотри, как умножение превращается в деление.',mount:mFamily},
-  {title:'Не помнишь деление — спроси умножение',text:'56 ÷ 7. Спроси себя, 7 умножить на что даст 56. Нажми кнопку и посмотри.',mount:mAskMul}],
+  {title:'Не помнишь деление — спроси умножение',text:'56 ÷ 7. Спроси себя: на какое число нужно умножить 7, чтобы получилось 56? Нажми кнопку и посмотри.',mount:mAskMul}],
  alt:{text:'Деление — это умножение наоборот. Если 6 × 7 = 42, то из 42 можно снова получить 6 и 7. Вот так: 42 ÷ 6 = 7 и 42 ÷ 7 = 6.',mount:function(b){b.append(h(rect(6,7)));}},
  practice:function(){return build([function(){var a=ri(2,6),b=ri(2,6);return Div(a*b,a);}],3);},
  test:function(){return build([function(){var a=ri(2,9),b=ri(2,9);return Div(a*b,a);},function(){return Miss(ri(2,9),ri(2,9));},function(){var a=ri(2,9),b=ri(2,9);return Div(a*b,a,{key:'fm'+a+'f'+b,lead:a+' × '+b+' = '+a*b+'. Значит '+a*b+' ÷ '+a+' = ?',eq:'?'});}],5);}}
@@ -402,7 +404,7 @@ function modArt(id){
   else if(id==='m8'){o=tx(60,76,'7',72,'#FFE9A8')+tx(130,76,'8',72)+fgrid('pear',190,14,5,3,18,4)+tx(150,112,'3 · 6 · 7 · 8',16);}
   else if(id==='m9'){o=fgrid('pear',20,12,6,2,22,3)+bsk(20,80,70)+bsk(115,80,70)+bsk(210,80,70)+fgrid('pear',27,60,3,1,18,3)+fgrid('pear',122,60,3,1,18,3)+fgrid('pear',217,60,3,1,18,3)+tx(250,32,'12 ÷ 3',20,'#fff');}
   else if(id==='m10'){o=fgrid('apple',24,18,4,3,24,4)+tx(165,50,'⇄',46,'#FFE9A8')+tx(235,48,'3 × 4 = 12',15)+tx(235,78,'12 ÷ 3 = 4',15)+tx(235,100,'12 ÷ 4 = 3',15,'#FFE9A8');}
-  return '<svg class="modart" viewBox="0 0 300 120" preserveAspectRatio="xMidYMid slice" role="img" aria-hidden="true" focusable="false"><defs><linearGradient id="ag-'+id+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+bg[0]+'"/><stop offset="1" stop-color="'+bg[1]+'"/></linearGradient></defs><rect width="300" height="120" fill="url(#ag-'+id+')"/><circle cx="270" cy="10" r="46" fill="#fff" opacity=".1"/>'+o+'</svg>';}
+  return '<svg class="modart" viewBox="0 0 300 120" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true" focusable="false"><defs><linearGradient id="ag-'+id+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+bg[0]+'"/><stop offset="1" stop-color="'+bg[1]+'"/></linearGradient></defs><rect x="-300" y="-200" width="900" height="520" fill="url(#ag-'+id+')"/><circle cx="270" cy="10" r="46" fill="#fff" opacity=".1"/><g transform="translate(20 9) scale(.87)">'+o+'</g></svg>';}
 function rHome(){
   var next=null,idx=-1;for(var i=0;i<MODS.length;i++){if(!P.done[MODS[i].id]&&!locked(i)){next=MODS[i];idx=i;break;}}
   var freeDone=!next&&MODS.some(function(m,i){return locked(i);});
@@ -411,7 +413,7 @@ function rHome(){
     return '<button type="button" class="mod'+(d?' done':'')+'" data-start="'+m.id+'">'+modArt(m.id)+'<span class="mod-n">Блок '+(i+1)+'</span><span class="mod-tag">'+m.tag+'</span><span class="mod-t">'+m.title+'</span><span class="mod-s">'+st+'</span></button>';}).join('');
   var today=next?'<div><b>Сегодня: блок '+(idx+1)+'</b><span>'+next.title+'. Хватит 5–10 минут.</span></div><button type="button" class="btn" data-start="'+next.id+'">'+(idx===0&&!Object.keys(P.done).length?'Начать':'Продолжить')+'</button>':'<div><b>Все блоки пройдены</b><span>Тренажёр подберёт примеры, которые пока даются труднее.</span></div><button type="button" class="btn" data-v="train">В тренажёр</button>';
   if(freeDone)today='<div><b>Бесплатные блоки пройдены</b><span>Остальные блоки откроет Стандарт.</span></div><button type="button" class="btn" data-v="buy">Открыть все блоки</button>';
-  app.innerHTML=banners()+'<section class="card lift"><p class="kicker">Умножение и деление</p><h1>Таблица без зубрёжки</h1><p class="lead" style="margin-top:12px">Сначала понимаем, потом запоминаем. В каждом блоке коротко объясняем, даём несколько задач и проверку. Не понял? Нажми «Объясни по-другому». Ошибка здесь часть учёбы.</p><div class="today">'+today+'</div></section><h2>Блоки</h2><div class="mods">'+cards+'</div><p class="small" style="margin-top:18px">Один блок удобно проходить 3–7 дней: в первый день урок и проверка, потом по 5 минут в тренажёре.</p>';homeAdv();}
+  app.innerHTML=banners()+'<section class="card lift"><p class="kicker">Умножение и деление</p><h1>Таблица без зубрёжки</h1><p class="lead" style="margin-top:12px">Сначала понимаем, потом запоминаем. В каждом блоке коротко объясняем, даём несколько задач и проверку. Не понял? Нажми «Объясни по-другому». Ошибка здесь — часть учёбы.</p><div class="today">'+today+'</div></section><h2>Блоки</h2><div class="mods">'+cards+'</div><p class="small" style="margin-top:18px">Один блок удобно проходить 3–7 дней: в первый день урок и проверка, потом по 5 минут в тренажёре.</p>';homeAdv();}
 
 /* ---------- прохождение блока ---------- */
 function startModule(id){
@@ -450,21 +452,34 @@ function rExplain(it){
   var rw=card.querySelector('.row');
   if(R.i>0&&R.items[R.i-1].kind==='explain'){var back=h('<button type="button" class="btn ghost">Назад</button>');back.onclick=function(){R.i--;render();};rw.appendChild(back);}
   if(vs.length>1){var al=h('<button type="button" class="btn ghost alt">'+ICON+'Объясни по-другому</button>');
-    al.onclick=function(){it.v++;countAlt();paint();var e=card.querySelector('#expl');e.classList.remove('swap');void e.offsetWidth;e.classList.add('swap');};rw.appendChild(al);}
-  if(can('tts')){var sp=ttsBtn(function(){return it.step.title+'. '+vs[it.v%vs.length];});if(sp)rw.appendChild(sp);}
-  if(VIS_MOD[it.mod.id]){var vw=visWidget(function(){return VIS_MOD[it.mod.id];},true);rw.appendChild(vw.btn);rw.parentNode.insertBefore(vw.panel,rw);}
+    al.onclick=function(){it.v++;countAlt();paint();var vb0=card.querySelector('.vis-btn'),vp0=card.querySelector('.vis-panel');if(vb0&&vp0&&!vp0.hidden){vb0.click();vb0.click();}var e=card.querySelector('#expl');e.classList.remove('swap');void e.offsetWidth;e.classList.add('swap');};rw.appendChild(al);}
+  if(VIS_MOD[it.mod.id]){var vw=visWidget(function(){return VIS_MOD[it.mod.id];},true,function(){var c=card.cloneNode(true),p=c.querySelector('.vis-panel');if(p)p.parentNode.removeChild(p);return c.textContent;},VIS_DEF[it.mod.id]);rw.appendChild(vw.btn);rw.parentNode.insertBefore(vw.panel,rw);}
   var nx=h('<button type="button" class="btn">Дальше</button>');nx.onclick=function(){R.i++;render();window.scrollTo(0,0);};rw.appendChild(nx);
   app.appendChild(card);app.insertAdjacentHTML('beforeend',restNote());}
 
 var OKS=['Верно!','Да, точно!','Правильно!','Отлично!'];
 var TRY=['Почти. Давай посмотрим вместе.','Хорошая попытка. Вот подсказка.','Тут легко запутаться. Смотри.'];
 /* ---------- «Показать визуально»: инфографика с корзинками и фруктами ---------- */
-var FRUITS=[['apple','яблоки'],['pear','груши'],['melon','арбузы'],['orange','апельсины']];
+var OBJ={apple:'яблоки',pear:'груши',melon:'арбузы',orange:'апельсины',candy:'конфеты',cookie:'печенье',toy:'игрушки',pencil:'карандаши',star:'наклейки',coin:'монеты'};
+var OBJ_CONT={apple:['Корзинок','корзинок','В каждой'],pear:['Корзинок','корзинок','В каждой'],melon:['Корзинок','корзинок','В каждой'],orange:['Корзинок','корзинок','В каждой'],candy:['Коробок','коробок','В каждой'],cookie:['Тарелок','тарелок','На каждой'],toy:['Коробок','коробок','В каждой'],pencil:['Коробок','коробок','В каждой'],star:['Листов','листов','На каждом'],coin:['Кошельков','кошельков','В каждом']};
+var CONT_RE=[[/коробк|коробок/i,['Коробок','коробок','В каждой']],[/тарелк|тарелок/i,['Тарелок','тарелок','На каждой']],[/корзин/i,['Корзин','корзин','В каждой']],[/полк|полок/i,['Полок','полок','На каждой']],[/пакет|мешоч|мешк|мешок/i,['Пакетов','пакетов','В каждом']],[/детям|друзьям/i,['Детей','детей','У каждого']]];
+function visCont(text,ob){var best=null,bi=1e9;for(var i=0;i<CONT_RE.length;i++){var m=CONT_RE[i][0].exec(text||'');if(m&&m.index<bi){bi=m.index;best=CONT_RE[i][1];}}return best||OBJ_CONT[ob];}
+var OBJ_RE=[['candy',/конфет/i],['cookie',/печень|печенек/i],['apple',/яблок/i],['pear',/груш/i],['melon',/арбуз/i],['orange',/апельсин/i],['toy',/игруш/i],['pencil',/карандаш/i],['star',/наклей|наклеек/i],['coin',/монет/i]];
+var VIS_DEF={m1:'candy',m2:'apple',m4:'cookie',m7:'candy',m9:'candy',m10:'candy'};
+/* объект на картинке берём из текста задания, чтобы он совпадал с условием */
+function visObj(text,def,s){var best=null,bi=1e9;for(var i=0;i<OBJ_RE.length;i++){var m=OBJ_RE[i][1].exec(text||'');if(m&&m.index<bi){bi=m.index;best=OBJ_RE[i][0];}}
+  if(best)return best;if(def)return def;var L=['apple','pear','melon','orange'];return L[((s.a||s.n)+(s.b||s.d))%4];}
 var SPRITE='<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>'
  +'<symbol id="f-apple" viewBox="0 0 24 24"><path d="M12 6.5c-2-1.6-7-1.4-7 4.6 0 4.6 3 9.4 5.2 9.4 1 0 1.2-.6 1.8-.6s.8.6 1.8.6c2.2 0 5.2-4.800 5.200-9.400 0-6-5-6.200-7-4.600z" fill="#E5383B"/><path d="M12 6.500c0-2 1-3.500 2.800-4" stroke="#6B4423" stroke-width="1.600" fill="none" stroke-linecap="round"/><path d="M13 5c1.500-1.800 3.500-1.800 4.500-1-1 1.800-3 2.400-4.500 1z" fill="#3DBE7A"/></symbol>'
  +'<symbol id="f-pear" viewBox="0 0 24 24"><path d="M12 5c-2 0-2.600 2.200-3 3.600C8.400 10.600 5 12 5 16c0 3.400 3 5.500 7 5.500s7-2.100 7-5.500c0-4-3.400-5.400-4-7.400C14.600 7.200 14 5 12 5z" fill="#A9D43C"/><path d="M12 5c0-1.600.8-2.800 2-3.400" stroke="#6B4423" stroke-width="1.600" fill="none" stroke-linecap="round"/><path d="M9 14c0 2 .8 3.400 2 4" stroke="#fff" stroke-opacity=".5" stroke-width="1.600" fill="none" stroke-linecap="round"/></symbol>'
  +'<symbol id="f-melon" viewBox="0 0 24 24"><path d="M2.500 9a9.500 9.500 0 0 0 19 0z" fill="#E5383B"/><path d="M2.500 9h19a9.500 9.500 0 0 1-.4 2.800H2.900A9.500 9.500 0 0 1 2.500 9z" fill="#3DBE7A"/><path d="M2.900 11.800h18.200" stroke="#E9F7C8" stroke-width="1.200"/><circle cx="8" cy="14.500" r=".9" fill="#222"/><circle cx="12" cy="16.500" r=".9" fill="#222"/><circle cx="16" cy="14.500" r=".9" fill="#222"/></symbol>'
  +'<symbol id="f-orange" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8.500" fill="#FF9A1F"/><path d="M12 4.500c0-1.200.6-2 1.600-2.500" stroke="#6B4423" stroke-width="1.400" fill="none" stroke-linecap="round"/><path d="M12.500 5c1.600-1.600 4-1.400 5-.4-1.400 1.600-3.600 1.800-5 .4z" fill="#3DBE7A"/><path d="M7.500 11c.6-1.800 2-3 3.800-3.200" stroke="#fff" stroke-opacity=".45" stroke-width="1.600" fill="none" stroke-linecap="round"/></symbol>'
+ +'<symbol id="f-candy" viewBox="0 0 24 24"><path d="M2.5 7.5l4.5 4.500-4.500 4.500z" fill="#FF6F91"/><path d="M21.500 7.500l-4.500 4.500 4.500 4.500z" fill="#FF6F91"/><ellipse cx="12" cy="12" rx="7" ry="5.500" fill="#FF3D77"/><path d="M8 9.500c1.600-1 4-1.200 6-.2" stroke="#fff" stroke-width="1.600" fill="none" stroke-linecap="round" opacity=".7"/><path d="M10 15.500c2 .5 4 0 5.400-1" stroke="#fff" stroke-width="1.400" fill="none" stroke-linecap="round" opacity=".5"/></symbol>'
+ +'<symbol id="f-cookie" viewBox="0 0 24 24"><circle cx="12" cy="12.500" r="9" fill="#D9983D"/><circle cx="12" cy="12.500" r="9" fill="none" stroke="#B87A22" stroke-width="1.400"/><circle cx="8.500" cy="9.500" r="1.500" fill="#6B3E12"/><circle cx="15.500" cy="10.500" r="1.500" fill="#6B3E12"/><circle cx="10.500" cy="15.500" r="1.500" fill="#6B3E12"/><circle cx="16" cy="16" r="1.200" fill="#6B3E12"/></symbol>'
+ +'<symbol id="f-toy" viewBox="0 0 24 24"><circle cx="6.500" cy="6" r="3" fill="#B97A3E"/><circle cx="17.500" cy="6" r="3" fill="#B97A3E"/><circle cx="12" cy="11" r="7.500" fill="#D79A56"/><ellipse cx="12" cy="13.500" rx="3.400" ry="2.600" fill="#F2D2A4"/><circle cx="9.200" cy="9.800" r="1.100" fill="#3A2412"/><circle cx="14.800" cy="9.800" r="1.100" fill="#3A2412"/><circle cx="12" cy="12.600" r="1" fill="#3A2412"/><path d="M5 22c0-4 3-6 7-6s7 2 7 6z" fill="#B97A3E"/></symbol>'
+ +'<symbol id="f-pencil" viewBox="0 0 24 24"><g transform="rotate(45 12 12)"><rect x="9" y="1.500" width="6" height="16" rx="1" fill="#FFC83D"/><path d="M9 17.500h6L12 23z" fill="#F4D3A3"/><path d="M11 21.200l1 1.800 1-1.800z" fill="#3A2412"/><rect x="9" y="1.500" width="6" height="3.500" rx="1" fill="#FF6F91"/></g></symbol>'
+ +'<symbol id="f-star" viewBox="0 0 24 24"><path d="M12 2.500l2.900 6 6.600.9-4.800 4.600 1.200 6.500L12 17.300 6.100 20.500l1.200-6.500L2.500 9.400l6.600-.9z" fill="#FFC83D" stroke="#E59B00" stroke-width="1.200" stroke-linejoin="round"/></symbol>'
+ +'<symbol id="f-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.500" fill="#FFC83D" stroke="#D99A00" stroke-width="1.600"/><circle cx="12" cy="12" r="6.500" fill="none" stroke="#D99A00" stroke-width="1.200"/><path d="M12 8v8M9.800 10.200h3.400a1.300 1.300 0 0 1 0 2.600h-2.400a1.300 1.300 0 0 0 0 2.600h3.400" stroke="#A56F00" stroke-width="1.300" fill="none" stroke-linecap="round" transform="translate(0 -.4)"/></symbol>'
  +'</defs></svg>';
 var VISICON='<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M12 5c-5 0-9 4.500-10 7 1 2.500 5 7 10 7s9-4.500 10-7c-1-2.500-5-7-10-7z" fill="none" stroke="currentColor" stroke-width="2.200" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.200" fill="currentColor"/></svg>';
 var VIS_MOD={m1:[{t:'mul',a:4,b:2},{t:'mul',a:3,b:4},{t:'mul',a:5,b:3}],m2:[{t:'mul',a:3,b:4},{t:'mul',a:4,b:3},{t:'mul',a:2,b:5},{t:'mul',a:5,b:2}],m3:[{t:'mul',a:3,b:3},{t:'mul',a:4,b:4},{t:'mul',a:5,b:5}],
@@ -474,32 +489,32 @@ function visSpec(q){var m=q&&q.meta;if(!m)return null;
   if(m.t==='mul'&&m.a>=1&&m.b>=1&&m.a<=10&&m.b<=10)return {t:'mul',a:m.a,b:m.b};
   if(m.t==='div'&&m.d>=2&&m.d<=10&&m.n/m.d<=10&&m.n%m.d===0)return {t:'div',n:m.n,d:m.d};return null;}
 function fIcons(k,n,cls){var s='';for(var i=0;i<n;i++)s+='<svg class="vf" viewBox="0 0 24 24" aria-hidden="true"><use href="#f-'+k+'"/></svg>';return '<div class="'+cls+'">'+s+'</div>';}
-function visHtml(s,reveal){
-  var fr=FRUITS[((s.a||s.n)+(s.b||s.d))%4],k=fr[0],out='',per=s.t==='mul'?s.a:s.n/s.d,cnt=s.t==='mul'?s.b:s.d,tot=s.t==='mul'?s.a*s.b:s.n;
+function visHtml(s,reveal,ob,txt){
+  var k=ob,fr=[ob,OBJ[ob]],ct=visCont(txt,ob),out='',per=s.t==='mul'?s.a:s.n/s.d,cnt=s.t==='mul'?s.b:s.d,tot=s.t==='mul'?s.a*s.b:s.n;
   var baskets='';
   for(var i=0;i<cnt;i++){
     var inner=(s.t==='div'&&!reveal)?'<div class="vfs vempty"><span>?</span></div>':fIcons(k,per,'vfs');
     baskets+='<div class="vbk">'+inner+'<div class="vb"><span>'+((s.t==='div'&&!reveal)?'?':per)+'</span></div></div>';}
   out+='<p class="vis-t">Считаем '+fr[1]+'</p>';
   if(s.t==='div')out+='<div class="vis-pile" aria-label="Всего '+s.n+'">'+fIcons(k,s.n,'vfs')+'<span class="vtot">Всего '+s.n+'</span></div>';
-  out+='<div class="vis-baskets" role="img" aria-label="'+cnt+' корзинок, в каждой '+per+'">'+baskets+'</div>';
+  out+='<div class="vis-baskets" role="img" aria-label="'+cnt+' '+ct[1]+', '+ct[2].toLowerCase()+' '+per+'">'+baskets+'</div>';
   if(s.t==='mul'){
     var sum=cnt<=7?Array(cnt).fill(per).join(' + '):per+' + '+per+' + … ('+cnt+' раз)';
-    out+='<p class="vis-x"><b>Корзинок: '+cnt+'.</b> В каждой: '+per+' <svg class="vf vf-i" viewBox="0 0 24 24" aria-hidden="true"><use href="#f-'+k+'"/></svg></p>'
+    out+='<p class="vis-x"><b>'+ct[0]+': '+cnt+'.</b> '+ct[2]+': '+per+' <svg class="vf vf-i" viewBox="0 0 24 24" aria-hidden="true"><use href="#f-'+k+'"/></svg></p>'
       +'<p class="vis-eq">'+sum+' = <b>'+(reveal?tot:'?')+'</b></p>'
       +'<p class="vis-eq">Короче: '+s.a+' × '+s.b+' = <b>'+(reveal?tot:'?')+'</b></p>'
-      +(reveal&&s.a!==s.b?'<p class="vis-x">Переставим: '+s.b+' корзинок по '+s.a+'? Нет, теперь корзинок '+s.a+', а в каждой '+s.b+'. Всего всё равно '+tot+'.</p>':'')
-      +(!reveal?'<p class="vis-x">Сосчитай фрукты в одной корзинке и сложи столько раз, сколько корзинок.</p>':'');
+      +(reveal&&s.a!==s.b?'<p class="vis-x">Переставим: теперь '+ct[1]+' '+s.a+', а '+ct[2].toLowerCase()+' '+s.b+'. Всего всё равно '+tot+'.</p>':'')
+      +(!reveal?'<p class="vis-x">Сосчитай, сколько в одной группе, и сложи столько раз, сколько групп.</p>':'');
   }else{
-    out+='<p class="vis-x"><b>Раскладываем '+s.n+' поровну в '+s.d+' корзинок.</b></p>'
+    out+='<p class="vis-x"><b>Раскладываем '+s.n+' поровну: '+s.d+' '+ct[1]+'.</b></p>'
       +'<p class="vis-eq">'+s.n+' ÷ '+s.d+' = <b>'+(reveal?per:'?')+'</b></p>'
       +'<p class="vis-eq">Проверим умножением: '+s.d+' × '+(reveal?per:'?')+' = '+s.n+'</p>';}
   return out;}
-function visWidget(getSpecs,reveal){
+function visWidget(getSpecs,reveal,getText,def){
   var btn=h('<button type="button" class="btn ghost vis-btn" aria-expanded="false">'+VISICON+'<span>Показать визуально</span></button>'),
       panel=h('<div class="vis-panel" hidden></div>'),k=0,specs=null;
   if(!document.getElementById('f-apple'))document.body.insertAdjacentHTML('beforeend',SPRITE);
-  function paint(){panel.innerHTML=visHtml(specs[k%specs.length],reveal)+(specs.length>1?'<button type="button" class="btn ghost vis-next">Другой пример</button>':'');
+  function paint(){var sp=specs[k%specs.length];var tx=getText?getText():'';panel.innerHTML=visHtml(sp,reveal,visObj(tx,def,sp),tx)+(specs.length>1?'<button type="button" class="btn ghost vis-next">Другой пример</button>':'');
     var n=panel.querySelector('.vis-next');if(n)n.onclick=function(){k++;paint();};}
   btn.onclick=function(){specs=specs||getSpecs();var open=panel.hidden;panel.hidden=!open;btn.setAttribute('aria-expanded',open?'true':'false');btn.querySelector('span').textContent=open?'Скрыть картинку':'Показать визуально';if(open)paint();};
   return {btn:btn,panel:panel};}
@@ -510,8 +525,7 @@ function rAsk(it){
   app.appendChild(card);app.insertAdjacentHTML('beforeend',restNote());
   var inp=card.querySelector('#ans'),chk=card.querySelector('#chk'),fb=card.querySelector('#fb'),alt=card.querySelector('#alt');
   inp.focus({preventScroll:true});
-  var vsp=visSpec(q);if(vsp){var vq=visWidget(function(){return [vsp];},false),rq=card.querySelector('.row');rq.appendChild(vq.btn);rq.parentNode.insertBefore(vq.panel,rq);}
-  if(can('tts')){var sp2=ttsBtn(function(){return q.lead+' '+q.eq;});if(sp2)card.querySelector('.row').appendChild(sp2);}
+  var vsp=visSpec(q);if(vsp){var vq=visWidget(function(){return [vsp];},false,function(){var c=card.cloneNode(true),p=c.querySelector('.vis-panel');if(p)p.parentNode.removeChild(p);return c.textContent;}),rq=card.querySelector('.row');rq.appendChild(vq.btn);rq.parentNode.insertBefore(vq.panel,rq);}
   function next(){R.i++;render();window.scrollTo(0,0);}
   function done(msg){
     it.done=true;if(it.w===0)it.first=true;
@@ -596,7 +610,7 @@ function planHtml(name,price,url,items,pro){
 function plansHtml(){
   return '<div class="plans">'
    +planHtml('Стандарт',PRICE_STD,PAY_URL_STD,['Все блоки и деление','Без ограничения по времени','Чередование примеров и текстовые задачи','Итоговая проверка','Трудные примеры, цели на день'],false)
-   +planHtml('Продвинутый',PRICE_PRO,PAY_URL_PRO,['Всё из Стандарта','Повторения через 1, 3, 7 дней','Игры, награды, озвучка','«Расскажи родителю», печатные карточки','Расширенный отчёт'],true)+'</div>';}
+   +planHtml('Продвинутый',PRICE_PRO,PAY_URL_PRO,['Всё из Стандарта','Повторения через 1, 3, 7 дней','Игры, награды','«Расскажи родителю», печатные карточки','Расширенный отчёт'],true)+'</div>';}
 function rBuy(){
   var why=view.why||'block',title,lead;
   if(why==='limit'){title='На сегодня всё!';lead='Бесплатный доступ: '+FREE_MIN+' минут занятий в день. Прогресс сохранён. Чтобы заниматься без ограничений, выберите Стандарт. Завтра бесплатные минуты появятся снова.';}
@@ -708,9 +722,9 @@ function rParent(){
   var inst=standalone()?'Сервис установлен на устройство.':'Сервис открыт в браузере. Установка на экран «Домой» делает хранение надёжнее.';
   var last=P.lastBackupAt?'Последний файл прогресса сохранён: '+new Date(P.lastBackupAt).toLocaleDateString('ru-RU')+'.':'Файл прогресса ещё не сохранялся.';
   app.innerHTML='<h1 style="margin-top:14px">Родителям</h1>'
-  +'<div class="grid2" style="margin-top:14px"><section class="card"><h3>Сегодня</h3><p class="eq" style="margin:8px 0 4px">'+mins+' мин</p><p class="small">Лучше всего 5–10 минут каждый день, чем час раз в неделю. После 10 минут сервис мягко предложит закончить.</p><div class="week" aria-label="Минуты за последние 7 дней"><span class="band" aria-hidden="true"></span>'+wk+'</div><p class="small" style="margin:6px 0 0">Зелёная полоса: 5–10 минут.</p></section>'
-  +'<section class="card"><h3>Как помочь</h3><ul class="tips"><li>Спросите: «Как ты это посчитал?». Объяснение вслух показывает, понял ли ребёнок.</li><li>Не торопите и не засекайте время. Скорость придёт сама после понимания.</li><li>Если блок не получается с двух попыток, подождите день и вернитесь.</li><li>Играйте: карточки с примерами, настольные игры с кубиками, клеточки в тетради.</li></ul></section></div>'
-  +'<h2>Кнопка «Объясни по-другому»</h2><section class="card"><p>У каждого шага есть три объяснения: через предметы, через клеточки и самое простое. Ребёнок нажимает кнопку и получает другое. Пример для темы «Что значит умножить»:</p><div class="ex"><b>Через предметы</b><span>Представь: 3 тарелки, на каждой по 2 яблока. Сколько яблок всего? Можно считать так: 2 + 2 + 2 = 6. А можно короче: 2 × 3 = 6.</span></div><div class="ex"><b>Через клеточки</b><span>Нарисуй прямоугольник: 2 клетки в ширину и 3 в высоту. Сколько клеток внутри? 2 × 3 = 6. Умножение быстро говорит, сколько клеток в таком прямоугольнике.</span></div><p class="small" style="margin:10px 0 0">Кнопку нажимали: '+altTot+' раз. Если это часто происходит в одном блоке, он ему пока труден. Вернитесь к нему через день.</p></section>'
+  +'<div class="grid2" style="margin-top:14px"><section class="card"><h3>Сегодня</h3><p class="eq" style="margin:8px 0 4px">'+mins+' мин</p><p class="small">Лучше заниматься по 5–10 минут каждый день, чем час раз в неделю. После 10 минут сервис мягко предложит закончить.</p><div class="week" aria-label="Минуты за последние 7 дней"><span class="band" aria-hidden="true"></span>'+wk+'</div><p class="small" style="margin:6px 0 0">Зелёная полоса: 5–10 минут.</p></section>'
+  +'<section class="card"><h3>Как помочь</h3><ul class="tips"><li>Спросите: «Как ты это посчитал?». Объяснение вслух показывает, понял ли ребёнок.</li><li>Не торопите и не засекайте время. Скорость придёт сама после понимания.</li><li>Если блок не получается после двух попыток, подождите день и вернитесь.</li><li>Играйте: карточки с примерами, настольные игры с кубиками, клеточки в тетради.</li></ul></section></div>'
+  +'<h2>Кнопка «Объясни по-другому»</h2><section class="card"><p>У каждого шага есть три объяснения: через предметы, через клеточки и самое простое. Ребёнок нажимает кнопку и получает другое. Пример для темы «Что значит умножить»:</p><div class="ex"><b>Через предметы</b><span>Представь: 3 тарелки, на каждой по 2 яблока. Сколько яблок всего? Можно считать так: 2 + 2 + 2 = 6. А можно короче: 2 × 3 = 6.</span></div><div class="ex"><b>Через клеточки</b><span>Нарисуй прямоугольник: 2 клетки в ширину и 3 в высоту. Сколько клеток внутри? 2 × 3 = 6. Умножение быстро говорит, сколько клеток в таком прямоугольнике.</span></div><p class="small" style="margin:10px 0 0">Кнопку нажимали: '+times(altTot)+'. Если это часто происходит в одном блоке, он ему пока труден. Вернитесь к нему через день.</p></section>'
   +'<h2>Блоки</h2><section class="card"><div class="bars">'+blocks+'</div></section>'
   +'<div class="grid2"><div><h2>Над чем поработать</h2><section class="card">'+weakH+'</section></div><div><h2>Карта таблицы</h2><section class="card"><div class="map" aria-label="Карта освоенных примеров">'+map+'</div><div class="legend"><span class="k">верно с первого раза</span><span class="w">были ошибки</span><span>ещё не встречались</span></div></section></div></div>'
   +advParent()
@@ -917,7 +931,7 @@ function gRect(box,done){
   function draw(){
     if(round>=T.length){box.innerHTML='<p class="read">Все прямоугольники собраны.</p>';done();return;}
     var N=T[round];
-    box.innerHTML='<p class="step-n">Задание '+(round+1)+' из '+T.length+'</p><p class="ask-lead">Собери прямоугольник из '+N+' клеток.</p><div id="rs"></div><div id="rv"></div><p class="read" id="gm" aria-live="polite"></p><div class="row" id="gb"></div>';
+    box.innerHTML='<p class="step-n">Задание '+(round+1)+' из '+T.length+'</p><p class="ask-lead">Собери прямоугольник из '+N+' '+pl(N,'клетки','клеток','клеток')+'.</p><div id="rs"></div><div id="rv"></div><p class="read" id="gm" aria-live="polite"></p><div class="row" id="gb"></div>';
     var rs=box.querySelector('#rs'),rv=box.querySelector('#rv'),msg=box.querySelector('#gm'),gb=box.querySelector('#gb'),solved=false;
     function view2(){rv.innerHTML=rect(w,hh)+'<div class="eq sm" style="margin-top:8px">'+w+' × '+hh+' = '+w*hh+'</div>';}
     rs.appendChild(row(stepper('Клеток в ряду',1,10,w,function(v){w=v;if(!solved)msg.textContent='';view2();}),stepper('Рядов',1,10,hh,function(v){hh=v;if(!solved)msg.textContent='';view2();})));
@@ -951,7 +965,7 @@ function gRhythm(box,done){
     else{
       var cells='';
       for(i=0;i<=total;i++){var land=i>0&&i%step===0&&i<=pos*step,cls=i===pos*step?' now':(land?' on':'');cells+='<span class="kc'+cls+'">'+i+'</span>';}
-      out='<div class="track" role="img" aria-label="Кочки от 0 до '+total+'">'+cells+'</div><p class="small" style="margin:0 0 8px">'+(v===1?'Яркие числа: на какие ступеньки мы наступили. Бледные числа: которые перешагнули.':'Яркие числа: куда села лягушка. Бледные числа: через них она перепрыгнула.')+'</p>';}
+      out='<div class="track" role="img" aria-label="Кочки от 0 до '+total+'">'+cells+'</div><p class="small" style="margin:0 0 8px">'+(v===1?'Яркие числа: на какие ступеньки мы наступили. Бледные числа — те, которые перешагнули.':'Яркие числа: куда села лягушка. Бледные числа: через них она перепрыгнула.')+'</p>';}
     body.innerHTML=out+'<p class="read" aria-live="polite">'+(pos===0?'Нажми «Прыжок». Лягушка прыгнет вперёд на '+step+'.':'Прыжок '+pos+'. Лягушка села на '+step*pos+'.<br>Скажи вслух: '+said.join(', ')+'.<br>'+step+' × '+pos+' = '+step*pos)+'</p><div class="row"><button type="button" class="btn" id="jp">Прыжок</button><button type="button" class="btn ghost" id="au">'+(gTimer?'Стоп':(pos>=JUMPS?'Сначала':'Автоматом'))+'</button></div>';
     body.querySelector('#jp').onclick=function(){stop();jump();};
     body.querySelector('#au').onclick=function(){if(gTimer){stop();draw();return;}if(pos>=JUMPS){pos=0;}gTimer=setInterval(jump,1000);draw();};}
@@ -989,13 +1003,6 @@ function rStickers(){
   var L=stickerList(),n=L.filter(function(x){return x.ok;}).length;
   app.innerHTML='<section class="card lift"><p class="kicker">Твоя коллекция</p><h1>Награды</h1><p class="lead" style="margin-top:12px">Наклейка даётся за каждый пройденный блок, каждую игру и за итоговую проверку. Собрано: '+n+' из '+L.length+'. Спешить не нужно.</p></section><div class="stks">'+L.map(function(x){return '<div class="stk'+(x.ok?' got':'')+'">'+hero(x.id,64)+'<b>'+esc(x.t)+'</b><span class="small">'+(x.ok?'Получена':'Ещё не получена')+'</span></div>';}).join('')+'</div><p style="margin-top:14px"><button type="button" class="btn ghost" data-v="home">На главную</button></p>';}
 
-/* озвучка (встроенный голос браузера, ничего не отправляется) */
-var SPK='<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
-function ttsOk(){return typeof window.speechSynthesis!=='undefined'&&typeof window.SpeechSynthesisUtterance!=='undefined';}
-function ttsRu(){try{var v=speechSynthesis.getVoices();for(var i=0;i<v.length;i++){if(/^ru/i.test(v[i].lang))return v[i];}}catch(e){}return null;}
-function speechText(t){return String(t).replace(/<[^>]*>/g,' ').replace(/×/g,' умножить на ').replace(/÷/g,' разделить на ').replace(/−/g,' минус ').replace(/\+/g,' плюс ').replace(/=/g,' равно ').replace(/(^|\s)\?(?=\s|$|\.)/g,' сколько ').replace(/\s+/g,' ').trim();}
-function speak(t){try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(speechText(t));u.lang='ru-RU';var v=ttsRu();if(v)u.voice=v;u.rate=.9;speechSynthesis.speak(u);}catch(e){}}
-function ttsBtn(getText){if(!ttsOk())return null;var b=h('<button type="button" class="btn ghost alt">'+SPK+'Прочитать вслух</button>');b.onclick=function(){speak(getText());};return b;}
 
 /* примеры из жизни: деньги, колёса, часы */
 function clockSvg(n){
@@ -1053,7 +1060,7 @@ function rHard(){
 function pickxItem(gk){
   var g=gk||pick([1,2,3,4,5,6,7]),a,b,n,lead,good,bads,why;
   if(g===1){a=ri(3,8);b=ri(3,8);if(a===b)b=a+1;lead='Миша знает, что '+a+' × '+b+' = '+a*b+'. Почему тогда и '+b+' × '+a+' = '+a*b+'?';good='Если повернуть прямоугольник, клеток останется столько же.';bads=['Потому что эти числа похожи.','Потому что '+Math.max(a,b)+' больше '+Math.min(a,b)+'.'];why='Прямоугольник из клеток можно повернуть. Число клеток не меняется.';}
-  else if(g===2){n=ri(3,9);lead='Почему '+n+' × 10 = '+n*10+'?';good='Десять групп по '+n+' — это '+n+' десятков, то есть '+n*10+'.';bads=['Потому что 10 — круглое число.','Нужно сложить '+n+' и 10.'];why='Десять групп по '+n+' дают '+n+' десятков.';}
+  else if(g===2){n=ri(3,9);lead='Почему '+n+' × 10 = '+n*10+'?';good='Десять групп по '+n+' — это '+n+' '+pl(n,'десяток','десятка','десятков')+', то есть '+n*10+'.';bads=['Потому что 10 — круглое число.','Нужно сложить '+n+' и 10.'];why='Десять групп по '+n+' дают '+n+' '+pl(n,'десяток','десятка','десятков')+'.';}
   else if(g===3){n=ri(3,9);lead='Как быстро найти 9 × '+n+'?';good='10 × '+n+' = '+10*n+', потом вычесть '+n+'. Получится '+9*n+'.';bads=['Сложить 9 и '+n+'.','Дописать ноль к девятке.'];why='Девять — это десять без одного. Поэтому из 10 × '+n+' вычитаем '+n+'.';}
   else if(g===4){n=ri(2,9);lead='Как найти 5 × '+n+'?';good='Взять половину от 10 × '+n+'. Половина от '+10*n+' — это '+5*n+'.';bads=['Сложить 5 и '+n+' и дописать ноль.','Умножить '+n+' на 2.'];why='Пять — это половина от десяти.';}
   else if(g===5){n=ri(3,9);lead='Как найти 4 × '+n+'?';good='Удвоить '+n+', будет '+2*n+'. Потом удвоить ещё раз, будет '+4*n+'.';bads=['Прибавить 4 к '+n+'.','Удвоить '+n+' только один раз.'];why='Четыре — это дважды два. Поэтому удваиваем два раза.';}
@@ -1102,7 +1109,7 @@ function homeAdv(){
   var hero0=app.querySelector('section.card.lift');if(!hero0)return;var html='';
   if(tier()==='free'){
     html='<section class="note"><h3>Бесплатный доступ</h3><p>Открыты пять блоков: смысл умножения, ×1, ×2, ×5 и ×10. Занятия до '+FREE_MIN+' минут в день, сегодня осталось '+freeLeft()+' мин.</p><div class="row"><button type="button" class="btn" data-v="buy">Открыть все блоки</button></div></section>';}
-  else if(!P.adv){html='<section class="note"><h3>Продвинутый режим</h3><p>Включите переключатель вверху страницы. Появятся '+(tier()==='pro'?'повторения через дни, трудные примеры, игры, награды, озвучка и итоговая проверка.':'чередование примеров, текстовые задачи, трудные примеры и итоговая проверка.')+'</p><div class="row"><button type="button" class="btn ghost" data-act="adv">Включить</button></div></section>';}
+  else if(!P.adv){html='<section class="note"><h3>Продвинутый режим</h3><p>Включите переключатель вверху страницы. Появятся '+(tier()==='pro'?'повторения через дни, трудные примеры, игры, награды и итоговая проверка.':'чередование примеров, текстовые задачи, трудные примеры и итоговая проверка.')+'</p><div class="row"><button type="button" class="btn ghost" data-act="adv">Включить</button></div></section>';}
   else{
     var d=dailyNow(),due=dueList().length,last=P.final.length?P.final[P.final.length-1]:null;
     function row2(ok,txt,v){return '<button type="button" class="grow'+(ok?' done':'')+'" data-v="'+v+'"><i class="tick" aria-hidden="true">'+(ok?'✓':'')+'</i><span>'+txt+'</span></button>';}
@@ -1130,7 +1137,7 @@ function advParent(){
   return '<h2>Продвинутый режим</h2><section class="card">'+report+'</section>'
    +'<div class="grid2" style="margin-top:14px"><section class="card"><h3>Цели на сегодня</h3><div class="goal-list">'+goals+'</div></section>'+rep2+'</div>'
    +'<div class="grid2" style="margin-top:14px"><section class="card"><h3>Итоговая проверка</h3><p class="small">'+FINAL_N+' примеров без подсказок и таймера. Цель: '+FINAL_PASS+'% и выше.</p>'+hist+'<div class="row" style="margin-top:10px"><button type="button" class="btn ghost" data-act="final">Пройти</button></div></section>'
-   +'<section class="card"><h3>Материалы</h3>'+prn+(can('tts')?'<p class="small">Озвучка работает через голос вашего устройства. Если голоса нет, включите русский голос в настройках телефона.</p>':'')+'</section></div>'
+   +'<section class="card"><h3>Материалы</h3>'+prn+'</section></div>'
    +say+'<section class="card" style="margin-top:14px"><button type="button" class="btn ghost" data-act="adv">Выключить продвинутый режим</button></section>';}
 
 /* ---------- события ---------- */
