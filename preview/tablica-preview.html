@@ -348,17 +348,17 @@ summary{padding-block:10px;min-height:44px}
 .vis-t{margin:0;font:800 18px var(--f-head);color:var(--blue)}
 .vis-baskets{display:flex;flex-wrap:wrap;gap:12px}
 .vbk{display:grid;gap:0;justify-items:center}
-.vfs{display:grid;grid-template-columns:repeat(var(--vc,5),26px);gap:2px;padding:4px 6px 0;min-height:30px}
+.vfs{display:grid;grid-template-columns:repeat(var(--vc,5),26px);justify-content:center;gap:2px;padding:4px 4px 0;margin-bottom:-6px;position:relative;z-index:0}
 .vfs .vf{width:26px;height:26px}
 .vf{display:block}.vf-i{display:inline-block;width:20px;height:20px;vertical-align:-4px}
 .vb{width:100%;min-width:78px;height:34px;background:#C98A3D;border-radius:4px 4px 16px 16px;display:grid;place-items:center;position:relative;color:#fff;font:800 16px var(--f-head);box-shadow:inset 0 -6px 0 rgba(0,0,0,.14)}
-.vb::before{content:"";position:absolute;left:10%;right:10%;top:-8px;height:10px;border:3px solid #C98A3D;border-bottom:0;border-radius:14px 14px 0 0}
-.vempty{min-height:56px;place-items:center;color:var(--ink-soft,var(--ink));font:800 26px var(--f-head);display:grid}
+.vb{z-index:1}
+.vempty{margin-bottom:0;min-height:56px;place-items:center;color:var(--ink-soft,var(--ink));font:800 26px var(--f-head);display:grid}
 .vis-pile{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px;border-radius:12px;background:var(--mute)}
-.vis-pile .vfs{display:flex;flex-wrap:wrap;gap:2px;padding:0}.vtot{font:800 16px var(--f-head)}
+.vis-pile .vfs{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:2px;padding:0;margin:0}.vtot{font:800 16px var(--f-head)}
 .vis-x{margin:0}.vis-eq{margin:0;font:700 20px var(--f-head)}.vis-eq b{color:var(--ok)}
 .vis-next{justify-self:start}
-@media (max-width:440px){.vfs{grid-template-columns:repeat(var(--vc,5),22px)}.vfs .vf{width:22px;height:22px}.vb{min-width:66px}}
+@media (max-width:440px){.vfs{grid-template-columns:repeat(var(--vc,5),22px);margin-bottom:-5px}.vfs .vf{width:22px;height:22px}.vb{min-width:66px}}
 
 /* ---- картинки блоков ---- */
 .modart{display:block;flex:none;align-self:start;width:calc(100% + 32px);max-width:none;margin:-14px -16px 10px;height:auto;aspect-ratio:300/120;border-radius:6px 6px 0 0;overflow:hidden}
@@ -958,9 +958,15 @@ var OKS=['Верно!','Да, точно!','Правильно!','Отлично
 var TRY=['Почти. Давай посмотрим вместе.','Хорошая попытка. Вот подсказка.','Тут легко запутаться. Смотри.'];
 /* ---------- «Показать визуально»: инфографика с корзинками и фруктами ---------- */
 var OBJ={apple:'яблоки',pear:'груши',melon:'арбузы',orange:'апельсины',candy:'конфеты',cookie:'печенье',toy:'игрушки',pencil:'карандаши',star:'наклейки',coin:'монеты'};
-var OBJ_CONT={apple:['Корзинок','корзинок','В каждой'],pear:['Корзинок','корзинок','В каждой'],melon:['Корзинок','корзинок','В каждой'],orange:['Корзинок','корзинок','В каждой'],candy:['Коробок','коробок','В каждой'],cookie:['Тарелок','тарелок','На каждой'],toy:['Коробок','коробок','В каждой'],pencil:['Коробок','коробок','В каждой'],star:['Листов','листов','На каждом'],coin:['Кошельков','кошельков','В каждом']};
-var CONT_RE=[[/коробк|коробок/i,['Коробок','коробок','В каждой']],[/тарелк|тарелок/i,['Тарелок','тарелок','На каждой']],[/корзин/i,['Корзин','корзин','В каждой']],[/полк|полок/i,['Полок','полок','На каждой']],[/пакет|мешоч|мешк|мешок/i,['Пакетов','пакетов','В каждом']],[/детям|друзьям/i,['Детей','детей','У каждого']]];
+/* формы слов: [1 шт, 2–4 шт, 5+ шт, дательный падеж ед. числа для «по 1»] */
+var OBJ_F={apple:['яблоко','яблока','яблок','яблоку'],pear:['груша','груши','груш','груше'],melon:['арбуз','арбуза','арбузов','арбузу'],orange:['апельсин','апельсина','апельсинов','апельсину'],candy:['конфета','конфеты','конфет','конфете'],cookie:['печенье','печенья','печений','печенью'],toy:['игрушка','игрушки','игрушек','игрушке'],pencil:['карандаш','карандаша','карандашей','карандашу'],star:['наклейка','наклейки','наклеек','наклейке'],coin:['монета','монеты','монет','монете']};
+var CF={basket:['корзинка','корзинки','корзинок','в каждой','шт'],box:['коробка','коробки','коробок','в каждой','шт'],plate:['тарелка','тарелки','тарелок','на каждой','шт'],sheet:['лист','листа','листов','на каждом','шт'],purse:['кошелёк','кошелька','кошельков','в каждом','шт'],bin:['корзина','корзины','корзин','в каждой','шт'],shelf:['полка','полки','полок','на каждой','шт'],pack:['пакет','пакета','пакетов','в каждом','шт'],kid:['ребёнок','ребёнка','детей','у каждого','чел.']};
+var OBJ_CONT={apple:CF.basket,pear:CF.basket,melon:CF.basket,orange:CF.basket,candy:CF.box,cookie:CF.plate,toy:CF.box,pencil:CF.box,star:CF.sheet,coin:CF.purse};
+var CONT_RE=[[/коробк|коробок/i,CF.box],[/тарелк|тарелок/i,CF.plate],[/корзинк|корзинок/i,CF.basket],[/корзин/i,CF.bin],[/полк|полок/i,CF.shelf],[/пакет|мешоч|мешк|мешок/i,CF.pack],[/детям|друзьям/i,CF.kid]];
 function visCont(text,ob){var best=null,bi=1e9;for(var i=0;i<CONT_RE.length;i++){var m=CONT_RE[i][0].exec(text||'');if(m&&m.index<bi){bi=m.index;best=CONT_RE[i][1];}}return best||OBJ_CONT[ob];}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+function cnt3(n,f){return n+' '+pl(n,f[0],f[1],f[2]);}          /* 1 груша, 3 груши, 10 груш */
+function poN(n,f){return 'по '+n+' '+(n===1?f[3]:pl(n,f[0],f[1],f[2]));}  /* по 1 груше, по 3 груши, по 10 груш */
 var OBJ_RE=[['candy',/конфет/i],['cookie',/печень|печенек/i],['apple',/яблок/i],['pear',/груш/i],['melon',/арбуз/i],['orange',/апельсин/i],['toy',/игруш/i],['pencil',/карандаш/i],['star',/наклей|наклеек/i],['coin',/монет/i]];
 var VIS_DEF={m1:'candy',m2:'apple',m4:'cookie',m7:'candy',m9:'candy',m10:'candy'};
 /* объект на картинке берём из текста задания, чтобы он совпадал с условием */
@@ -985,25 +991,27 @@ var VIS_MOD={m1:[{t:'mul',a:4,b:2},{t:'mul',a:3,b:4},{t:'mul',a:5,b:3}],m2:[{t:'
 function visSpec(q){var m=q&&q.meta;if(!m)return null;
   if(m.t==='mul'&&m.a>=1&&m.b>=1&&m.a<=10&&m.b<=10)return {t:'mul',a:m.a,b:m.b};
   if(m.t==='div'&&m.d>=2&&m.d<=10&&m.n/m.d<=10&&m.n%m.d===0)return {t:'div',n:m.n,d:m.d};return null;}
-function fIcons(k,n,cls){var s='';for(var i=0;i<n;i++)s+='<svg class="vf" viewBox="0 0 24 24" aria-hidden="true"><use href="#f-'+k+'"/></svg>';return '<div class="'+cls+'">'+s+'</div>';}
+function fIcons(k,n,cls){var s='';for(var i=0;i<n;i++)s+='<svg class="vf" viewBox="0 0 24 24" aria-hidden="true"><use href="#f-'+k+'"/></svg>';return '<div class="'+cls+'" style="--vc:'+Math.min(n,5)+'">'+s+'</div>';}
 function visHtml(s,reveal,ob,txt){
-  var k=ob,fr=[ob,OBJ[ob]],ct=visCont(txt,ob),out='',per=s.t==='mul'?s.a:s.n/s.d,cnt=s.t==='mul'?s.b:s.d,tot=s.t==='mul'?s.a*s.b:s.n;
+  var k=ob,of=OBJ_F[ob],ct=visCont(txt,ob),out='',per=s.t==='mul'?s.a:s.n/s.d,cnt=s.t==='mul'?s.b:s.d,tot=s.t==='mul'?s.a*s.b:s.n;
+  var cpl=function(n){return pl(n,ct[0],ct[1],ct[2]);};
   var baskets='';
   for(var i=0;i<cnt;i++){
     var inner=(s.t==='div'&&!reveal)?'<div class="vfs vempty"><span>?</span></div>':fIcons(k,per,'vfs');
     baskets+='<div class="vbk">'+inner+'<div class="vb"><span>'+((s.t==='div'&&!reveal)?'?':per)+'</span></div></div>';}
-  out+='<p class="vis-t">Считаем '+fr[1]+'</p>';
-  if(s.t==='div')out+='<div class="vis-pile" aria-label="Всего '+s.n+'">'+fIcons(k,s.n,'vfs')+'<span class="vtot">Всего '+s.n+'</span></div>';
-  out+='<div class="vis-baskets" role="img" aria-label="'+cnt+' '+ct[1]+', '+ct[2].toLowerCase()+' '+per+'">'+baskets+'</div>';
+  out+='<p class="vis-t">Считаем '+OBJ[ob]+'</p>';
+  if(s.t==='div')out+='<div class="vis-pile" aria-label="Всего '+cnt3(s.n,of)+'">'+fIcons(k,s.n,'vfs vwide')+'<span class="vtot">Всего '+cnt3(s.n,of)+'</span></div>';
+  out+='<div class="vis-baskets" role="img" aria-label="'+cnt+' '+cpl(cnt)+', '+ct[3]+' '+cnt3(per,of)+'">'+baskets+'</div>';
+  var unit=ct[4];
   if(s.t==='mul'){
-    var sum=cnt<=7?Array(cnt).fill(per).join(' + '):per+' + '+per+' + … ('+cnt+' раз)';
-    out+='<p class="vis-x"><b>'+ct[0]+': '+cnt+'.</b> '+ct[2]+': '+per+' <svg class="vf vf-i" viewBox="0 0 24 24" aria-hidden="true"><use href="#f-'+k+'"/></svg></p>'
+    var sum=cnt<=7?Array(cnt).fill(per).join(' + '):per+' + '+per+' + … ('+times(cnt)+')';
+    out+='<p class="vis-x"><b>'+cap(ct[2])+': '+cnt+' '+unit+'</b>, '+ct[3]+': <b>'+cnt3(per,of)+'</b></p>'
       +'<p class="vis-eq">'+sum+' = <b>'+(reveal?tot:'?')+'</b></p>'
-      +'<p class="vis-eq">Короче: '+s.a+' × '+s.b+' = <b>'+(reveal?tot:'?')+'</b></p>'
-      +(reveal&&s.a!==s.b?'<p class="vis-x">Переставим: теперь '+ct[1]+' '+s.a+', а '+ct[2].toLowerCase()+' '+s.b+'. Всего всё равно '+tot+'.</p>':'')
-      +(!reveal?'<p class="vis-x">Сосчитай, сколько в одной группе, и сложи столько раз, сколько групп.</p>':'');
+      +'<p class="vis-eq">Короткая запись: '+s.a+' × '+s.b+' = <b>'+(reveal?tot:'?')+'</b></p>'
+      +(reveal&&s.a!==s.b?'<p class="vis-x">Переставим: '+cnt+' '+cpl(cnt)+' '+poN(per,of)+'? Нет, теперь '+ct[2]+' '+per+' '+unit+', а '+ct[3]+' '+cnt3(cnt,of)+'. Всего всё равно '+tot+'.</p>':'')
+      +(!reveal?'<p class="vis-x">Сосчитай, сколько в одной группе, и сложи это число столько раз, сколько групп.</p>':'');
   }else{
-    out+='<p class="vis-x"><b>Раскладываем '+s.n+' поровну: '+s.d+' '+ct[1]+'.</b></p>'
+    out+='<p class="vis-x"><b>Раскладываем '+cnt3(s.n,of)+' поровну.</b> '+cap(ct[2])+': <b>'+cnt+' '+unit+'</b></p>'
       +'<p class="vis-eq">'+s.n+' ÷ '+s.d+' = <b>'+(reveal?per:'?')+'</b></p>'
       +'<p class="vis-eq">Проверим умножением: '+s.d+' × '+(reveal?per:'?')+' = '+s.n+'</p>';}
   return out;}
