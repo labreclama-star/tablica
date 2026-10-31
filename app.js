@@ -43,6 +43,7 @@ var Store=(function(){
   function db(){return dbp||(dbp=open());}
   return {
     get:function(){return db().then(function(d){return new Promise(function(res,rej){var q=d.transaction(ST,'readonly').objectStore(ST).get(KEY);q.onsuccess=function(){res(q.result);};q.onerror=function(){rej(q.error);};});});},
+    getKey:function(k){return db().then(function(d){return new Promise(function(res,rej){var q=d.transaction(ST,'readonly').objectStore(ST).get(k);q.onsuccess=function(){res(q.result);};q.onerror=function(){rej(q.error);};});});},
     put:function(v){return db().then(function(d){return new Promise(function(res,rej){var tx=d.transaction(ST,'readwrite');tx.objectStore(ST).put(v,KEY);tx.oncomplete=function(){res();};tx.onerror=function(){rej(tx.error);};tx.onabort=function(){rej(tx.error||new Error('abort'));};});});}
   };})();
 function adopt(o){var f=freshP();for(var k in f){if(o&&o[k]!==undefined&&o[k]!==null)f[k]=o[k];}
@@ -70,6 +71,10 @@ function boot(){
   }).catch(function(e){
     storage.mode='memory';storage.error=String(e&&e.message||e);
     if(legacy)P=adopt(legacy);
+  }).then(function(){
+    /* тариф общий с «Устным счётом»: берём более высокий */
+    if(storage.mode!=='idb')return;
+    return Store.getKey('mental').then(function(m){if(m&&RANK[m.tier]>RANK[P.tier]){P.tier=m.tier;P.adv=true;save();}}).catch(function(){});
   }).then(function(){askPersist();route();});
 }
 function standalone(){try{return window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;}catch(e){return false;}}

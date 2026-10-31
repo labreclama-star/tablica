@@ -97,7 +97,7 @@ THEME_BTN='<button type="button" class="theme-sw" data-theme-toggle aria-label="
 HEAD_COMMON='''<meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
 <meta name="theme-color" content="#2B59E6">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://mc.yandex.ru https://yastatic.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://mc.yandex.ru; font-src 'self'; connect-src 'self' https://mc.yandex.ru; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -107,6 +107,9 @@ HEAD_COMMON='''<meta charset="utf-8">
 <link rel="stylesheet" href="fonts.css">
 <link rel="stylesheet" href="app.css">
 <script src="theme.js"></script>'''
+if os.path.exists(os.path.join(ROOT,'metrika.js')):
+    # Яндекс.Метрика + куки-баннер подключаются, только если рядом лежит metrika.js
+    HEAD_COMMON=HEAD_COMMON.replace("script-src 'self'","script-src 'self' https://mc.yandex.ru https://yastatic.net").replace("img-src 'self' data:","img-src 'self' data: https://mc.yandex.ru").replace("connect-src 'self'","connect-src 'self' https://mc.yandex.ru wss://mc.yandex.ru")+'\n<script src="metrika.js" defer></script>'
 FOOT='''<footer class="foot"><span class="age" title="Возрастная маркировка">6+</span><a href="about.html">О нас</a><a href="blog.html">Блог</a><a href="partners.html">Для партнёров</a><a href="contacts.html">Связаться с нами</a><a href="offer.html">Оферта</a><a href="privacy.html">Политика конфиденциальности</a><a href="how.html">Как хранятся данные</a><a href="notice.html">Уведомление о хранении данных</a></footer>'''
 BRAND='<i aria-hidden="true"><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b></i>Таблица без зубрёжки'
 # ---------- SEO, блог, информационные страницы ----------
@@ -132,6 +135,7 @@ def seo_head(path,title,desc,keywords,typ='website',ld=(),robots=None,published=
     return h
 # --- мета-данные страниц: ключ -> (title, description, keywords)
 META={
+ 'mental':('Устный счёт онлайн: тренажёр сложения и вычитания в уме для детей','Тренажёр устного счёта для 1–4 классов: состав числа, сложение и вычитание с переходом через десяток, игра «Дай сдачу». Объясняет приём по шагам, без зубрёжки.','устный счёт, счёт в уме, сложение через десяток, вычитание в уме, тренажёр'),
  'index':('Таблица умножения без слёз: онлайн-тренажёр для детей 1–5 классов','Интерактивный тренажёр таблицы умножения и деления для 1–5 классов. Объясняет смысл наглядно, без зубрёжки. Попробуйте бесплатно, без регистрации.','таблица умножения, тренажёр таблицы умножения, умножение для детей, таблица умножения онлайн, как выучить таблицу умножения'),
  'trainer':('Тренажёр таблицы умножения и деления онлайн — Таблица без зубрёжки','Онлайн-тренажёр: короткие уроки с картинками, проверка после каждого блока, объяснение другими словами при ошибке. Работает в браузере, без регистрации.','тренажёр таблицы умножения, умножение онлайн, деление для детей, обучение умножению'),
  'blog':('Блог о таблице умножения: советы родителям и игры для детей','Статьи для родителей: как объяснить умножение, выучить таблицу умножения на 9, на 5 и 10, какие игры помогут во 2 классе и что делать, если ребёнок не понимает.','блог про таблицу умножения, как выучить таблицу умножения, советы родителям, обучение детей математике'),
@@ -153,6 +157,7 @@ def md_inline(s):
         t,u=m.group(1),m.group(2)
         if u.startswith('blog:'): return '<a href="%s">%s</a>'%(SLUG2FILE[u[5:]],t)
         if u=='trainer': return '<a href="trainer.html">%s</a>'%t
+        if u=='mental': return '<a href="mental.html">%s</a>'%t
         return '<a href="%s" rel="nofollow noopener" target="_blank">%s</a>'%(u,t)
     return re.sub(r'\[([^\]]+)\]\(([^)]+)\)',lk,s)
 def render_body(blocks):
@@ -168,6 +173,7 @@ def render_body(blocks):
     flush(); return '\n'.join(out)
 CTA_TEXT='Попробуйте наш интерактивный тренажёр. Он объясняет умножение наглядно, без слёз и скучной зубрёжки.'
 CTA_HTML='<aside class="cta"><p>'+CTA_TEXT+'</p><a class="btn" href="trainer.html">Попробовать тренажёр бесплатно</a></aside>'
+CTA_MENTAL='<aside class="cta"><p>Попробуйте тренажёр «Устный счёт». Он показывает, как считать в уме: по шагам, на числовой ленте и с подсказками.</p><a class="btn" href="mental.html">Попробовать «Устный счёт» бесплатно</a></aside>'
 def fig(a):
     return '<figure class="post-fig"><img src="%s" width="1200" height="630" alt="%s" decoding="async"></figure>'%(a['image'],E(a.get('image_alt') or a['h1'])) if a.get('image') else ''
 def article_inner(a):
@@ -175,10 +181,10 @@ def article_inner(a):
     rel='<h2>Читайте также</h2><ul class="related">'+''.join('<li><a href="%s">%s</a></li>'%(x['file'],E(x['title'])) for x in others)+'</ul>'
     return ('<nav class="crumbs" aria-label="Хлебные крошки"><a href="./">Главная</a> / <a href="blog.html">Блог</a></nav><h1>'+E(a['h1'])+'</h1>'
       '<p class="post-meta">Автор: '+E(a['author'])+' · <time datetime="'+a['date']+'">'+date_ru(a['date'])+'</time> · Время чтения: '+E(a['read'])+'</p>'
-      +fig(a)+CTA_HTML+render_body(a['body'])+CTA_HTML+rel)
+      +fig(a)+(CTA_MENTAL if a.get('cta')=='mental' else CTA_HTML)+render_body(a['body'])+(CTA_MENTAL if a.get('cta')=='mental' else CTA_HTML)+rel)
 def blog_inner():
     cards=''.join('<article class="post-card">'+(('<a class="thumb" href="%s" tabindex="-1" aria-hidden="true"><img src="%s" width="1200" height="630" alt="" loading="lazy" decoding="async"></a>'%(a['file'],a['image'])) if a.get('image') else '')+'<h2><a href="%s">%s</a></h2><p>%s</p><p class="post-meta"><time datetime="%s">%s</time> · Время чтения: %s</p><a class="btn ghost" href="%s">Читать статью</a></article>'%(a['file'],E(a['title']),E(a['description']),a['date'],date_ru(a['date']),E(a['read']),a['file']) for a in ARTS)
-    return '<h1>Блог о таблице умножения</h1><p class="lead">Практические статьи для родителей: как объяснить умножение, какие приёмы помогают и во что играть дома. Без обещаний «за три дня», зато с понятными шагами.</p><div class="blog-grid">'+cards+'</div>'+CTA_HTML
+    return '<h1>Блог: таблица умножения и устный счёт</h1><p class="lead">Практические статьи для родителей: как объяснить умножение, какие приёмы помогают и во что играть дома. Без обещаний «за три дня», зато с понятными шагами.</p><div class="blog-grid">'+cards+'</div>'+CTA_HTML
 def article_ld(a):
     return {"@context":"https://schema.org","@type":"Article","headline":a['h1'],"description":a['description'],"inLanguage":"ru","image":[SITE_URL+'/'+(a.get('image') or 'img/og.png')],"datePublished":a['date'],"dateModified":a['date'],"author":{"@type":"Organization","name":a['author']},"publisher":{"@type":"Organization","name":"Таблица без зубрёжки","logo":{"@type":"ImageObject","url":SITE_URL+'/icons/icon-512.png'}},"mainEntityOfPage":{"@type":"WebPage","@id":abs_url(a['file'])},"keywords":a['keywords']}
 # --- информационные страницы
@@ -252,6 +258,8 @@ def faq_html(): return '\n'.join('<details><summary>%s</summary><p>%s</p></detai
 def faq_ld(): return {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":q,"acceptedAnswer":{"@type":"Answer","text":a}} for q,a in FAQ]}
 def preview_links(h):
     h=h.replace('href="trainer.html"','href="#" data-lp="free"')
+    _mu=os.environ.get('MENTAL_PREVIEW_URL','#')
+    h=h.replace('href="mental.html"','href="%s"%s'%(_mu,' target="_blank" rel="noopener"' if _mu!='#' else ''))
     return re.sub(r'href="([\w-]+)\.html"',r'href="#\1"',h)
 
 
@@ -260,7 +268,6 @@ INDEX='''<!doctype html>
 <head>
 '''+HEAD_COMMON+'''
 '''+seo_head('trainer.html',*META['trainer'])+'''
-<script src="metrika.js" defer></script>
 <meta name="yandex-verification" content="73b3544d9deeac4e" />
 <meta name="google-site-verification" content="oaPBgIsXMc0ltcgUDEdRqV1Kcd8Sn7BnaIkOcplcHh4" />
 </head>
@@ -275,6 +282,7 @@ INDEX='''<!doctype html>
       <button type="button" data-v="stickers" hidden>Награды</button>
       <button type="button" data-v="table">Квадрат</button>
       <button type="button" data-v="parent">Родителям</button>
+      <a href="mental.html" class="nav-ment">Устный счёт</a>
       <a href="blog.html">Блог</a>
     </nav>
     '''+THEME_BTN+'''<button type="button" class="adv-sw" role="switch" aria-checked="false" data-act="adv"><span class="knob" aria-hidden="true"></span>Продвинутый режим</button>
@@ -288,14 +296,13 @@ INDEX='''<!doctype html>
 </html>
 '''
 
-HEADER_SIMPLE='<header class="top"><a class="brand" href="./" style="text-decoration:none">'+BRAND+'</a><nav class="nav" aria-label="Разделы"><a href="trainer.html">Тренажёр</a><a href="blog.html">Блог</a></nav>'+THEME_BTN+'</header>'
+HEADER_SIMPLE='<header class="top"><a class="brand" href="./" style="text-decoration:none">'+BRAND+'</a><nav class="nav" aria-label="Разделы"><a href="trainer.html">Умножение</a><a href="mental.html">Устный счёт</a><a href="blog.html">Блог</a></nav>'+THEME_BTN+'</header>'
 def content_page(path,title,desc,kw,inner,ld=(),typ='website',back=True,published=None,image=None):
     return '''<!doctype html>
 <html lang="ru">
 <head>
 '''+HEAD_COMMON+'''
 '''+seo_head(path,title,desc,kw,typ=typ,ld=ld,published=published,image=image)+'''
-<script src="metrika.js" defer></script>
 <meta name="yandex-verification" content="73b3544d9deeac4e" />
 <meta name="google-site-verification" content="oaPBgIsXMc0ltcgUDEdRqV1Kcd8Sn7BnaIkOcplcHh4" />
 </head>
@@ -385,6 +392,21 @@ def reviews_html():
     from html import escape as E
     cards=''.join('<figure class="card lp-rev"><blockquote>%s</blockquote><figcaption><span class="av" aria-hidden="true">%s</span><span>%s%s</span></figcaption></figure>'%(E(x['text']),E(x['name'][:1].upper()),E(x['name']),(', '+E(x['who'])) if x.get('who') else '') for x in items)
     return '<h2>Отзывы родителей</h2><div class="lp-cards">'+cards+'</div>'
+def mental_section(preview):
+    href=os.environ.get('MENTAL_PREVIEW_URL','#') if preview else 'mental.html'
+    btn='<a class="btn big" href="%s"%s>Открыть «Устный счёт»</a>'%(href,' target="_blank" rel="noopener"' if preview and href!='#' else '')
+    return '''<section id="mental-sec" class="lp-mental"><p class="kicker">Новый тренажёр</p><h2 style="margin-top:6px">Устный счёт: считать в уме по шагам</h2>
+<p class="lead">Складывать и вычитать в уме можно научить без слёз. Тренажёр показывает приём на числовой ленте и в «домиках», а не требует «просто запомнить».</p>
+<div class="lp-ment">
+<div class="card"><h3>Переход через десяток</h3><p>47 + 28: сначала сделаем 47 круглым, возьмём 3 из 28, получим 50 + 25 = 75. Каждый шаг виден.</p></div>
+<div class="card"><h3>Четыре коротких модуля</h3><p>Состав числа, сложение без перехода, сложение через десяток, вычитание по частям.</p></div>
+<div class="card"><h3>«Объясни по-другому»</h3><p>Три способа объяснить один шаг: предметами, на числовой ленте, разложением.</p></div>
+<div class="card"><h3>Игра «Дай сдачу»</h3><p>Товар стоит 67 ₽, дали 100 ₽. Ребёнок считает сдачу, а при ошибке видит решение по шагам.</p></div>
+<div class="card"><h3>Тренажёр помнит трудное</h3><p>Примеры, в которых ребёнок ошибается, возвращаются чаще. В «Продвинутом» тарифе есть повторения через 1, 3, 7 и 14 дней.</p></div>
+<div class="card"><h3>Те же тарифы и коды</h3><p>Один код открывает оба тренажёра. Бесплатно доступен модуль «Состав числа».</p></div>
+</div>
+<p style="margin:18px 0 0">'''+btn+'''</p></section>
+'''
 def landing_body(preview,hero_src):
     free=lp_btn('free','Попробовать бесплатно','big',preview)
     rows_free=[(1,'Блоки: смысл умножения, ×1, ×2, ×5, ×10'),(1,'Кнопка «Объясни по-другому», три варианта'),(1,'Доступ навсегда'),(1,'10 минут занятий в день'),(1,'Базовый тренажёр'),(0,'Остальные блоки и деление'),(0,'Текстовые задачи и итоговая проверка'),(0,'Игры и повторения через дни')]
@@ -399,10 +421,10 @@ def landing_body(preview,hero_src):
     if preview: foot=preview_links(foot)
     return '''<div class="lp">
 <main>
-<header class="lp-top"><span class="brand" style="cursor:default">'''+BRAND+'''</span>'''+'<nav class="lp-nav" aria-label="Разделы">'+('<a href="#blog">Блог</a>' if preview else '<a href="#tariffs">Тарифы</a><a href="blog.html">Блог</a>')+'</nav>'+THEME_BTN+'''</header>
+<header class="lp-top"><span class="brand" style="cursor:default">'''+BRAND+'''</span>'''+'<nav class="lp-nav" aria-label="Разделы">'+('<a href="#mental-sec">Устный счёт</a><a href="#blog">Блог</a>' if preview else '<a href="#mental-sec">Устный счёт</a><a href="#tariffs">Тарифы</a><a href="blog.html">Блог</a>')+'</nav>'+THEME_BTN+'''</header>
 <section class="lp-hero"><div>
 <p class="kicker">Умножение и деление</p>
-<h1>Таблица умножения без слёз и скандалов. Поймёт, а не зазубрит.</h1>
+<h1>Таблица умножения и устный счёт без слёз и скандалов</h1>
 <p class="lead">Интерактивный тренажёр для 1–5 классов. Превращает скучные столбики в понятную игру. Всего 10 минут в день.</p>
 <p style="margin:20px 0 10px">'''+free+'''</p>
 <p class="small">Без регистрации. Прогресс хранится на вашем устройстве.</p>
@@ -423,7 +445,7 @@ def landing_body(preview,hero_src):
 <div class="card"><h3>Секретные приёмы</h3><p>Умножение на 9 на пальцах, на 5 как на часах, на 10 одним нулём.</p></div>
 <div class="card"><h3>Повторения через дни</h3><p>В тарифе «Продвинутый» сервис сам напоминает повторить пример через 1, 3, 7 дней, чтобы знания держались дольше.</p></div>
 </div>
-'''+security_html()+reviews_html()+'''<h2 id="tariffs">Тарифы</h2>
+'''+mental_section(preview)+security_html()+reviews_html()+'''<h2 id="tariffs">Тарифы</h2>
 <div class="lp-plans">'''+plans+'''</div>
 <p class="lp-note">Платёж один раз, без подписки, доступ без ограничения срока. Сервис предоставляется «как есть». Сначала попробуйте бесплатную версию: возврат средств за цифровой товар надлежащего качества не предусмотрен. Уже купили? Можно '''+code+'''.</p>
 <h2>Вопросы и ответы</h2>
@@ -445,7 +467,6 @@ LANDING=('''<!doctype html>
 '''+HEAD_COMMON+'''
 '''+seo_head('',*META['index'],ld=[SOFTAPP_LD,faq_ld()])+'''
 <style>'''+LCSS+'''</style>
-<script src="metrika.js" defer></script>
 <meta name="yandex-verification" content="73b3544d9deeac4e" />
 <meta name="google-site-verification" content="oaPBgIsXMc0ltcgUDEdRqV1Kcd8Sn7BnaIkOcplcHh4" />
 </head>
@@ -457,6 +478,42 @@ LANDING=('''<!doctype html>
 ''')
 
 # --- боевые файлы
+MENTAL_HTML='''<!doctype html>
+<html lang="ru">
+<head>
+'''+HEAD_COMMON+'''
+'''+seo_head('mental.html',*META['mental'],ld=[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Устный счёт","url":abs_url('mental.html'),"applicationCategory":"EducationalApplication","operatingSystem":"Any","inLanguage":"ru","offers":{"@type":"Offer","price":"0","priceCurrency":"RUB"}}])+'''
+<meta name="yandex-verification" content="73b3544d9deeac4e" />
+<meta name="google-site-verification" content="oaPBgIsXMc0ltcgUDEdRqV1Kcd8Sn7BnaIkOcplcHh4" />
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <button class="brand" type="button" data-v="home">'''+BRAND+'''</button>
+    <nav class="nav" aria-label="Разделы">
+      <button type="button" data-v="home">Модули</button>
+      <button type="button" data-v="train">Тренажёр</button>
+      <button type="button" data-v="shop">Дай сдачу</button>
+      <button type="button" data-v="parent">Родителям</button>
+      <a href="trainer.html">Умножение</a>
+      <a href="blog.html">Блог</a>
+    </nav>
+    '''+THEME_BTN+'''
+  </header>
+  <main id="app"></main>
+  <noscript><p class="card">Для работы тренажёра нужен включённый JavaScript.</p></noscript>
+  '''+FOOT+'''
+</div>
+<script src="app_mental.js" defer></script>
+</body>
+</html>
+'''
+def _shared_js(src):
+    L=[re.search(r"^var %s=.*$"%k,_app,flags=re.M).group(0) for k in ('FREE_MIN','PRICE_STD','PAY_URL_STD','PAY_URL_PRO','CODES_STD','CODES_PRO')]
+    L=[re.sub(r"\s*/\*.*?\*/\s*$","",x) for x in L]
+    return re.sub(r"/\*SHARED\*/.*?/\*ENDSHARED\*/","/*SHARED*/\n"+"\n".join(L)+"\n/*ENDSHARED*/",src,flags=re.S)
+_mj=_shared_js(rd('app_mental.js')); wr('app_mental.js',_mj)
+wr('mental.html',MENTAL_HTML)
 wr('trainer.html',INDEX)
 wr('index.html',LANDING)
 ALLDOCS=dict(DOCS); ALLDOCS.update(EXTRA_DOCS)
@@ -464,13 +521,13 @@ for k,(t,body_) in ALLDOCS.items(): wr(k+'.html',content_page(k+'.html',*META[k]
 wr('blog.html',content_page('blog.html',*META['blog'],blog_inner(),ld=[{"@context":"https://schema.org","@type":"Blog","name":"Блог о таблице умножения","url":abs_url('blog.html'),"inLanguage":"ru","blogPost":[{"@type":"BlogPosting","headline":a['h1'],"url":abs_url(a['file']),"datePublished":a['date']} for a in ARTS]}],back=False))
 for a in ARTS: wr(a['file'],content_page(a['file'],a['title'],a['description'],a['keywords'],article_inner(a),ld=[article_ld(a)],typ='article',back=False,published=a['date'],image=a.get('image')))
 # sitemap.xml, robots.txt
-_pages=[('',1.0,'weekly',TODAY),('trainer.html',0.9,'weekly',TODAY),('blog.html',0.8,'weekly',max(a['date'] for a in ARTS))]
+_pages=[('',1.0,'weekly',TODAY),('mental.html',0.9,'weekly',TODAY),('trainer.html',0.9,'weekly',TODAY),('blog.html',0.8,'weekly',max(a['date'] for a in ARTS))]
 _pages+=[(a['file'],0.7,'monthly',a['date']) for a in ARTS]
 _pages+=[('about.html',0.5,'yearly',TODAY),('contacts.html',0.5,'yearly',TODAY),('partners.html',0.4,'yearly',TODAY),('offer.html',0.3,'yearly',TODAY),('privacy.html',0.3,'yearly',TODAY),('how.html',0.3,'yearly',TODAY),('notice.html',0.3,'yearly',TODAY)]
 wr('sitemap.xml','<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+''.join('  <url>\n    <loc>%s</loc>\n    <lastmod>%s</lastmod>\n    <changefreq>%s</changefreq>\n    <priority>%.1f</priority>\n  </url>\n'%(E(abs_url(p)),lm,cf,pr) for p,pr,cf,lm in _pages)+'</urlset>\n')
 wr('robots.txt','User-agent: *\nAllow: /\nDisallow: /print.html\nDisallow: /print.js\nDisallow: /tools/\nDisallow: /src/\n\nSitemap: '+SITE_URL+'/sitemap.xml\n')
 # service-worker: список страниц
-_sw=rd('service-worker.js'); _pg=['index.html','trainer.html','blog.html','print.html']+[a['file'] for a in ARTS]+[k+'.html' for k in ALLDOCS]+[a['image'] for a in ARTS if a.get('image')]
+_sw=rd('service-worker.js'); _pg=['index.html','trainer.html','mental.html','blog.html','print.html']+[a['file'] for a in ARTS]+[k+'.html' for k in ALLDOCS]+[a['image'] for a in ARTS if a.get('image')]
 _sw=re.sub(r"/\*PAGES\*/.*?/\*END\*/","/*PAGES*/ "+", ".join("'%s'"%p for p in _pg)+", /*END*/",_sw,flags=re.S); wr('service-worker.js',_sw)
 
 # --- предпросмотр (один файл для артефакта: без service worker, шрифты с Google Fonts)
@@ -509,6 +566,7 @@ prev='''<meta charset="utf-8">
       <button type="button" data-v="stickers" hidden>Награды</button>
       <button type="button" data-v="table">Квадрат</button>
       <button type="button" data-v="parent">Родителям</button>
+      <a href="mental.html" class="nav-ment">Устный счёт</a>
       <a href="blog.html">Блог</a>
     </nav>
     '''+THEME_BTN+'''<button type="button" class="adv-sw" role="switch" aria-checked="false" data-act="adv"><span class="knob" aria-hidden="true"></span>Продвинутый режим</button>
@@ -559,7 +617,6 @@ PRINT='''<!doctype html>
 .cd .a p{margin:6px 0 0;font-size:15px}
 @media print{.noprint{display:none!important}body{background:#fff}.cd,.pt th,.pt td{border-color:#000}.pt th{background:#eee}.pgb{break-before:page}}
 </style>
-<script src="metrika.js" defer></script>
 <meta name="yandex-verification" content="73b3544d9deeac4e" />
 <meta name="google-site-verification" content="oaPBgIsXMc0ltcgUDEdRqV1Kcd8Sn7BnaIkOcplcHh4" />
 </head>
@@ -582,4 +639,28 @@ wr('print.js',"document.getElementById('pr').addEventListener('click',function()
 
 prev=prev.replace('<a href="blog.html">Блог</a>','<a href="#blog">Блог</a>')
 wr('preview/tablica-preview.html',prev)
-print('built', len(prev))
+# --- предпросмотр «Устного счёта» (один файл)
+_mhead=re.search(r'<header class="top">.*?</header>',MENTAL_HTML,re.S).group(0)
+_mhead=_mhead.replace('<a href="trainer.html">Умножение</a>','').replace('<a href="blog.html">Блог</a>','')
+mprev='''<meta charset="utf-8">
+<script>'''+rd('theme.js')+'''</script>
+<title>Устный счёт</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Nunito:wght@600;800&family=Rubik:wght@500;700&display=swap">
+<style>
+'''+css+'''
+</style>
+<div class="wrap">
+  '''+_mhead+'''
+  <main id="app"></main>
+  '''+re.sub(r'<a [^>]*>([^<]*)</a>',r'<span>\1</span>',FOOT)+'''
+</div>
+<script>
+'''+_mj+'''
+</script>
+'''
+wr('preview/mental-preview.html',mprev)
+print('built', len(prev), len(mprev))
+

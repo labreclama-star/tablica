@@ -331,3 +331,25 @@ summary{padding-block:10px;min-height:44px}
 .modart{display:block;flex:none;align-self:start;width:calc(100% + 32px);max-width:none;margin:-14px -16px 10px;height:auto;aspect-ratio:300/120;border-radius:6px 6px 0 0;overflow:hidden}
 .mod{overflow:hidden}
 .card .modart{width:100%;margin:0 0 12px;border-radius:14px;max-height:170px}
+
+/* ===== Устный счёт ===== */
+.mviz{display:block;width:100%;max-width:420px;height:auto;margin:8px 0}
+.mviz.mviz-s{width:auto;max-width:100%;max-height:96px;min-width:60px}
+.mrow{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:8px 0}
+.mop{font:700 28px var(--f-head);color:var(--ink)}
+.mv-b{fill:var(--blue);stroke:var(--edge);stroke-width:1.5}
+.mv-b2{fill:var(--cell-a);stroke:var(--edge);stroke-width:1.5}
+.mv-y{fill:var(--yellow);stroke:var(--edge);stroke-width:1.5}
+.mv-g{fill:var(--mute,#E6ECF8);stroke:var(--line);stroke-width:1.5}
+.mv-x{fill:none;stroke:var(--ink2);stroke-width:1.5;stroke-dasharray:3 3;opacity:.7}
+.mv-t{fill:var(--ink);font:700 15px var(--f-head)}
+.mv-t2{fill:var(--ink2);font:600 12px var(--f-head)}
+.mv-t3{fill:var(--ink);font:700 20px var(--f-head)}
+.mv-l{stroke:var(--ink);stroke-width:2.5;stroke-linecap:round}
+.mv-a0,.mv-a1{fill:none;stroke-width:3;stroke-linecap:round}
+.mv-a0{stroke:var(--blue)}
+.mv-a1{stroke:var(--ink2)}
+.mart{display:block}
+.nav .nav-ment{font-weight:700}
+.mnav-cur{border-color:var(--edge)!important;background:var(--yellow)!important;color:var(--on-yellow)!important}
+.lp-ment{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
