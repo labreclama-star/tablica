@@ -13,22 +13,91 @@ var PREVIEW=!!window.__PREVIEW__;
 var PAYWALL=true;             /* три тарифа: бесплатный, Стандарт, Продвинутый */
 var FREE_IDS={m1:1,m2:1,m4:1,m5:1,m6:1};   /* блоки бесплатного тарифа: смысл, ×1 и ×10, ×2, ×5 */
 var FREE_MIN=10;              /* минут занятий в день на бесплатном тарифе */
-var PRICE_STD='990 ₽',PRICE_PRO='1 990 ₽';
+/*SHARED*/
+/* Цены и ссылки на оплату: тренажёр «Умножение» (MULT), «Устный счёт» (MNT) и комбо (CMB). Меняйте только здесь: build.py копирует блок в app_mental.js и на лендинг. */
+var PRICE_STD='990 ₽';
+var PRICE_PRO='1 990 ₽';
+var PRICE_MNT_STD='690 ₽';
+var PRICE_MNT_PRO='1 490 ₽';
+var PRICE_CMB_STD='1 490 ₽';
+var PRICE_CMB_PRO='2 490 ₽';
 var PAY_URL_STD='https://example.com/pay?plan=standard';  /* страницы оплаты у платёжного агрегатора */
 var PAY_URL_PRO='https://example.com/pay?plan=pro';
-/* SHA-256 кодов доступа (см. README). Сейчас там тестовые коды TEST-STANDARD, TEST-PRO и 1111 (Продвинутый): перед запуском замените. */
+var PAY_URL_MNT_STD='https://example.com/pay?plan=mental-standard';
+var PAY_URL_MNT_PRO='https://example.com/pay?plan=mental-pro';
+var PAY_URL_CMB_STD='https://example.com/pay?plan=combo-standard';
+var PAY_URL_CMB_PRO='https://example.com/pay?plan=combo-pro';
+/* SHA-256 кодов доступа (см. README). Тестовые коды (удалите перед запуском): TEST-STANDARD, TEST-PRO и 1111 (Умножение), TEST-CMB-STD, TEST-CMB-PRO (оба тренажёра), TEST-MNT-STD, TEST-MNT-PRO (только «Устный счёт»). */
 var CODES_STD=["ca063870f27456c4764dc609ae1579f7a1fa8e6f497713a47ad4b90c98db7bb6"];
 var CODES_PRO=["0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c","9617e38101e15005c55a48cf1116327a0bb611c344da66dce2799e30b954a446"];
+var CODES_CMB_STD=["4964d0225d51f2c815d16d174332eb64a293214325956f552404ef4fdb107de1"];
+var CODES_CMB_PRO=["c671df5b041bddfa252b798e75d6568e22201ed148edc470e1c280c68f0a6e6c"];
+var CODES_MNT_STD=["98228139f575a4a1c0f048ebf40c970d7c3f64bf9017343ded4c2e2ccccb1176"];
+var CODES_MNT_PRO=["ea017b378b1df8637cddf5cc7dd988a5bb470ebe6663b49a33d3645df76bc34f"];
+/* что открывает код: {mult, mental}; null, если код не найден. Старые коды STANDARD-/PRO- открывают только «Умножение». */
+function codeGrant(hx){
+  function has(a){return a.indexOf(hx)>=0;}
+  if(has(CODES_CMB_PRO))return {mult:'pro',mental:'pro'};
+  if(has(CODES_CMB_STD))return {mult:'standard',mental:'standard'};
+  if(has(CODES_PRO))return {mult:'pro',mental:null};
+  if(has(CODES_STD))return {mult:'standard',mental:null};
+  if(has(CODES_MNT_PRO))return {mult:null,mental:'pro'};
+  if(has(CODES_MNT_STD))return {mult:null,mental:'standard'};
+  return null;}
+function anyCodes(){return CODES_STD.length+CODES_PRO.length+CODES_CMB_STD.length+CODES_CMB_PRO.length+CODES_MNT_STD.length+CODES_MNT_PRO.length>0;}
+function rub(s){return parseInt(String(s).replace(/\D/g,''),10)||0;}
+function fmtRub(n){return String(n).replace(/\B(?=(\d{3})+$)/,'\u00A0')+'\u00A0₽';}
+/* три колонки тарифов: Умножение, Устный счёт, Комбо */
+function tariffCols(){
+  function row(name,price,url){return '<div class="trow"><span class="tname">'+name+'</span><b class="tprice">'+price+'</b><a class="btn" href="'+url+'" rel="noopener" target="_blank">Купить</a></div>';}
+  function col(cls,title,sub,items,rows,badge){return '<div class="tcol'+cls+'">'+(badge?'<span class="tbadge">'+badge+'</span>':'')+'<h3>'+title+'</h3><p class="tsub">'+sub+'</p><ul>'+items.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul>'+rows+'</div>';}
+  var s1=rub(PRICE_STD)+rub(PRICE_MNT_STD)-rub(PRICE_CMB_STD),s2=rub(PRICE_PRO)+rub(PRICE_MNT_PRO)-rub(PRICE_CMB_PRO);
+  return '<div class="tcols">'
+   +col('','Умножение','Таблица умножения и деления',['Блоки с картинками и кнопкой «Объясни по-другому»','Стандарт: все блоки, без лимита по времени, итоговая проверка','Продвинутый: повторения через 1, 3, 7 дней, игры, награды, печать'],row('Стандарт',PRICE_STD,PAY_URL_STD)+row('Продвинутый',PRICE_PRO,PAY_URL_PRO))
+   +col('','Устный счёт','Сложение и вычитание в уме',['Четыре модуля: состав числа, сложение и вычитание через десяток','Стандарт: все модули, игра «Дай сдачу», тренажёр без лимита','Продвинутый: повторения примеров через 1, 3, 7, 14 дней, подробный отчёт'],row('Стандарт',PRICE_MNT_STD,PAY_URL_MNT_STD)+row('Продвинутый',PRICE_MNT_PRO,PAY_URL_MNT_PRO))
+   +col(' combo','Комбо: всё сразу','Оба тренажёра по одному коду',['«Умножение» и «Устный счёт» открываются вместе','Тот же тариф в обоих тренажёрах','Выгода: '+fmtRub(s1)+' на Стандарте, '+fmtRub(s2)+' на Продвинутом'],row('Стандарт',PRICE_CMB_STD,PAY_URL_CMB_STD)+row('Продвинутый',PRICE_CMB_PRO,PAY_URL_CMB_PRO),'Выгодно')
+   +'</div>';}
+/* Маскот «Клетик»: плоский inline SVG (около 1,5 КБ на экземпляр). Эмоции: joy, think, sorry, party. */
+function clk(e,cls){
+  var D='#1A2747',lk={think:[-4,1],sorry:[0,2]}[e]||[0,0],x=lk[0],y=lk[1];
+  var STAR='M0-7 2-2.4 7-2.2 3.1 1 4.3 6 0 3.2-4.3 6-3.1 1-7-2.2-2-2.4Z';
+  function eye(cx,cy){return '<circle cx="'+cx+'" cy="'+cy+'" r="12" fill="#fff" stroke="'+D+'" stroke-width="2.5"/>'+
+    (e==='party'?'<path transform="translate('+cx+' '+cy+') scale(1.15)" d="'+STAR+'" fill="#FFC83D" stroke="'+D+'" stroke-width="1.2" stroke-linejoin="round"/>'
+    :'<circle cx="'+(cx+x)+'" cy="'+(cy+y)+'" r="6.2" fill="'+D+'"/><circle cx="'+(cx+x-2)+'" cy="'+(cy+y-2.2)+'" r="1.9" fill="#fff"/>');}
+  var line='fill="none" stroke="'+D+'" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"';
+  var brow={joy:'<path d="M34 31Q42 26 50 30M70 30Q78 26 86 31" '+line+'/>',
+    think:'<path d="M34 33H50M70 29Q78 24 86 29" '+line+'/>',
+    sorry:'<path d="M34 37L50 28M70 28L86 37" '+line+'/>',party:'<path d="M34 30Q42 25 50 29M70 29Q78 25 86 30" '+line+'/>'}[e]||'';
+  var smile='<path d="M45 64Q60 84 75 64Z" fill="'+D+'" stroke="'+D+'" stroke-width="3" stroke-linejoin="round"/><path d="M52 72Q60 79 68 72Q60 69 52 72Z" fill="#FF6F91"/>';
+  var mouth={joy:smile,party:smile,think:'<path d="M50 71H70" '+line+'/>',sorry:'<path d="M50 73Q60 64 70 73" '+line+'/>'}[e]||smile;
+  var conf=e==='party'?'<path transform="translate(10 22)" d="'+STAR+'" fill="#FFC83D"/><path transform="translate(112 18) scale(.8)" d="'+STAR+'" fill="#FF6F91"/><circle cx="8" cy="76" r="3.5" fill="#3DBE7A"/><circle cx="113" cy="70" r="3.5" fill="#FFC83D"/><path d="M108 40l5 5M10 48l5-4" fill="none" stroke="#3DBE7A" stroke-width="2.6" stroke-linecap="round"/>':'';
+  return '<svg class="clk'+(cls?' '+cls:'')+'" viewBox="0 0 120 132" aria-hidden="true" focusable="false">'+
+    '<rect class="cb" x="36" y="100" width="16" height="20" rx="6"/><rect class="cb" x="68" y="100" width="16" height="20" rx="6"/>'+
+    '<rect class="cb" x="12" y="8" width="96" height="96" rx="20"/>'+
+    '<path class="cg" d="M36 14V98M60 14V98M84 14V98M18 32H102M18 56H102M18 80H102"/>'+
+    eye(42,50)+eye(78,50)+'<ellipse cx="28" cy="66" rx="6" ry="4" fill="#FF8FA3" opacity=".65"/><ellipse cx="92" cy="66" rx="6" ry="4" fill="#FF8FA3" opacity=".65"/>'+
+    brow+mouth+
+    '<g transform="rotate(-8 90 100)"><rect x="70" y="84" width="40" height="34" rx="5" fill="#fff" stroke="'+D+'" stroke-width="3"/><path d="M76 94H104M76 102H98M76 110H92" fill="none" stroke="#86A3FF" stroke-width="3" stroke-linecap="round"/></g>'+
+    '<circle class="cb" cx="72" cy="98" r="6.5"/>'+conf+'</svg>';}
+/*ENDSHARED*/
 var RANK={free:0,standard:1,pro:2},TIER_NAME={free:'Бесплатный',standard:'Стандарт',pro:'Продвинутый'};
 /* какой тариф нужен для каждой возможности продвинутого режима */
 var FEAT={anchors:'standard',story:'standard',mix:'standard',hard:'standard',compare:'standard',goals:'standard',final:'standard',
   pre:'pro',sr:'pro',pickx:'pro',say:'pro',games:'pro',stickers:'pro',tips:'pro',week:'pro',print:'pro'};
-function tier(){return RANK[P.tier]!==undefined?P.tier:'free';}
-function can(f){return !!P.adv&&RANK[tier()]>=RANK[FEAT[f]];}
+/* два независимых тарифа: tierMult («Умножение») и tierMental («Устный счёт»). P.tier дублирует tierMult для старых файлов прогресса. */
+function tier(){var a=RANK[P.tierMult]!==undefined?P.tierMult:'free',b=RANK[P.tier]!==undefined?P.tier:'free';return RANK[b]>RANK[a]?b:a;}
+function tierMentalNow(){return RANK[P.tierMental]!==undefined?P.tierMental:'free';}
+function tierOf(app){return app==='mental'?tierMentalNow():tier();}
+function can(f,app){return !!P.adv&&RANK[tierOf(app)]>=RANK[FEAT[f]];}
+function setTiers(g){/* g: {mult, mental} */
+  var ch=false;
+  if(g.mult&&RANK[g.mult]>RANK[tier()]){P.tierMult=g.mult;P.tier=g.mult;ch=true;}
+  if(g.mental&&RANK[g.mental]>RANK[tierMentalNow()]){P.tierMental=g.mental;ch=true;}
+  if(ch){P.adv=true;save();}return ch;}
 
 /* ---------- хранение прогресса: IndexedDB, запасной режим в памяти ---------- */
 var SCHEMA=5,APP_ID='tablica-bez-zubrezhki',OLD_KEY='tbl.v1';
-function freshP(){return {schemaVersion:SCHEMA,done:{},stars:{},attempts:{},stats:{},days:{},alts:{},access:false,onboarded:false,sessions:0,lastBackupAt:null,lastReminder:0,adv:false,sr:{},daily:{},final:[],told:{},notes:{},stk:{},tier:'free'};}
+function freshP(){return {schemaVersion:SCHEMA,done:{},stars:{},attempts:{},stats:{},days:{},alts:{},access:false,onboarded:false,sessions:0,lastBackupAt:null,lastReminder:0,adv:false,sr:{},daily:{},final:[],told:{},notes:{},stk:{},tier:'free',tierMult:'free',tierMental:'free'};}
 var P=freshP();
 var storage={mode:'init',persist:'unknown',error:null};
 var Store=(function(){
@@ -48,6 +117,8 @@ var Store=(function(){
   };})();
 function adopt(o){var f=freshP();for(var k in f){if(o&&o[k]!==undefined&&o[k]!==null)f[k]=o[k];}
   if(o&&o.access===true&&o.tier===undefined)f.tier='standard';if(RANK[f.tier]===undefined)f.tier='free';
+  if(RANK[f.tierMult]===undefined)f.tierMult='free';if(RANK[f.tierMental]===undefined)f.tierMental='free';
+  if(RANK[f.tier]>RANK[f.tierMult])f.tierMult=f.tier;f.tier=f.tierMult;
   ['done','stars','attempts','stats','days','alts','sr','daily','told','notes','stk'].forEach(function(k){if(!f[k]||typeof f[k]!=='object'||Array.isArray(f[k]))f[k]={};});if(!Array.isArray(f.final))f.final=[];
   f.schemaVersion=SCHEMA;return f;}
 var saveT=null;
@@ -74,7 +145,7 @@ function boot(){
   }).then(function(){
     /* тариф общий с «Устным счётом»: берём более высокий */
     if(storage.mode!=='idb')return;
-    return Store.getKey('mental').then(function(m){if(m&&RANK[m.tier]>RANK[P.tier]){P.tier=m.tier;P.adv=true;save();}}).catch(function(){});
+    return Store.getKey('mental').then(function(m){if(m&&RANK[m.tier]>RANK[tierMentalNow()]){P.tierMental=m.tier;P.adv=true;save();}}).catch(function(){});
   }).then(function(){askPersist();route();});
 }
 function standalone(){try{return window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;}catch(e){return false;}}
@@ -418,7 +489,7 @@ function rHome(){
     return '<button type="button" class="mod'+(d?' done':'')+'" data-start="'+m.id+'">'+modArt(m.id)+'<span class="mod-n">Блок '+(i+1)+'</span><span class="mod-tag">'+m.tag+'</span><span class="mod-t">'+m.title+'</span><span class="mod-s">'+st+'</span></button>';}).join('');
   var today=next?'<div><b>Сегодня: блок '+(idx+1)+'</b><span>'+next.title+'. Хватит 5–10 минут.</span></div><button type="button" class="btn" data-start="'+next.id+'">'+(idx===0&&!Object.keys(P.done).length?'Начать':'Продолжить')+'</button>':'<div><b>Все блоки пройдены</b><span>Тренажёр подберёт примеры, которые пока даются труднее.</span></div><button type="button" class="btn" data-v="train">В тренажёр</button>';
   if(freeDone)today='<div><b>Бесплатные блоки пройдены</b><span>Остальные блоки откроет Стандарт.</span></div><button type="button" class="btn" data-v="buy">Открыть все блоки</button>';
-  app.innerHTML=banners()+'<section class="card lift"><p class="kicker">Умножение и деление</p><h1>Таблица без зубрёжки</h1><p class="lead" style="margin-top:12px">Сначала понимаем, потом запоминаем. В каждом блоке коротко объясняем, даём несколько задач и проверку. Не понял? Нажми «Объясни по-другому». Ошибка здесь — часть учёбы.</p><div class="today">'+today+'</div></section><h2>Блоки</h2><div class="mods">'+cards+'</div><p class="small" style="margin-top:18px">Один блок удобно проходить 3–7 дней: в первый день урок и проверка, потом по 5 минут в тренажёре.</p>';homeAdv();}
+  app.innerHTML=banners()+'<section class="card lift"><p class="kicker">Умножение и деление</p><h1>Таблица без зубрёжки</h1><p class="lead" style="margin-top:12px">Сначала понимаем, потом запоминаем. В каждом блоке коротко объясняем, даём несколько задач и проверку. Не понял? Нажми «Объясни по-другому». Ошибка здесь — часть учёбы.</p><div class="today"><span class="clk-hi">'+clk('joy')+'<i>Привет! Я Клетик</i></span>'+today+'</div></section><h2>Блоки</h2><div class="mods">'+cards+'</div><p class="small" style="margin-top:18px">Один блок удобно проходить 3–7 дней: в первый день урок и проверка, потом по 5 минут в тренажёре.</p>';homeAdv();}
 
 /* ---------- прохождение блока ---------- */
 function startModule(id){
@@ -460,6 +531,7 @@ function rExplain(it){
     al.onclick=function(){it.v++;countAlt();paint();var vb0=card.querySelector('.vis-btn'),vp0=card.querySelector('.vis-panel');if(vb0&&vp0&&!vp0.hidden){vb0.click();vb0.click();}var e=card.querySelector('#expl');e.classList.remove('swap');void e.offsetWidth;e.classList.add('swap');};rw.appendChild(al);}
   if(VIS_MOD[it.mod.id]){var vw=visWidget(function(){return VIS_MOD[it.mod.id];},true,function(){var c=card.cloneNode(true),p=c.querySelector('.vis-panel');if(p)p.parentNode.removeChild(p);return c.textContent;},VIS_DEF[it.mod.id]);rw.appendChild(vw.btn);rw.parentNode.insertBefore(vw.panel,rw);}
   var nx=h('<button type="button" class="btn">Дальше</button>');nx.onclick=function(){R.i++;render();window.scrollTo(0,0);};rw.appendChild(nx);
+  card.insertAdjacentHTML('beforeend','<div class="clk-corner">'+clk('think')+'</div>');
   app.appendChild(card);app.insertAdjacentHTML('beforeend',restNote());}
 
 var OKS=['Верно!','Да, точно!','Правильно!','Отлично!'];
@@ -556,13 +628,13 @@ function rAsk(it){
     var v=parseInt(inp.value.replace(/\s/g,''),10);if(isNaN(v)){inp.focus();return;}
     if(v===q.answer){
       var withHelp=it.w>0;
-      done('<div class="fb ok"><strong>'+(withHelp?'Получилось!':pick(OKS))+'</strong>'+(withHelp?'<span>Вот так и учатся: сначала подсказка, потом сам.</span>':'')+'</div>');return;}
+      done('<div class="fb ok hc">'+clk('joy')+'<strong>'+(withHelp?'Получилось!':pick(OKS))+'</strong>'+(withHelp?'<span>Вот так и учатся: сначала подсказка, потом сам.</span>':'')+'</div>');return;}
     it.w++;inp.select();
     if(it.w>=3){
-      done('<div class="fb try"><strong>Ответ: '+q.answer+'.</strong><span>Ничего страшного. Этот пример мы ещё повторим.</span><div class="hint">'+hint(q,2)+'</div></div>');return;}
+      done('<div class="fb try hc">'+clk('sorry')+'<strong>Ответ: '+q.answer+'.</strong><span>Ничего страшного. Этот пример мы ещё повторим.</span><div class="hint">'+hint(q,2)+'</div></div>');return;}
     if(it.w===2){
-      fb.innerHTML='<div class="fb try"><strong>Давай объясню по-другому.</strong><div class="hint">'+simpleHint(q)+'</div><span>Попробуй ещё раз.</span></div>';inp.focus();return;}
-    fb.innerHTML='<div class="fb try"><strong>'+TRY[(it.w-1)%TRY.length]+'</strong><div class="hint">'+hint(q,it.w)+'</div>'+(can('compare')?compareHtml(q,v):'')+'<span>Попробуй ещё раз.</span></div>';inp.focus();}
+      fb.innerHTML='<div class="fb try hc">'+clk('sorry')+'<strong>Давай объясню по-другому.</strong><div class="hint">'+simpleHint(q)+'</div><span>Попробуй ещё раз.</span></div>';inp.focus();return;}
+    fb.innerHTML='<div class="fb try hc">'+clk('sorry')+'<strong>Ой, я тоже иногда путаюсь. Давай посмотрим ещё раз.</strong><div class="hint">'+hint(q,it.w)+'</div>'+(can('compare')?compareHtml(q,v):'')+'<span>Попробуй ещё раз.</span></div>';inp.focus();}
   chk.onclick=check;inp.onkeydown=function(e){if(e.key==='Enter'||e.keyCode===13)check();};}
 
 /* перемена: проба Струпа, без баллов и без таймера */
@@ -592,7 +664,7 @@ function finish(){
   if(sc>=tot-1){
     var st=sc===tot?3:2;var firstDone=!P.done[m.id];P.done[m.id]=true;P.stars[m.id]=Math.max(P.stars[m.id]||0,st);save();
     var nx=MODS[MODS.indexOf(m)+1];
-    app.innerHTML='<section class="card lift"><div class="phase">Проверка пройдена</div><div class="big-stars" aria-label="'+st+' из 3">'+starsStr(st)+'</div><h2 style="margin:14px 0 10px">Ты разобрался в этой теме</h2><p>С первого раза верно: '+sc+' из '+tot+'. '+(ms2.length?'Эти примеры вернутся в тренажёре:':'')+'</p>'+chipsHtml(ms2)+'<p class="small">Чтобы тема закрепилась, вернись к ней в тренажёре через день. На сегодня этого достаточно.</p><div class="row">'+(nx?'<button type="button" class="btn" data-start="'+nx.id+'">Следующий блок</button>':'')+'<button type="button" class="btn ghost" data-v="train">Тренажёр</button><button type="button" class="btn ghost" data-v="home">Закончить</button></div></section>';
+    app.innerHTML='<section class="card lift"><div class="clk-top">'+clk('party')+'</div><div class="phase">Проверка пройдена</div><div class="big-stars" aria-label="'+st+' из 3">'+starsStr(st)+'</div><h2 style="margin:14px 0 10px">Ты разобрался в этой теме</h2><p>С первого раза верно: '+sc+' из '+tot+'. '+(ms2.length?'Эти примеры вернутся в тренажёре:':'')+'</p>'+chipsHtml(ms2)+'<p class="small">Чтобы тема закрепилась, вернись к ней в тренажёре через день. На сегодня этого достаточно.</p><div class="row">'+(nx?'<button type="button" class="btn" data-start="'+nx.id+'">Следующий блок</button>':'')+'<button type="button" class="btn ghost" data-v="train">Тренажёр</button><button type="button" class="btn ghost" data-v="home">Закончить</button></div></section>';
     if(can('stickers')||can('tips')){app.querySelector('section').insertAdjacentHTML('beforeend',(can('stickers')?stickerNote(m.id,firstDone):'')+(can('tips')?tipHtml():''));}
   }else{
     var again=R.retries>=1;
@@ -607,23 +679,18 @@ function finish(){
 function sha256hex(t){return crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)).then(function(b){return Array.prototype.map.call(new Uint8Array(b),function(x){return ('0'+x.toString(16)).slice(-2);}).join('');});}
 function tryCode(code,msg,ok){
   if(!(window.crypto&&crypto.subtle)){msg.textContent='Проверка кода недоступна в этом браузере.';return;}
-  if(!CODES_STD.length&&!CODES_PRO.length){msg.textContent='Коды доступа ещё не настроены.';return;}
+  if(!anyCodes()){msg.textContent='Коды доступа ещё не настроены.';return;}
   sha256hex(String(code).trim().toUpperCase()).then(function(hx){
-    var t=CODES_PRO.indexOf(hx)>=0?'pro':(CODES_STD.indexOf(hx)>=0?'standard':null);
-    if(!t){msg.textContent='Код не подошёл. Проверьте, нет ли лишних символов.';return;}
-    if(RANK[t]<=RANK[tier()]){msg.textContent='Этот код ничего не добавит: у вас уже открыт тариф «'+TIER_NAME[tier()]+'».';return;}
-    P.tier=t;P.adv=true;save();ok();
+    var g=codeGrant(hx);
+    if(!g){msg.textContent='Код не подошёл. Проверьте, нет ли лишних символов.';return;}
+    if(!setTiers(g)){msg.textContent='Этот код ничего не добавит: у вас уже открыт такой тариф или выше.';return;}
+    ok();
   }).catch(function(){msg.textContent='Не удалось проверить код.';});}
 function codeForm(){return '<div class="answer"><input class="ans" style="width:14ch;font-size:24px" id="code" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Код доступа"><button type="button" class="btn" id="codego">Открыть доступ</button></div><p class="small" id="codemsg" aria-live="polite"></p>';}
 function wireCode(after){var inp=document.getElementById('code'),msg=document.getElementById('codemsg');
   function go2(){tryCode(inp.value,msg,after);}
   document.getElementById('codego').onclick=go2;inp.onkeydown=function(e){if(e.key==='Enter'||e.keyCode===13)go2();};}
-function planHtml(name,price,url,items,pro){
-  return '<div class="plan'+(pro?' pro':'')+'"><h3>'+name+'</h3><p class="price">'+price+' <span class="small">один раз</span></p><ul>'+items.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul><a class="btn'+(pro?'':' ghost')+'" href="'+url+'" rel="noopener" target="_blank">Купить '+name+'</a></div>';}
-function plansHtml(){
-  return '<div class="plans">'
-   +planHtml('Стандарт',PRICE_STD,PAY_URL_STD,['Все блоки и деление','Без ограничения по времени','Чередование примеров и текстовые задачи','Итоговая проверка','Трудные примеры, цели на день'],false)
-   +planHtml('Продвинутый',PRICE_PRO,PAY_URL_PRO,['Всё из Стандарта','Повторения через 1, 3, 7 дней','Игры, награды','«Расскажи родителю», печатные карточки','Расширенный отчёт'],true)+'</div>';}
+function plansHtml(){return tariffCols();}
 function rBuy(){
   var why=view.why||'block',title,lead;
   if(why==='limit'){title='На сегодня всё!';lead='Бесплатный доступ: '+FREE_MIN+' минут занятий в день. Прогресс сохранён. Чтобы заниматься без ограничений, выберите Стандарт. Завтра бесплатные минуты появятся снова.';}
@@ -653,7 +720,7 @@ function rDoc(){var d=window.__DOCS__&&window.__DOCS__[view.key];
 
 /* ---------- сохранение файла и импорт ---------- */
 function pad(n){return (n<10?'0':'')+n;}
-function exportText(){return JSON.stringify({app:APP_ID,schemaVersion:SCHEMA,exportedAt:new Date().toISOString(),progress:{done:P.done,stars:P.stars,attempts:P.attempts,stats:P.stats,days:P.days,alts:P.alts,access:tier()!=='free',tier:tier(),adv:P.adv===true,sr:P.sr,daily:P.daily,final:P.final,told:P.told,notes:P.notes,stk:P.stk}},null,2);}
+function exportText(){return JSON.stringify({app:APP_ID,schemaVersion:SCHEMA,exportedAt:new Date().toISOString(),progress:{done:P.done,stars:P.stars,attempts:P.attempts,stats:P.stats,days:P.days,alts:P.alts,access:tier()!=='free',tier:tier(),tierMult:tier(),tierMental:tierMentalNow(),adv:P.adv===true,sr:P.sr,daily:P.daily,final:P.final,told:P.told,notes:P.notes,stk:P.stk}},null,2);}
 function isInt(x,a,b){return typeof x==='number'&&isFinite(x)&&Math.floor(x)===x&&x>=a&&x<=b;}
 function isObj(x){return x&&typeof x==='object'&&!Array.isArray(x);}
 function validateImport(txt){
@@ -673,7 +740,11 @@ function validateImport(txt){
   if(p.daily!==undefined){if(!isObj(p.daily))return {err:'Раздел «daily» повреждён.'};for(k in p.daily){var g=p.daily[k];if(!/^\d{4}-\d{2}-\d{2}$/.test(k)||!isObj(g)||!isInt(g.ex||0,0,100000)||!isInt(g.rev||0,0,100000)||!isInt(g.game||0,0,100000))return {err:'Раздел «daily» содержит неверные значения.'};out.daily[k]={ex:g.ex||0,rev:g.rev||0,game:g.game||0};}}
   if(p.final!==undefined){if(!Array.isArray(p.final)||p.final.length>200)return {err:'Раздел «final» повреждён.'};for(var j=0;j<p.final.length;j++){var r=p.final[j];if(!isObj(r)||typeof r.d!=='string'||r.d.length>40||isNaN(Date.parse(r.d))||!isInt(r.n,1,200)||!isInt(r.ok,0,200)||r.ok>r.n)return {err:'Раздел «final» содержит неверные значения.'};out.final.push({d:r.d,ok:r.ok,n:r.n});}}
   if(p.tier!==undefined&&(typeof p.tier!=='string'||RANK[p.tier]===undefined))return {err:'Раздел «tier» повреждён.'};
+  ['tierMult','tierMental'].forEach(function(n){if(p[n]!==undefined&&(typeof p[n]!=='string'||RANK[p[n]]===undefined))k=n;});
+  if(k==='tierMult'||k==='tierMental')return {err:'Раздел «'+k+'» повреждён.'};
   out.tier=p.tier!==undefined?p.tier:(p.access===true?'standard':'free');
+  out.tierMult=p.tierMult!==undefined?p.tierMult:out.tier;if(RANK[out.tier]>RANK[out.tierMult])out.tierMult=out.tier;
+  out.tierMental=p.tierMental!==undefined?p.tierMental:'free';
   out.notes={};out.stk={};
   if(p.notes!==undefined){if(!isObj(p.notes))return {err:'Раздел «notes» повреждён.'};for(k in p.notes){if(!/^\d{1,2}×\d{1,2}$/.test(k)||typeof p.notes[k]!=='string'||p.notes[k].length>100)return {err:'Раздел «notes» содержит неверные значения.'};out.notes[k]=p.notes[k];}}
   if(p.stk!==undefined){if(!isObj(p.stk))return {err:'Раздел «stk» повреждён.'};for(k in p.stk){if(!/^g_[a-z]+$/.test(k)||typeof p.stk[k]!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(p.stk[k]))return {err:'Раздел «stk» содержит неверные значения.'};out.stk[k]=p.stk[k];}}
@@ -683,7 +754,7 @@ function mergeInfo(inc){var r={newDone:0,stars:0,statsNew:0,statsUp:0,days:0,acc
   for(k in inc.stars)if(inc.stars[k]>(P.stars[k]||0))r.stars++;
   for(k in inc.stats){var s=P.stats[k];if(!s)r.statsNew++;else if(inc.stats[k].ok>s.ok||inc.stats[k].bad>s.bad)r.statsUp++;}
   for(k in inc.days)if(inc.days[k]>(P.days[k]||0))r.days++;
-  r.access=RANK[inc.tier]>RANK[tier()];r.sr=0;for(k in inc.sr)if(!P.sr[k]||inc.sr[k].box>P.sr[k].box)r.sr++;
+  r.access=RANK[inc.tierMult]>RANK[tier()]||RANK[inc.tierMental]>RANK[tierMentalNow()];r.sr=0;for(k in inc.sr)if(!P.sr[k]||inc.sr[k].box>P.sr[k].box)r.sr++;
   r.fin=0;inc.final.forEach(function(x){if(!P.final.some(function(y){return y.d===x.d&&y.ok===x.ok&&y.n===x.n;}))r.fin++;});return r;}
 function applyMerge(inc){var k;
   for(k in inc.done)if(inc.done[k])P.done[k]=true;
@@ -697,7 +768,7 @@ function applyMerge(inc){var k;
   for(k in inc.told)P.told[k]=Math.max(P.told[k]||0,inc.told[k]);
   for(k in inc.notes)if(!P.notes[k])P.notes[k]=inc.notes[k];
   for(k in inc.stk)if(!P.stk[k]||inc.stk[k]<P.stk[k])P.stk[k]=inc.stk[k];
-  if(RANK[inc.tier]>RANK[tier()])P.tier=inc.tier;save();}
+  setTiers({mult:inc.tierMult,mental:inc.tierMental});save();}
 function wireBackup(){
   var msg=document.getElementById('imsg'),pend=null;
   function copyTxt(el,btn){try{navigator.clipboard.writeText(el.value).then(function(){btn.textContent='Скопировано';}).catch(function(){el.select();});}catch(e){el.select();}}
@@ -746,12 +817,12 @@ function rParent(){
   +'<details><summary>Не скачался файл? Скопируйте текст</summary><textarea class="ta" id="exptext" rows="5" readonly aria-label="Текст файла прогресса"></textarea><button type="button" class="btn ghost" id="cpy" style="min-height:40px;font-size:15px">Скопировать</button></details>'
   +'<details><summary>Вставить текст вместо файла</summary><textarea class="ta" id="imptext" rows="4" aria-label="Вставьте текст файла прогресса"></textarea><button type="button" class="btn ghost" id="impgo" style="min-height:40px;font-size:15px">Проверить</button></details>'
   +'<p class="small" style="margin-top:12px"><a href="'+dl('how')+'">Как хранятся данные</a></p></section>'
-  +'<h2>Доступ</h2><section class="card" id="acc"><p>Сейчас открыт тариф: <b>'+TIER_NAME[tier()]+'</b>.</p>'+(tier()==='pro'?'<p class="small">Все возможности открыты. Доступ сохранится вместе с файлом прогресса.</p>':'<div class="row" style="margin:12px 0"><button type="button" class="btn" data-v="buy">Посмотреть тарифы</button></div><h3 style="font-size:19px;margin:8px 0">У меня есть код</h3>'+codeForm())+'</section>'
+  +'<h2>Доступ</h2><section class="card" id="acc"><p>Сейчас открыт тариф: «Умножение» — <b>'+TIER_NAME[tier()]+'</b>, «Устный счёт» — <b>'+TIER_NAME[tierMentalNow()]+'</b>.</p>'+(tier()==='pro'&&tierMentalNow()==='pro'?'<p class="small">Все возможности открыты. Доступ сохранится вместе с файлом прогресса.</p>':'<div class="row" style="margin:12px 0"><button type="button" class="btn" data-v="buy">Посмотреть тарифы</button></div><h3 style="font-size:19px;margin:8px 0">У меня есть код</h3>'+codeForm())+'</section>'
   +'<p class="small" style="margin-top:20px"><span id="rs"><button type="button" class="btn ghost" style="min-height:40px;padding:4px 14px;font-size:15px" id="reset">Сбросить прогресс</button></span></p>';
   wireBackup();
-  if(tier()!=='pro'&&document.getElementById('code'))wireCode(function(){render();});
+  if(document.getElementById('code'))wireCode(function(){render();});
   document.getElementById('reset').onclick=function(){document.getElementById('rs').innerHTML='Точно сбросить всё? <button type="button" class="btn" style="min-height:40px;padding:4px 14px;font-size:15px" id="yes">Да, сбросить</button> <button type="button" class="btn ghost" style="min-height:40px;padding:4px 14px;font-size:15px" id="no">Отмена</button>';
-    document.getElementById('yes').onclick=function(){var a=P.tier,ad=P.adv;P=freshP();P.tier=a;P.adv=ad;P.onboarded=true;save();render();};
+    document.getElementById('yes').onclick=function(){var a=P.tierMult,am=P.tierMental,ad=P.adv;P=freshP();P.tier=a;P.tierMult=a;P.tierMental=am;P.adv=ad;P.onboarded=true;save();render();};
     document.getElementById('no').onclick=function(){render();};};}
 
 /* ---------- продвинутый режим ---------- */

@@ -268,8 +268,6 @@ INDEX='''<!doctype html>
 <head>
 '''+HEAD_COMMON+'''
 '''+seo_head('trainer.html',*META['trainer'])+'''
-<meta name="yandex-verification" content="73b3544d9deeac4e" />
-<meta name="google-site-verification" content="oaPBgIsXMc0ltcgUDEdRqV1Kcd8Sn7BnaIkOcplcHh4" />
 </head>
 <body>
 <div class="wrap">
@@ -303,8 +301,6 @@ def content_page(path,title,desc,kw,inner,ld=(),typ='website',back=True,publishe
 <head>
 '''+HEAD_COMMON+'''
 '''+seo_head(path,title,desc,kw,typ=typ,ld=ld,published=published,image=image)+'''
-<meta name="yandex-verification" content="73b3544d9deeac4e" />
-<meta name="google-site-verification" content="oaPBgIsXMc0ltcgUDEdRqV1Kcd8Sn7BnaIkOcplcHh4" />
 </head>
 <body class="docpage">
 <div class="wrap">
@@ -392,6 +388,20 @@ def reviews_html():
     from html import escape as E
     cards=''.join('<figure class="card lp-rev"><blockquote>%s</blockquote><figcaption><span class="av" aria-hidden="true">%s</span><span>%s%s</span></figcaption></figure>'%(E(x['text']),E(x['name'][:1].upper()),E(x['name']),(', '+E(x['who'])) if x.get('who') else '') for x in items)
     return '<h2>Отзывы родителей</h2><div class="lp-cards">'+cards+'</div>'
+import subprocess
+def _shared_block():
+    m=re.search(r"/\*SHARED\*/.*?/\*ENDSHARED\*/",_app,flags=re.S); return m.group(0)
+def tariff_html(preview):
+    js="const vm=require('vm');const c={};vm.createContext(c);vm.runInContext(process.argv[1]+';this.out=tariffCols();',c);process.stdout.write(c.out);"
+    h=subprocess.run(['node','-e',js,_shared_block()],capture_output=True,text=True,encoding='utf-8',check=True).stdout
+    if preview: h=re.sub(r'<a class="btn" href="[^"]*" rel="noopener" target="_blank">Купить</a>','<button type="button" class="btn" data-lp="buy">Купить</button>',h)
+    return h
+_clk_cache={}
+def mascot(e,cls=''):
+    if (e,cls) not in _clk_cache:
+        js="const vm=require('vm');const c={};vm.createContext(c);c.A=process.argv.slice(2);vm.runInContext(process.argv[1]+';this.out=clk(A[0],A[1]);',c);process.stdout.write(c.out);"
+        _clk_cache[(e,cls)]=subprocess.run(['node','-e',js,_shared_block(),e,cls],capture_output=True,text=True,encoding='utf-8',check=True).stdout
+    return _clk_cache[(e,cls)]
 def mental_section(preview):
     href=os.environ.get('MENTAL_PREVIEW_URL','#') if preview else 'mental.html'
     btn='<a class="btn big" href="%s"%s>Открыть «Устный счёт»</a>'%(href,' target="_blank" rel="noopener"' if preview and href!='#' else '')
@@ -411,7 +421,7 @@ def landing_body(preview,hero_src):
     free=lp_btn('free','Попробовать бесплатно','big',preview)
     rows_free=[(1,'Блоки: смысл умножения, ×1, ×2, ×5, ×10'),(1,'Кнопка «Объясни по-другому», три варианта'),(1,'Доступ навсегда'),(1,'10 минут занятий в день'),(1,'Базовый тренажёр'),(0,'Остальные блоки и деление'),(0,'Текстовые задачи и итоговая проверка'),(0,'Игры и повторения через дни')]
     rows_std=[(1,'Все блоки и деление'),(1,'Кнопка «Объясни по-другому», три варианта'),(1,'Занятия без ограничения по времени'),(1,'Тренажёр с чередованием примеров'),(1,'Текстовые задачи из жизни'),(1,'Итоговая проверка'),(1,'Трудные примеры, цели на день, простой отчёт'),(0,'Игры и интервальные повторения'),(0,'«Расскажи родителю», награды, озвучка')]
-    rows_pro=[(1,'Всё из тарифа «Стандарт»'),(1,'Интервальные повторения через 1, 3, 7 дней'),(1,'Мини-игры: «Найди пару», «Счёт шагами» и другие'),(1,'«Расскажи родителю» (объяснение вслух)'),(1,'Награды-наклейки'),(1,'Печатные карточки и расширенный отчёт'),(1,'Доступ навсегда, один платёж')]
+    rows_pro=[(1,'Всё из тарифа «Стандарт»'),(1,'Интервальные повторения через 1, 3, 7 дней'),(1,'Мини-игры: «Найди пару», «Счёт шагами» и другие'),(1,'«Расскажи родителю»'),(1,'Награды-наклейки'),(1,'Печатные карточки и расширенный отчёт'),(1,'Доступ навсегда, один платёж')]
     plans=(lp_plan('Бесплатный','Чтобы попробовать','0 ₽',rows_free,lp_btn('free','Попробовать бесплатно','ghost',preview))
       +lp_plan('Стандарт','Всё для изучения таблицы',PRICE_STD,rows_std,lp_btn('std','Выбрать тариф','',preview))
       +lp_plan('Продвинутый','Всё включено',PRICE_PRO,rows_pro,lp_btn('pro','Выбрать тариф','',preview),True))
@@ -420,11 +430,11 @@ def landing_body(preview,hero_src):
     foot=FOOT
     if preview: foot=preview_links(foot)
     return '''<div class="lp">
-<main>
 <header class="lp-top"><span class="brand" style="cursor:default">'''+BRAND+'''</span>'''+'<nav class="lp-nav" aria-label="Разделы">'+('<a href="#mental-sec">Устный счёт</a><a href="#blog">Блог</a>' if preview else '<a href="#mental-sec">Устный счёт</a><a href="#tariffs">Тарифы</a><a href="blog.html">Блог</a>')+'</nav>'+THEME_BTN+'''</header>
 <section class="lp-hero"><div>
 <p class="kicker">Умножение и деление</p>
-<h1>Таблица умножения и устный счёт без слёз и скандалов</h1>
+<div class="lp-hi">'''+mascot('joy')+'''<p class="clk-bubble">Привет! Я Клетик. Помогу разобраться и не испугаться.</p></div>
+<h1>Таблица умножения без слёз и вечерних скандалов. Ребёнок поймёт, а не просто зазубрит.</h1>
 <p class="lead">Интерактивный тренажёр для 1–5 классов. Превращает скучные столбики в понятную игру. Всего 10 минут в день.</p>
 <p style="margin:20px 0 10px">'''+free+'''</p>
 <p class="small">Без регистрации. Прогресс хранится на вашем устройстве.</p>
@@ -440,18 +450,19 @@ def landing_body(preview,hero_src):
 <div class="card"><h3>Репетитор — это дорого и долго?</h3><p>Короткие занятия по 5–10 минут дома часто работают не хуже.</p></div>
 </div>
 <h2>Как это работает</h2>
+<div class="lp-guide">'''+mascot('think')+'''<p class="clk-bubble">Я проведу вас по сайту: сначала объясню, потом спрошу, а если ошибётесь, подскажу и вернусь к примеру позже.</p></div>
 <div class="lp-cards">
 <div class="card"><h3>Понимание смысла</h3><p>Учим не «заклинаниям», а логике: 4 × 3 — это 4 + 4 + 4, а ещё прямоугольник из клеточек.</p></div>
 <div class="card"><h3>Секретные приёмы</h3><p>Умножение на 9 на пальцах, на 5 как на часах, на 10 одним нулём.</p></div>
 <div class="card"><h3>Повторения через дни</h3><p>В тарифе «Продвинутый» сервис сам напоминает повторить пример через 1, 3, 7 дней, чтобы знания держались дольше.</p></div>
 </div>
 '''+mental_section(preview)+security_html()+reviews_html()+'''<h2 id="tariffs">Тарифы</h2>
-<div class="lp-plans">'''+plans+'''</div>
+<div class="card lp-free"><p><b>Бесплатно и без регистрации:</b> в «Умножении» пять блоков, в «Устном счёте» модуль «Состав числа». До '''+str(10)+''' минут занятий в день.</p><p class="lp-free-btns" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:10px">'''+lp_btn('free','Попробовать «Умножение»','',preview)+('<a class="btn ghost" href="mental.html">Попробовать «Устный счёт»</a>' if not preview else '<a class="btn ghost" href="'+os.environ.get('MENTAL_PREVIEW_URL','#')+'" target="_blank" rel="noopener">Попробовать «Устный счёт»</a>')+'''</p></div>
+'''+tariff_html(preview)+'''
 <p class="lp-note">Платёж один раз, без подписки, доступ без ограничения срока. Сервис предоставляется «как есть». Сначала попробуйте бесплатную версию: возврат средств за цифровой товар надлежащего качества не предусмотрен. Уже купили? Можно '''+code+'''.</p>
 <h2>Вопросы и ответы</h2>
 '''+faq_html()+'''
 '''+foot+'''
-</main>
 </div>'''
 def hero_data():
     p=os.path.join(ROOT,'img','hero.png')
@@ -467,8 +478,6 @@ LANDING=('''<!doctype html>
 '''+HEAD_COMMON+'''
 '''+seo_head('',*META['index'],ld=[SOFTAPP_LD,faq_ld()])+'''
 <style>'''+LCSS+'''</style>
-<meta name="yandex-verification" content="73b3544d9deeac4e" />
-<meta name="google-site-verification" content="oaPBgIsXMc0ltcgUDEdRqV1Kcd8Sn7BnaIkOcplcHh4" />
 </head>
 <body>
 '''+landing_body(False,'img/hero.png' if _hd else '')+'''
@@ -483,8 +492,6 @@ MENTAL_HTML='''<!doctype html>
 <head>
 '''+HEAD_COMMON+'''
 '''+seo_head('mental.html',*META['mental'],ld=[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Устный счёт","url":abs_url('mental.html'),"applicationCategory":"EducationalApplication","operatingSystem":"Any","inLanguage":"ru","offers":{"@type":"Offer","price":"0","priceCurrency":"RUB"}}])+'''
-<meta name="yandex-verification" content="73b3544d9deeac4e" />
-<meta name="google-site-verification" content="oaPBgIsXMc0ltcgUDEdRqV1Kcd8Sn7BnaIkOcplcHh4" />
 </head>
 <body>
 <div class="wrap">
@@ -509,9 +516,8 @@ MENTAL_HTML='''<!doctype html>
 </html>
 '''
 def _shared_js(src):
-    L=[re.search(r"^var %s=.*$"%k,_app,flags=re.M).group(0) for k in ('FREE_MIN','PRICE_STD','PAY_URL_STD','PAY_URL_PRO','CODES_STD','CODES_PRO')]
-    L=[re.sub(r"\s*/\*.*?\*/\s*$","",x) for x in L]
-    return re.sub(r"/\*SHARED\*/.*?/\*ENDSHARED\*/","/*SHARED*/\n"+"\n".join(L)+"\n/*ENDSHARED*/",src,flags=re.S)
+    blk=_shared_block()
+    return re.sub(r"/\*SHARED\*/.*?/\*ENDSHARED\*/",lambda m:blk,src,flags=re.S)
 _mj=_shared_js(rd('app_mental.js')); wr('app_mental.js',_mj)
 wr('mental.html',MENTAL_HTML)
 wr('trainer.html',INDEX)
@@ -617,8 +623,6 @@ PRINT='''<!doctype html>
 .cd .a p{margin:6px 0 0;font-size:15px}
 @media print{.noprint{display:none!important}body{background:#fff}.cd,.pt th,.pt td{border-color:#000}.pt th{background:#eee}.pgb{break-before:page}}
 </style>
-<meta name="yandex-verification" content="73b3544d9deeac4e" />
-<meta name="google-site-verification" content="oaPBgIsXMc0ltcgUDEdRqV1Kcd8Sn7BnaIkOcplcHh4" />
 </head>
 <body class="docpage">
 <div class="wrap">

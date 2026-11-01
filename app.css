@@ -353,3 +353,43 @@ summary{padding-block:10px;min-height:44px}
 .nav .nav-ment{font-weight:700}
 .mnav-cur{border-color:var(--edge)!important;background:var(--yellow)!important;color:var(--on-yellow)!important}
 .lp-ment{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+
+/* ===== Тарифы: Умножение / Устный счёт / Комбо ===== */
+.tcols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:stretch;margin:14px 0}
+.tcol{position:relative;border:2px solid var(--edge);border-radius:12px;background:var(--card);padding:18px;display:grid;gap:12px;grid-template-rows:auto auto 1fr auto;box-shadow:0 5px 0 var(--edge)}
+.tcol h3{margin:0;font-size:24px}
+.tcol .tsub{margin:0;font-size:15px;font-weight:700;color:var(--blue)}
+.tcol ul{list-style:none;margin:0;padding:0;display:grid;gap:8px;align-content:start}
+.tcol li{padding-left:26px;position:relative;font-size:15.5px;line-height:1.4}
+.tcol li::before{content:'✓';position:absolute;left:0;font-weight:800;color:var(--ok)}
+.trow{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;border-top:2px dashed var(--line);padding-top:12px}
+.trow .tname{font-weight:800;font-size:15px;grid-column:1}
+.trow .tprice{font:700 28px var(--f-head);color:var(--blue);grid-column:1;grid-row:2}
+.trow .btn{grid-column:2;grid-row:1/3;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;padding:8px 18px}
+.tcol.combo{background:var(--blue-soft);border-color:var(--blue);box-shadow:0 5px 0 var(--blue);transform:translateY(-6px)}
+.tcol.combo .trow .btn{background:var(--yellow);color:var(--on-yellow);border-color:var(--edge)}
+.tbadge{position:absolute;top:-16px;right:14px;background:var(--yellow);color:var(--on-yellow);border:2px solid var(--edge);border-radius:999px;padding:3px 14px;font:800 15px var(--f-head)}
+.lp-free{margin:0 0 14px;padding:14px 18px}
+.lp-free p{margin:0}
+@media(max-width:900px){.tcols{grid-template-columns:1fr;gap:26px}.tcol.combo{transform:none;order:-1;margin-top:10px}.trow{grid-template-columns:1fr auto}}
+.lp-free .btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+
+/* ===== Маскот «Клетик» ===== */
+.clk{display:block;width:100%;height:auto;overflow:visible}
+.clk .cb{fill:var(--blue);stroke:var(--edge);stroke-width:3}
+.clk .cg{fill:none;stroke:#fff;stroke-opacity:.28;stroke-width:2}
+.clk-corner{display:flex;justify-content:flex-end;margin:4px 0 -8px}
+.clk-corner .clk{width:76px}
+.clk-top{float:right;width:84px;margin:0 0 6px 12px}
+.clk-hi{display:flex;flex-direction:column;align-items:center;gap:2px;width:78px;flex:none}
+.clk-hi i{font:700 13px/1.2 var(--f-head);font-style:normal;text-align:center;color:var(--ink2)}
+.fb.hc{position:relative;margin-top:44px;padding-right:84px;min-height:64px}
+.fb.hc>.clk{position:absolute;right:10px;top:-36px;width:66px;animation:clkpop .35s ease-out}
+@keyframes clkpop{from{transform:scale(.3) translateY(14px);opacity:0}70%{transform:scale(1.08)}to{transform:none;opacity:1}}
+@media(prefers-reduced-motion:reduce){.fb.hc>.clk{animation:none}}
+.lp-hi{display:flex;align-items:center;gap:14px;margin:6px 0 12px}
+.lp-hi .clk{width:104px;flex:none}
+.clk-bubble{position:relative;margin:0;padding:10px 14px;background:var(--card);border:2px solid var(--edge);border-radius:14px;font:700 16px/1.35 var(--f-head);max-width:34ch}
+.clk-bubble::before{content:'';position:absolute;left:-9px;top:50%;margin-top:-8px;width:14px;height:14px;background:var(--card);border-left:2px solid var(--edge);border-bottom:2px solid var(--edge);transform:rotate(45deg)}
+.lp-guide{display:flex;align-items:center;gap:14px;margin:0 0 16px}
+.lp-guide .clk{width:92px;flex:none}

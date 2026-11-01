@@ -1,6 +1,5 @@
 const YM_ID = 113840552;
 let metricaLoaded = false;
-
 function loadMetrica() {
   if (metricaLoaded) return;
   metricaLoaded = true;
@@ -11,7 +10,6 @@ function loadMetrica() {
   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
   window.ym(YM_ID, "init", { clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true });
 }
-
 document.addEventListener('DOMContentLoaded', () => {
   const consent = localStorage.getItem('cookieConsent');
   if (consent === 'accepted') { loadMetrica(); } 
