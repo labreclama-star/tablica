@@ -393,3 +393,28 @@ summary{padding-block:10px;min-height:44px}
 .clk-bubble::before{content:'';position:absolute;left:-9px;top:50%;margin-top:-8px;width:14px;height:14px;background:var(--card);border-left:2px solid var(--edge);border-bottom:2px solid var(--edge);transform:rotate(45deg)}
 .lp-guide{display:flex;align-items:center;gap:14px;margin:0 0 16px}
 .lp-guide .clk{width:92px;flex:none}
+
+/* «Устный счёт»: схемы всегда яркие на светлой подложке, в любой теме */
+.mviz{background:#F4F7FF;border:2px solid #C9D6F5;border-radius:14px;padding:6px 8px}
+.mv-b{fill:#2B59E6;stroke:#1A2747;stroke-width:1.5}
+.mv-b2{fill:#86A3FF;stroke:#1A2747;stroke-width:1.5}
+.mv-y{fill:#FFC83D;stroke:#1A2747;stroke-width:1.5}
+.mv-g{fill:#E3EAFB;stroke:#B5C4EC;stroke-width:1.5}
+.mv-x{fill:#FFE3E3;stroke:#E5383B;stroke-width:1.8;stroke-dasharray:4 3;opacity:1}
+.mv-t{fill:#1A2747}.mv-t2{fill:#51608A}.mv-t3{fill:#1A2747}
+.mv-l{stroke:#1A2747}.mv-a0{stroke:#2B59E6}.mv-a1{stroke:#FF8A4C}
+.mv-fr{fill:#FFFFFF;stroke:#2B59E6;stroke-width:2}
+.mv-em{fill:#FFF3C4;stroke:#F0A91E;stroke-width:2;stroke-dasharray:5 4}
+.mv-q{font:800 26px var(--f-head);fill:#E08A00}
+.mv-ap{fill:#E5383B;stroke:#9B1C1F;stroke-width:1.5}
+.mv-lf{fill:#3DBE7A}
+.mv-st{fill:none;stroke:#6B3F1D;stroke-width:2.4;stroke-linecap:round}
+.mv-hl{fill:#fff;opacity:.55}
+.modart .mv-t,.modart .mv-t2,.modart .mv-t3{fill:#fff}
+.modart .mv-l{stroke:#fff}.modart .mv-a0{stroke:#FFC83D}.modart .mv-a1{stroke:#fff}
+.modart .mv-b{fill:#FFC83D;stroke:#fff}
+/* превью игр */
+.gart{display:block;width:calc(100% + 32px);max-width:none;margin:-14px -16px 10px;height:auto;aspect-ratio:300/120;border-radius:6px 6px 0 0}
+.mchip{display:inline-flex;align-items:center;justify-content:center;min-width:46px;height:46px;padding:0 10px;border-radius:12px;border:2px solid #1A2747;font:800 22px var(--f-head);box-shadow:0 3px 0 #1A2747}
+.mchip.t{background:#2B59E6;color:#fff}.mchip.u{background:#FF8A4C;color:#1A2747}.mchip.y{background:#FFC83D;color:#1A2747}
+.mviz.mviz-s{max-height:120px}

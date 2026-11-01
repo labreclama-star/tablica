@@ -146,9 +146,13 @@ function stepsFor(e){
 function ansFor(e){return e.type==='b10'?10-e.a:(e.type==='add'||e.type==='addc'?e.a+e.b:(e.type==='chg'?e.pay-e.price:e.a-e.b));}
 
 /* ---------- рисунки ---------- */
-function homes(a){var s='<svg class="mviz" viewBox="0 0 300 70" role="img" aria-label="Десять клеток, закрашено '+a+'">';
-  for(var i=0;i<10;i++){var x=6+i*29;s+='<rect x="'+x+'" y="14" width="25" height="34" rx="6" class="'+(i<a?'mv-b':'mv-g')+'"/>';}
-  s+='<text x="'+(6+a*29/2)+'" y="66" class="mv-t" text-anchor="middle">'+a+'</text>'+(a<10?'<text x="'+(6+a*29+(10-a)*29/2)+'" y="66" class="mv-t" text-anchor="middle">'+(10-a)+' ?</text>':'')+'</svg>';return s;}
+/* десять клеток для яблок: a яблок лежат, остальные клетки пустые */
+function apple(cx,cy,r){return '<circle cx="'+cx+'" cy="'+(cy+2)+'" r="'+r+'" class="mv-ap"/><path d="M'+cx+' '+(cy-r+3)+'q1-8 7-10" class="mv-st"/><ellipse cx="'+(cx+6)+'" cy="'+(cy-r-1)+'" rx="5" ry="2.6" transform="rotate(-25 '+(cx+6)+' '+(cy-r-1)+')" class="mv-lf"/><circle cx="'+(cx-r*0.4)+'" cy="'+(cy-r*0.15)+'" r="'+(r*0.2)+'" class="mv-hl"/>';}
+function tenFrame(a,o){o=o||{};var s='',i,x,y,w=o.w||300;
+  for(i=0;i<10;i++){x=30+(i%5)*48;y=12+Math.floor(i/5)*52;
+    s+='<rect x="'+x+'" y="'+y+'" width="44" height="46" rx="9" class="'+(i<a?'mv-fr':'mv-em')+'"/>'+(i<a?apple(x+22,y+24,15):'<text x="'+(x+22)+'" y="'+(y+33)+'" class="mv-q" text-anchor="middle">?</text>');}
+  return s;}
+function homes(a){return '<svg class="mviz" viewBox="0 0 300 140" role="img" aria-label="Десять клеток, '+a+' яблок лежат, остальные клетки пустые">'+tenFrame(a)+'<text x="150" y="130" class="mv-t" text-anchor="middle">'+a+' яблок + ? = 10</text></svg>';}
 function numlineInner(pts,labs,W,Hh){
   var mn=Math.min.apply(null,pts),mx=Math.max.apply(null,pts),sp=mx-mn||1,y=Hh*0.62,s='';
   function X(v){return 24+(v-mn)/sp*(W-48);}
@@ -171,10 +175,17 @@ function blocks(n,o){o=o||{};var d=dig(n),w=d.t*17+(d.u?44:0)+10,s='<svg class="
 var VNAME=['Через предметы','Числовая лента','Разложение'];
 function p(t){return '<p>'+t+'</p>';}
 function lines(arr){return '<p class="mono">'+arr.join('<br>')+'</p>';}
-function explain(e,vi){
+function chipsRow(e){
+  function sp(n){var d=dig(n),r='';if(d.t)r+='<span class="mchip t">'+d.t*10+'</span>';if(d.u||!d.t)r+='<span class="mchip u">'+d.u+'</span>';return r;}
+  if(e.type==='b10')return '<div class="mrow"><span class="mchip t">10</span><span class="mop">=</span><span class="mchip u">'+e.a+'</span><span class="mop">+</span><span class="mchip y">'+(10-e.a)+'</span></div>';
+  if(e.type==='add'||e.type==='addc')return '<div class="mrow">'+sp(e.a)+'<span class="mop">+</span>'+sp(e.b)+'</div>';
+  if(e.type==='sub'||e.type==='subc')return '<div class="mrow">'+sp(e.a)+'<span class="mop">−</span>'+sp(e.b)+'</div>';
+  return '';}
+function explain(e,vi){var h0=explain0(e,vi);return vi===2?h0.replace('</p>','</p>'+chipsRow(e)):h0;}
+function explain0(e,vi){
   var st=stepsFor(e),A,B,k;
   if(e.type==='b10'){k=10-e.a;
-    if(vi===0)return p('В этом доме 10 окошек. Свет горит в '+e.a+'. Сколько окошек ещё нужно зажечь, чтобы были заняты все десять?')+homes(e.a)+p('Свободно '+k+'. Значит, '+e.a+' + '+k+' = 10.');
+    if(vi===0)return p('Это десять клеток для яблок. '+e.a+' '+pl(e.a,'яблоко','яблока','яблок')+' уже лежат. Сколько яблок нужно добавить, чтобы заполнить все десять клеток?')+homes(e.a)+p('Пустых клеток '+k+'. Значит, '+e.a+' + '+k+' = 10.');
     if(vi===1)return p('Идём по ленте от '+e.a+' до 10. Считаем прыжок.')+numline([e.a,10],['+'+k])+p('Прыжок '+k+'. Значит, '+e.a+' + '+k+' = 10.');
     return p('Число 10 можно «разобрать» на две части. Одна часть '+e.a+', а вторая — недостающая.')+lines(['10 = '+e.a+' + '+k,'10 = '+k+' + '+e.a])+p('Эти два числа — пара. Запомни пару, и всегда найдёшь вторую.');}
   if(e.type==='add'){A=dig(e.a);B=dig(e.b);
@@ -210,12 +221,17 @@ function locked(m){return !atLeast(m.need);}
 function lockSvg(){return '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" style="vertical-align:-2px;margin-right:4px"><rect x="5" y="11" width="14" height="9" rx="2" fill="currentColor"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';}
 function modArt(m){
   var inner='';
-  if(m.id==='n1'){for(var i=0;i<10;i++)inner+='<rect x="'+(18+i*26)+'" y="26" width="22" height="30" rx="5" class="'+(i<7?'mv-b':'mv-g')+'"/>';inner+='<text x="150" y="90" class="mv-t2" text-anchor="middle">7 + 3 = 10</text>';}
+  if(m.id==='n1'){inner='<g transform="translate(-10 -2) scale(1.07)"><rect x="20" y="4" width="270" height="112" rx="12" fill="#fff" opacity=".92"/><g transform="translate(2 6) scale(.9)">'+tenFrame(7)+'</g></g>';}
   else if(m.id==='n2')inner='<text x="80" y="52" class="mv-t2" text-anchor="middle">23 + 45</text><text x="80" y="82" class="mv-t3" text-anchor="middle">20+40, 3+5</text><text x="225" y="62" class="mv-t2" text-anchor="middle">= 68</text>';
   else if(m.id==='n3')inner='<g transform="translate(0 8)">'+numlineInner([47,50,75],['+3','+25'],300,100)+'</g>';
   else inner='<g transform="translate(0 8)">'+numlineInner([80,50,46],['−30','−4'],300,100)+'</g>';
   return '<svg class="modart" viewBox="0 0 300 120" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true" focusable="false"><defs><linearGradient id="mg-'+m.id+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+m.art[0]+'"/><stop offset="1" stop-color="'+m.art[1]+'"/></linearGradient></defs><rect x="-300" y="-200" width="900" height="520" fill="url(#mg-'+m.id+')"/><circle cx="270" cy="10" r="46" fill="#fff" opacity=".1"/><g class="mart">'+inner+'</g></svg>';}
 
+/* картинки для превью тренажёра и игры «Дай сдачу» */
+function mArtSvg(id,c1,c2,inner){return '<svg class="modart" viewBox="0 0 300 120" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true" focusable="false"><defs><linearGradient id="ma-'+id+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+c1+'"/><stop offset="1" stop-color="'+c2+'"/></linearGradient></defs><rect x="-3" y="-3" width="306" height="126" fill="url(#ma-'+id+')"/><circle cx="270" cy="14" r="34" fill="#fff" opacity=".12"/>'+inner+'</svg>';}
+function mtile(x,y,w,h,t,sz,col){return '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="10" fill="#fff" stroke="#1A2747" stroke-width="2.5"/><text x="'+(x+w/2)+'" y="'+(y+h/2+sz*0.35)+'" font-family="Rubik,sans-serif" font-weight="700" font-size="'+sz+'" fill="'+(col||'#1A2747')+'" text-anchor="middle">'+t+'</text>';}
+function trainArt(){return mArtSvg('tr','#1E56D6','#52A2F5',mtile(20,28,84,56,'8 + 5',26)+mtile(108,20,84,56,'62 − 8',24,'#C2255C')+mtile(196,28,84,56,'47 + 28',22,'#2E9E5B')+'<path d="M150 98l-8 14h10l-4 10 14-18h-10l5-6z" fill="#FFC83D" stroke="#1A2747" stroke-width="2" stroke-linejoin="round"/>');}
+function shopArt(){return mArtSvg('sh','#1F9D6B','#6FD9A5','<rect x="26" y="26" width="96" height="62" rx="10" fill="#fff" stroke="#1A2747" stroke-width="2.5"/><text x="74" y="66" font-family="Rubik,sans-serif" font-weight="700" font-size="28" fill="#1A2747" text-anchor="middle">67 ₽</text><path d="M130 58h30m-9-8l9 8-9 8" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="170" y="26" width="104" height="62" rx="10" fill="#FFC83D" stroke="#1A2747" stroke-width="2.5"/><text x="222" y="62" font-family="Rubik,sans-serif" font-weight="700" font-size="24" fill="#1A2747" text-anchor="middle">100 ₽</text><text x="222" y="80" font-family="Rubik,sans-serif" font-weight="700" font-size="12" fill="#1A2747" text-anchor="middle">сдача 33 ₽</text><circle cx="40" cy="106" r="9" fill="#FFC83D" stroke="#1A2747" stroke-width="2"/><circle cx="62" cy="106" r="9" fill="#FFC83D" stroke="#1A2747" stroke-width="2"/>');}
 /* ---------- состояние экрана ---------- */
 var app=$('#app'),view={name:'home'},R=null,tick=null,lastTick=0;
 function startTimer(){stopTimer();lastTick=Date.now();tick=setInterval(function(){if(document.hidden){lastTick=Date.now();return;}var n=Date.now();var d=Math.min(10,Math.round((n-lastTick)/1000));lastTick=n;if(d>0)addTime(d);},5000);}
@@ -248,8 +264,8 @@ function rHome(){
   var free=tier()==='free'?'<section class="note" style="margin-top:14px"><h3>Бесплатный доступ</h3><p>Открыт модуль «Состав числа» и тренажёр на состав числа: до '+FREE_MIN+' '+pl(FREE_MIN,'минуты','минут','минут')+' в день, сегодня осталось '+Math.max(0,FREE_MIN-usedMin())+' мин. Остальные модули и игру «Дай сдачу» откроет Стандарт.</p><button type="button" class="btn" data-v="plans">Посмотреть тарифы</button></section>':'';
   app.innerHTML='<section class="card lift"><p class="kicker">Считаем в уме</p><h1>Устный счёт</h1><p class="lead" style="margin-top:12px">Сначала понимаем приём, потом тренируем. В каждом модуле коротко показываем, как считать быстро: разложить числа, достроить до десятка, пройтись по числовой ленте. Не понял? Нажми «Объясни по-другому».</p><div class="today"><span class="clk-hi">'+clk('joy')+'<i>Привет! Я Клетик</i></span>'+today+'</div></section>'+free
    +'<h2>Модули</h2><div class="mods">'+cards+'</div><h2>Ещё</h2><div class="mods">'
-   +'<button type="button" class="mod" data-v="train"><span class="mod-tag">Тренажёр</span><span class="mod-s">Примеры подбираются под тебя'+(tier()==='free'?' · '+lockSvg()+'только состав числа':'')+'</span></button>'
-   +'<button type="button" class="mod" data-v="shop"><span class="mod-tag">Дай сдачу</span><span class="mod-s">'+(atLeast('standard')?'Игра в магазин: сколько сдачи?':lockSvg()+'Стандарт и выше')+'</span></button></div>'
+   +'<button type="button" class="mod" data-v="train">'+trainArt()+'<span class="mod-tag">Тренажёр</span><span class="mod-s">Примеры подбираются под тебя'+(tier()==='free'?' · '+lockSvg()+'только состав числа':'')+'</span></button>'
+   +'<button type="button" class="mod" data-v="shop">'+shopArt()+'<span class="mod-tag">Дай сдачу</span><span class="mod-s">'+(atLeast('standard')?'Игра в магазин: сколько сдачи?':lockSvg()+'Стандарт и выше')+'</span></button></div>'
    +'<p class="small" style="margin-top:18px">Хорошо заниматься по 5–10 минут каждый день. Таймера на вопросах нет: скорость придёт после понимания.</p>';}
 
 /* ---------- урок ---------- */

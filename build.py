@@ -268,6 +268,8 @@ INDEX='''<!doctype html>
 <head>
 '''+HEAD_COMMON+'''
 '''+seo_head('trainer.html',*META['trainer'])+'''
+<meta name="yandex-verification" content="73b3544d9deeac4e" />
+<meta name="google-site-verification" content="oaPBgIsXMc0ltcgUDEdRqV1Kcd8Sn7BnaIkOcplcHh4" />
 </head>
 <body>
 <div class="wrap">
@@ -301,6 +303,8 @@ def content_page(path,title,desc,kw,inner,ld=(),typ='website',back=True,publishe
 <head>
 '''+HEAD_COMMON+'''
 '''+seo_head(path,title,desc,kw,typ=typ,ld=ld,published=published,image=image)+'''
+<meta name="yandex-verification" content="73b3544d9deeac4e" />
+<meta name="google-site-verification" content="oaPBgIsXMc0ltcgUDEdRqV1Kcd8Sn7BnaIkOcplcHh4" />
 </head>
 <body class="docpage">
 <div class="wrap">
@@ -478,6 +482,8 @@ LANDING=('''<!doctype html>
 '''+HEAD_COMMON+'''
 '''+seo_head('',*META['index'],ld=[SOFTAPP_LD,faq_ld()])+'''
 <style>'''+LCSS+'''</style>
+<meta name="yandex-verification" content="73b3544d9deeac4e" />
+<meta name="google-site-verification" content="oaPBgIsXMc0ltcgUDEdRqV1Kcd8Sn7BnaIkOcplcHh4" />
 </head>
 <body>
 '''+landing_body(False,'img/hero.png' if _hd else '')+'''
@@ -492,6 +498,8 @@ MENTAL_HTML='''<!doctype html>
 <head>
 '''+HEAD_COMMON+'''
 '''+seo_head('mental.html',*META['mental'],ld=[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Устный счёт","url":abs_url('mental.html'),"applicationCategory":"EducationalApplication","operatingSystem":"Any","inLanguage":"ru","offers":{"@type":"Offer","price":"0","priceCurrency":"RUB"}}])+'''
+<meta name="yandex-verification" content="73b3544d9deeac4e" />
+<meta name="google-site-verification" content="oaPBgIsXMc0ltcgUDEdRqV1Kcd8Sn7BnaIkOcplcHh4" />
 </head>
 <body>
 <div class="wrap">
@@ -623,6 +631,8 @@ PRINT='''<!doctype html>
 .cd .a p{margin:6px 0 0;font-size:15px}
 @media print{.noprint{display:none!important}body{background:#fff}.cd,.pt th,.pt td{border-color:#000}.pt th{background:#eee}.pgb{break-before:page}}
 </style>
+<meta name="yandex-verification" content="73b3544d9deeac4e" />
+<meta name="google-site-verification" content="oaPBgIsXMc0ltcgUDEdRqV1Kcd8Sn7BnaIkOcplcHh4" />
 </head>
 <body class="docpage">
 <div class="wrap">
