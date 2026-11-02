@@ -104,8 +104,8 @@ HEAD_COMMON='''<meta charset="utf-8">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Таблица">
-<link rel="stylesheet" href="fonts.css" media="print" onload="this.media='all'">
-<link rel="stylesheet" href="app.css" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="app.css">
 <script src="theme.js" defer></script>'''
 if os.path.exists(os.path.join(ROOT,'metrika.js')):
     # Яндекс.Метрика + куки-баннер подключаются, только если рядом лежит metrika.js
