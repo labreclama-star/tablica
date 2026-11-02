@@ -292,6 +292,7 @@ INDEX='''<!doctype html>
   '''+FOOT+'''
 </div>
 <script src="app.js" defer></script>
+<script src="blog.js" defer></script>
 </body>
 </html>
 '''
@@ -313,6 +314,7 @@ def content_page(path,title,desc,kw,inner,ld=(),typ='website',back=True,publishe
   '''+('<p style="margin-top:14px"><a class="btn ghost" href="trainer.html" style="text-decoration:none;display:inline-flex;align-items:center">← К тренажёру</a></p>' if back else '')+'''</main>
   '''+FOOT+'''
 </div>
+<script src="blog.js" defer></script>
 </body>
 </html>
 '''
@@ -481,6 +483,7 @@ LANDING=('''<!doctype html>
 <body>
 '''+landing_body(False,'img/hero.png' if _hd else '')+'''
 <script src="landing.js" defer></script>
+<script src="blog.js" defer></script>
 </body>
 </html>
 ''')
@@ -513,6 +516,7 @@ MENTAL_HTML='''<!doctype html>
   '''+FOOT+'''
 </div>
 <script src="app_mental.js" defer></script>
+<script src="blog.js" defer></script>
 </body>
 </html>
 '''
@@ -638,6 +642,7 @@ PRINT='''<!doctype html>
   '''+FOOT+'''
 </div>
 <script src="print.js"></script>
+<script src="blog.js" defer></script>
 </body>
 </html>
 '''
