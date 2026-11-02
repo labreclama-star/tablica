@@ -104,9 +104,9 @@ HEAD_COMMON='''<meta charset="utf-8">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Таблица">
-<link rel="stylesheet" href="fonts.css">
-<link rel="stylesheet" href="app.css">
-<script src="theme.js"></script>'''
+<link rel="stylesheet" href="fonts.css" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="app.css" media="print" onload="this.media='all'">
+<script src="theme.js" defer></script>'''
 if os.path.exists(os.path.join(ROOT,'metrika.js')):
     # Яндекс.Метрика + куки-баннер подключаются, только если рядом лежит metrika.js
     HEAD_COMMON=HEAD_COMMON.replace("script-src 'self'","script-src 'self' https://mc.yandex.ru https://yastatic.net").replace("img-src 'self' data:","img-src 'self' data: https://mc.yandex.ru").replace("connect-src 'self'","connect-src 'self' https://mc.yandex.ru wss://mc.yandex.ru")+'\n<script src="metrika.js" defer></script>'
