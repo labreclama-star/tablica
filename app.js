@@ -15,47 +15,39 @@ var FREE_IDS={m1:1,m2:1,m4:1,m5:1,m6:1};   /* блоки бесплатного 
 var FREE_MIN=10;              /* минут занятий в день на бесплатном тарифе */
 /*SHARED*/
 /* Цены и ссылки на оплату: тренажёр «Умножение» (MULT), «Устный счёт» (MNT) и комбо (CMB). Меняйте только здесь: build.py копирует блок в app_mental.js и на лендинг. */
-var PRICE_STD='990 ₽';
-var PRICE_PRO='1 990 ₽';
-var PRICE_MNT_STD='690 ₽';
-var PRICE_MNT_PRO='1 490 ₽';
-var PRICE_CMB_STD='1 490 ₽';
-var PRICE_CMB_PRO='2 490 ₽';
-var PAY_URL_STD='https://example.com/pay?plan=standard';  /* страницы оплаты у платёжного агрегатора */
-var PAY_URL_PRO='https://example.com/pay?plan=pro';
-var PAY_URL_MNT_STD='https://example.com/pay?plan=mental-standard';
-var PAY_URL_MNT_PRO='https://example.com/pay?plan=mental-pro';
-var PAY_URL_CMB_STD='https://example.com/pay?plan=combo-standard';
-var PAY_URL_CMB_PRO='https://example.com/pay?plan=combo-pro';
-/* SHA-256 кодов доступа (см. README). Тестовые коды (удалите перед запуском): TEST-STANDARD, TEST-PRO и 1111 (Умножение), TEST-CMB-STD, TEST-CMB-PRO (оба тренажёра), TEST-MNT-STD, TEST-MNT-PRO (только «Устный счёт»). */
+var PRICE_MULT_STD='990 ₽';
+var PRICE_MULT_PRO='1 990 ₽';
+var PRICE_MENTAL='990 ₽';
+var PRICE_COMBO = '2 490 ₽';
+var PAY_URL_MULT_STD='https://example.com/pay?plan=mult-standard';  /* страницы оплаты у платёжного агрегатора */
+var PAY_URL_MULT_PRO='https://example.com/pay?plan=mult-pro';
+var PAY_URL_MENTAL='https://example.com/pay?plan=mental';
+var PAY_URL_COMBO='https://example.com/pay?plan=combo';
+/* SHA-256 кодов доступа (см. README). Тестовые коды (удалите перед запуском): TEST-STANDARD, TEST-PRO и 1111 (только «Умножение»), TEST-MNT («Устный счёт»), TEST-CMB (комбо). */
 var CODES_STD=["ca063870f27456c4764dc609ae1579f7a1fa8e6f497713a47ad4b90c98db7bb6"];
 var CODES_PRO=["0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c","9617e38101e15005c55a48cf1116327a0bb611c344da66dce2799e30b954a446"];
-var CODES_CMB_STD=["4964d0225d51f2c815d16d174332eb64a293214325956f552404ef4fdb107de1"];
-var CODES_CMB_PRO=["c671df5b041bddfa252b798e75d6568e22201ed148edc470e1c280c68f0a6e6c"];
-var CODES_MNT_STD=["98228139f575a4a1c0f048ebf40c970d7c3f64bf9017343ded4c2e2ccccb1176"];
-var CODES_MNT_PRO=["ea017b378b1df8637cddf5cc7dd988a5bb470ebe6663b49a33d3645df76bc34f"];
-/* что открывает код: {mult, mental}; null, если код не найден. Старые коды STANDARD-/PRO- открывают только «Умножение». */
+var CODES_MNT=["364567710a202e131e3aabb9531abb0d23648784ea6db328eedea3b01f9bb16a"];
+var CODES_CMB=["c7bdbefc81151c12307080feadd770a9eb413db17783a48fa8847269de7c49ca"];
+/* что открывает код: {mult, mental}; null, если код не найден.
+   STANDARD-/PRO-: только «Умножение» (Стандарт или Продвинутый). MNT-: «Устный счёт» целиком (Продвинутый). CMB-: оба тренажёра на максимум. */
 function codeGrant(hx){
   function has(a){return a.indexOf(hx)>=0;}
-  if(has(CODES_CMB_PRO))return {mult:'pro',mental:'pro'};
-  if(has(CODES_CMB_STD))return {mult:'standard',mental:'standard'};
+  if(has(CODES_CMB))return {mult:'pro',mental:'pro'};
   if(has(CODES_PRO))return {mult:'pro',mental:null};
   if(has(CODES_STD))return {mult:'standard',mental:null};
-  if(has(CODES_MNT_PRO))return {mult:null,mental:'pro'};
-  if(has(CODES_MNT_STD))return {mult:null,mental:'standard'};
+  if(has(CODES_MNT))return {mult:null,mental:'pro'};
   return null;}
-function anyCodes(){return CODES_STD.length+CODES_PRO.length+CODES_CMB_STD.length+CODES_CMB_PRO.length+CODES_MNT_STD.length+CODES_MNT_PRO.length>0;}
-function rub(s){return parseInt(String(s).replace(/\D/g,''),10)||0;}
-function fmtRub(n){return String(n).replace(/\B(?=(\d{3})+$)/,'\u00A0')+'\u00A0₽';}
-/* три колонки тарифов: Умножение, Устный счёт, Комбо */
-function tariffCols(){
-  function row(name,price,url){return '<div class="trow"><span class="tname">'+name+'</span><b class="tprice">'+price+'</b><a class="btn" href="'+url+'" rel="noopener" target="_blank">Купить</a></div>';}
-  function col(cls,title,sub,items,rows,badge){return '<div class="tcol'+cls+'">'+(badge?'<span class="tbadge">'+badge+'</span>':'')+'<h3>'+title+'</h3><p class="tsub">'+sub+'</p><ul>'+items.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul>'+rows+'</div>';}
-  var s1=rub(PRICE_STD)+rub(PRICE_MNT_STD)-rub(PRICE_CMB_STD),s2=rub(PRICE_PRO)+rub(PRICE_MNT_PRO)-rub(PRICE_CMB_PRO);
+function anyCodes(){return CODES_STD.length+CODES_PRO.length+CODES_MNT.length+CODES_CMB.length>0;}
+/* четыре плашки: Бесплатный, Умножение, Устный счёт, Комбо. cur: 'mult' | 'mental' | 'landing' (куда ведёт кнопка «Попробовать бесплатно») */
+function tariffCols(cur){
+  function buy(cls,label,price,url){return '<a class="btn '+cls+'" href="'+url+'" rel="noopener" target="_blank">'+label+' · '+price.replace(/ /g,'\u00a0')+'</a>';}
+  function col(cls,title,price,sub,items,act,badge){return '<div class="tcol'+cls+'">'+(badge?'<span class="tbadge">'+badge+'</span>':'')+'<h3>'+title+'</h3><p class="tprice">'+price+'</p><p class="tsub">'+sub+'</p><ul>'+items.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul><div class="tact">'+act+'</div></div>';}
+  var free=cur==='landing'?'<a class="btn ghost" href="trainer.html">Попробовать бесплатно</a>':'<button type="button" class="btn ghost" data-v="home">Попробовать бесплатно</button>';
   return '<div class="tcols">'
-   +col('','Умножение','Таблица умножения и деления',['Блоки с картинками и кнопкой «Объясни по-другому»','Стандарт: все блоки, без лимита по времени, итоговая проверка','Продвинутый: повторения через 1, 3, 7 дней, игры, награды, печать'],row('Стандарт',PRICE_STD,PAY_URL_STD)+row('Продвинутый',PRICE_PRO,PAY_URL_PRO))
-   +col('','Устный счёт','Сложение и вычитание в уме',['Четыре модуля: состав числа, сложение и вычитание через десяток','Стандарт: все модули, игра «Дай сдачу», тренажёр без лимита','Продвинутый: повторения примеров через 1, 3, 7, 14 дней, подробный отчёт'],row('Стандарт',PRICE_MNT_STD,PAY_URL_MNT_STD)+row('Продвинутый',PRICE_MNT_PRO,PAY_URL_MNT_PRO))
-   +col(' combo','Комбо: всё сразу','Оба тренажёра по одному коду',['«Умножение» и «Устный счёт» открываются вместе','Тот же тариф в обоих тренажёрах','Выгода: '+fmtRub(s1)+' на Стандарте, '+fmtRub(s2)+' на Продвинутом'],row('Стандарт',PRICE_CMB_STD,PAY_URL_CMB_STD)+row('Продвинутый',PRICE_CMB_PRO,PAY_URL_CMB_PRO),'Выгодно')
+   +col(' free','Бесплатный','0 ₽','Чтобы попробовать',['5 блоков в «Умножении»','Модуль «Состав числа» в «Устном счёте»','До 10 минут в день','Без регистрации'],free)
+   +col('','Таблица умножения','от '+PRICE_MULT_STD,'Полный курс умножения и деления',['Все блоки и деление','Безлимитное время','Итоговая проверка','В Продвинутом: игры, повторения через 1, 3, 7 дней, награды, печать'],buy('ghost','Купить Стандарт',PRICE_MULT_STD,PAY_URL_MULT_STD)+buy('','Купить Продвинутый',PRICE_MULT_PRO,PAY_URL_MULT_PRO))
+   +col('','Устный счёт',PRICE_MENTAL,'Сложение и вычитание в уме',['Все 9 модулей','Игра «Дай сдачу»','Тренажёр с повторениями','Подробный отчёт для родителя','Без лимита времени'],buy('',  'Купить Устный счёт',PRICE_MENTAL,PAY_URL_MENTAL))
+   +col(' combo','Комбо: всё сразу',PRICE_COMBO,'Оба тренажёра по одному коду',['Всё из «Таблицы умножения» (Продвинутый)','Всё из «Устного счёта»','Один код открывает оба тренажёра','Доступ навсегда'],buy('big','Купить Комбо',PRICE_COMBO,PAY_URL_COMBO),'Всё сразу')
    +'</div>';}
 /* Маскот «Клетик»: плоский inline SVG (около 1,5 КБ на экземпляр). Эмоции: joy, think, sorry, party. */
 function clk(e,cls){
@@ -690,7 +682,7 @@ function codeForm(){return '<div class="answer"><input class="ans" style="width:
 function wireCode(after){var inp=document.getElementById('code'),msg=document.getElementById('codemsg');
   function go2(){tryCode(inp.value,msg,after);}
   document.getElementById('codego').onclick=go2;inp.onkeydown=function(e){if(e.key==='Enter'||e.keyCode===13)go2();};}
-function plansHtml(){return tariffCols();}
+function plansHtml(){return tariffCols('mult');}
 function rBuy(){
   var why=view.why||'block',title,lead;
   if(why==='limit'){title='На сегодня всё!';lead='Бесплатный доступ: '+FREE_MIN+' минут занятий в день. Прогресс сохранён. Чтобы заниматься без ограничений, выберите Стандарт. Завтра бесплатные минуты появятся снова.';}

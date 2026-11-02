@@ -58,7 +58,7 @@ OFFER=DRAFT+'''<h1>Публичная оферта</h1>
 <h2>2. Предмет</h2>
 <p>Исполнитель предоставляет Пользователю доступ к интерактивному тренажёру «Таблица без зубрёжки» (далее «Сервис»): программе для самостоятельных занятий умножением и делением на устройстве Пользователя. Сервис не является образовательным курсом или образовательной организацией, не выдаёт документов об образовании и не заменяет школьные занятия. '''+PH('юрист: проверьте формулировку')+'''</p>
 <h2>3. Цена и оплата</h2>
-<p>Сервис имеет три уровня доступа. «Бесплатный»: пять блоков (смысл умножения, ×1, ×2, ×5, ×10) и до 10 минут занятий в день, предоставляется без оплаты и без ограничения срока. «Стандарт»: 990 ₽, единовременно. «Продвинутый»: 1 990 ₽, единовременно. '''+PH('НДС: не облагается или ставка')+''' Платные тарифы предоставляются без ограничения срока '''+PH('уточните: «в течение срока существования Сервиса»')+'''. Состав возможностей каждого тарифа указан на главной странице сайта на момент оплаты.</p>
+<p>Сервис предлагает четыре варианта доступа. «Бесплатный»: пять блоков тренажёра «Умножение», модуль «Состав числа» тренажёра «Устный счёт» и до 10 минут занятий в день, без оплаты и без ограничения срока. «Таблица умножения»: «Стандарт» — 990 ₽, «Продвинутый» — 1 990 ₽, единовременно. «Устный счёт»: 990 ₽, единовременно. «Комбо: всё сразу»: 2 990 ₽, единовременно, оба тренажёра. '''+PH('НДС: не облагается или ставка')+''' Платные тарифы предоставляются без ограничения срока '''+PH('уточните: «в течение срока существования Сервиса»')+'''. Состав возможностей каждого тарифа указан на главной странице сайта на момент оплаты.</p>
 <h2>4. Порядок доступа</h2>
 <p>Оплата проходит на странице платёжного сервиса. После оплаты платёжный сервис показывает код доступа. Пользователь вводит код в Сервисе (раздел «Родителям» или экран с тарифами), после чего выбранный тариф открывается на этом устройстве. '''+PH('опишите, на скольких устройствах можно использовать один код')+'''</p>
 <h2>5. Условия предоставления Сервиса, отсутствие гарантии результата</h2>
@@ -320,10 +320,6 @@ def content_page(path,title,desc,kw,inner,ld=(),typ='website',back=True,publishe
 # ---------- лендинг ----------
 import base64
 _app=rd('app.js')
-PAY_STD=re.search(r"var PAY_URL_STD='([^']+)'",_app).group(1)
-PAY_PRO=re.search(r"var PAY_URL_PRO='([^']+)'",_app).group(1)
-PRICE_STD=re.search(r"PRICE_STD='([^']+)'",_app).group(1)
-PRICE_PRO=re.search(r"PRICE_PRO='([^']+)'",_app).group(1)
 LCSS='''
 .lp{max-width:1040px;margin:0 auto;padding:16px 16px 40px}
 .lp-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 0 16px}
@@ -373,7 +369,7 @@ LCSS='''
 def lp_btn(kind,label,cls,preview):
     if preview:
         return '<button type="button" class="btn %s" data-lp="%s">%s</button>'%(cls,kind,label)
-    href={'free':'trainer.html','std':PAY_STD,'pro':PAY_PRO,'code':'trainer.html#parent'}[kind]
+    href={'free':'trainer.html','code':'trainer.html#parent'}[kind]
     ext=' rel="noopener"' if kind in('std','pro') else ''
     return '<a class="btn %s" href="%s"%s>%s</a>'%(cls,href,ext,label)
 def lp_plan(name,tag,price,rows,btn,pro=False):
@@ -396,9 +392,11 @@ import subprocess
 def _shared_block():
     m=re.search(r"/\*SHARED\*/.*?/\*ENDSHARED\*/",_app,flags=re.S); return m.group(0)
 def tariff_html(preview):
-    js="const vm=require('vm');const c={};vm.createContext(c);vm.runInContext(process.argv[1]+';this.out=tariffCols();',c);process.stdout.write(c.out);"
+    js="""const vm=require('vm');const c={};vm.createContext(c);vm.runInContext(process.argv[1]+';this.out=tariffCols("landing");',c);process.stdout.write(c.out);"""
     h=subprocess.run(['node','-e',js,_shared_block()],capture_output=True,text=True,encoding='utf-8',check=True).stdout
-    if preview: h=re.sub(r'<a class="btn" href="[^"]*" rel="noopener" target="_blank">Купить</a>','<button type="button" class="btn" data-lp="buy">Купить</button>',h)
+    if preview:
+        h=re.sub(r'<a class="btn ?([^"]*)" href="[^"]*" rel="noopener" target="_blank">([^<]*)</a>',lambda m:'<button type="button" class="btn %s" data-lp="buy">%s</button>'%(m.group(1),m.group(2)),h)
+        h=h.replace('<a class="btn ghost" href="trainer.html">Попробовать бесплатно</a>','<button type="button" class="btn ghost" data-lp="free">Попробовать бесплатно</button>')
     return h
 _clk_cache={}
 def mascot(e,cls=''):
@@ -413,22 +411,16 @@ def mental_section(preview):
 <p class="lead">Складывать и вычитать в уме можно научить без слёз. Тренажёр показывает приём на числовой ленте и в «домиках», а не требует «просто запомнить».</p>
 <div class="lp-ment">
 <div class="card"><h3>Переход через десяток</h3><p>47 + 28: сначала сделаем 47 круглым, возьмём 3 из 28, получим 50 + 25 = 75. Каждый шаг виден.</p></div>
-<div class="card"><h3>Четыре коротких модуля</h3><p>Состав числа, сложение без перехода, сложение через десяток, вычитание по частям.</p></div>
+<div class="card"><h3>Девять коротких модулей</h3><p>Состав числа, сложение и вычитание до 20, сложение через десяток, вычитание по частям, дополнение до 100, приёмы с 9 и 19, сложение через сотню.</p></div>
 <div class="card"><h3>«Объясни по-другому»</h3><p>Три способа объяснить один шаг: предметами, на числовой ленте, разложением.</p></div>
 <div class="card"><h3>Игра «Дай сдачу»</h3><p>Товар стоит 67 ₽, дали 100 ₽. Ребёнок считает сдачу, а при ошибке видит решение по шагам.</p></div>
 <div class="card"><h3>Тренажёр помнит трудное</h3><p>Примеры, в которых ребёнок ошибается, возвращаются чаще. В «Продвинутом» тарифе есть повторения через 1, 3, 7 и 14 дней.</p></div>
-<div class="card"><h3>Те же тарифы и коды</h3><p>Один код открывает оба тренажёра. Бесплатно доступен модуль «Состав числа».</p></div>
+<div class="card"><h3>Отдельный тариф или комбо</h3><p>«Устный счёт» можно купить отдельно или вместе с «Умножением» одним кодом. Бесплатно доступен модуль «Состав числа».</p></div>
 </div>
 <p style="margin:18px 0 0">'''+btn+'''</p></section>
 '''
 def landing_body(preview,hero_src):
     free=lp_btn('free','Попробовать бесплатно','big',preview)
-    rows_free=[(1,'Блоки: смысл умножения, ×1, ×2, ×5, ×10'),(1,'Кнопка «Объясни по-другому», три варианта'),(1,'Доступ навсегда'),(1,'10 минут занятий в день'),(1,'Базовый тренажёр'),(0,'Остальные блоки и деление'),(0,'Текстовые задачи и итоговая проверка'),(0,'Игры и повторения через дни')]
-    rows_std=[(1,'Все блоки и деление'),(1,'Кнопка «Объясни по-другому», три варианта'),(1,'Занятия без ограничения по времени'),(1,'Тренажёр с чередованием примеров'),(1,'Текстовые задачи из жизни'),(1,'Итоговая проверка'),(1,'Трудные примеры, цели на день, простой отчёт'),(0,'Игры и интервальные повторения'),(0,'«Расскажи родителю», награды, озвучка')]
-    rows_pro=[(1,'Всё из тарифа «Стандарт»'),(1,'Интервальные повторения через 1, 3, 7 дней'),(1,'Мини-игры: «Найди пару», «Счёт шагами» и другие'),(1,'«Расскажи родителю»'),(1,'Награды-наклейки'),(1,'Печатные карточки и расширенный отчёт'),(1,'Доступ навсегда, один платёж')]
-    plans=(lp_plan('Бесплатный','Чтобы попробовать','0 ₽',rows_free,lp_btn('free','Попробовать бесплатно','ghost',preview))
-      +lp_plan('Стандарт','Всё для изучения таблицы',PRICE_STD,rows_std,lp_btn('std','Выбрать тариф','',preview))
-      +lp_plan('Продвинутый','Всё включено',PRICE_PRO,rows_pro,lp_btn('pro','Выбрать тариф','',preview),True))
     fig=('<figure><img src="%s" alt="Экран тренажёра: объяснение умножения на клеточках" width="%d" height="%d"><figcaption>Так выглядит урок: картинка, короткое объяснение, затем задание.</figcaption></figure>'%((hero_src,)+HERO_WH)) if hero_src else ''
     code=('<button type="button" class="linkb" data-lp="code">ввести код</button>' if preview else '<a href="trainer.html#parent">ввести код</a>')
     foot=FOOT
@@ -475,7 +467,8 @@ _hd=hero_data()
 import struct
 HERO_WH=struct.unpack('>II',_hd[16:24]) if _hd else (480,640)
 _pn=lambda s:re.sub(r'\D','',s)
-SOFTAPP_LD={"@context":"https://schema.org","@type":"SoftwareApplication","name":"Таблица без зубрёжки","description":META['index'][1],"url":abs_url(''),"applicationCategory":"EducationalApplication","operatingSystem":"Web (любой современный браузер)","inLanguage":"ru","image":SITE_URL+'/img/og.png',"audience":{"@type":"PeopleAudience","suggestedMinAge":6},"offers":[{"@type":"Offer","name":"Бесплатный","price":"0","priceCurrency":"RUB"},{"@type":"Offer","name":"Стандарт","price":_pn(PRICE_STD),"priceCurrency":"RUB","url":PAY_STD},{"@type":"Offer","name":"Продвинутый","price":_pn(PRICE_PRO),"priceCurrency":"RUB","url":PAY_PRO}]}
+def cfg(n): return re.search(r"var %s='([^']+)'"%n,_app).group(1)
+SOFTAPP_LD={"@context":"https://schema.org","@type":"SoftwareApplication","name":"Таблица без зубрёжки","description":META['index'][1],"url":abs_url(''),"applicationCategory":"EducationalApplication","operatingSystem":"Web (любой современный браузер)","inLanguage":"ru","image":SITE_URL+'/img/og.png',"audience":{"@type":"PeopleAudience","suggestedMinAge":6},"offers":[{"@type":"Offer","name":"Бесплатный","price":"0","priceCurrency":"RUB"}]+[{"@type":"Offer","name":n,"price":_pn(cfg(p)),"priceCurrency":"RUB","url":cfg(u)} for n,p,u in (("Таблица умножения: Стандарт","PRICE_MULT_STD","PAY_URL_MULT_STD"),("Таблица умножения: Продвинутый","PRICE_MULT_PRO","PAY_URL_MULT_PRO"),("Устный счёт","PRICE_MENTAL","PAY_URL_MENTAL"),("Комбо: оба тренажёра","PRICE_COMBO","PAY_URL_COMBO"))]}
 LANDING=('''<!doctype html>
 <html lang="ru">
 <head>

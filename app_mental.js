@@ -12,47 +12,39 @@ function starsStr(n){return '★'.repeat(n)+'☆'.repeat(3-n);}
 var FREE_MIN=10;
 /*SHARED*/
 /* Цены и ссылки на оплату: тренажёр «Умножение» (MULT), «Устный счёт» (MNT) и комбо (CMB). Меняйте только здесь: build.py копирует блок в app_mental.js и на лендинг. */
-var PRICE_STD='990 ₽';
-var PRICE_PRO='1 990 ₽';
-var PRICE_MNT_STD='690 ₽';
-var PRICE_MNT_PRO='1 490 ₽';
-var PRICE_CMB_STD='1 490 ₽';
-var PRICE_CMB_PRO='2 490 ₽';
-var PAY_URL_STD='https://example.com/pay?plan=standard';  /* страницы оплаты у платёжного агрегатора */
-var PAY_URL_PRO='https://example.com/pay?plan=pro';
-var PAY_URL_MNT_STD='https://example.com/pay?plan=mental-standard';
-var PAY_URL_MNT_PRO='https://example.com/pay?plan=mental-pro';
-var PAY_URL_CMB_STD='https://example.com/pay?plan=combo-standard';
-var PAY_URL_CMB_PRO='https://example.com/pay?plan=combo-pro';
-/* SHA-256 кодов доступа (см. README). Тестовые коды (удалите перед запуском): TEST-STANDARD, TEST-PRO и 1111 (Умножение), TEST-CMB-STD, TEST-CMB-PRO (оба тренажёра), TEST-MNT-STD, TEST-MNT-PRO (только «Устный счёт»). */
+var PRICE_MULT_STD='990 ₽';
+var PRICE_MULT_PRO='1 990 ₽';
+var PRICE_MENTAL='990 ₽';
+var PRICE_COMBO='2 990 ₽';
+var PAY_URL_MULT_STD='https://example.com/pay?plan=mult-standard';  /* страницы оплаты у платёжного агрегатора */
+var PAY_URL_MULT_PRO='https://example.com/pay?plan=mult-pro';
+var PAY_URL_MENTAL='https://example.com/pay?plan=mental';
+var PAY_URL_COMBO='https://example.com/pay?plan=combo';
+/* SHA-256 кодов доступа (см. README). Тестовые коды (удалите перед запуском): TEST-STANDARD, TEST-PRO и 1111 (только «Умножение»), TEST-MNT («Устный счёт»), TEST-CMB (комбо). */
 var CODES_STD=["ca063870f27456c4764dc609ae1579f7a1fa8e6f497713a47ad4b90c98db7bb6"];
 var CODES_PRO=["0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c","9617e38101e15005c55a48cf1116327a0bb611c344da66dce2799e30b954a446"];
-var CODES_CMB_STD=["4964d0225d51f2c815d16d174332eb64a293214325956f552404ef4fdb107de1"];
-var CODES_CMB_PRO=["c671df5b041bddfa252b798e75d6568e22201ed148edc470e1c280c68f0a6e6c"];
-var CODES_MNT_STD=["98228139f575a4a1c0f048ebf40c970d7c3f64bf9017343ded4c2e2ccccb1176"];
-var CODES_MNT_PRO=["ea017b378b1df8637cddf5cc7dd988a5bb470ebe6663b49a33d3645df76bc34f"];
-/* что открывает код: {mult, mental}; null, если код не найден. Старые коды STANDARD-/PRO- открывают только «Умножение». */
+var CODES_MNT=["364567710a202e131e3aabb9531abb0d23648784ea6db328eedea3b01f9bb16a"];
+var CODES_CMB=["c7bdbefc81151c12307080feadd770a9eb413db17783a48fa8847269de7c49ca"];
+/* что открывает код: {mult, mental}; null, если код не найден.
+   STANDARD-/PRO-: только «Умножение» (Стандарт или Продвинутый). MNT-: «Устный счёт» целиком (Продвинутый). CMB-: оба тренажёра на максимум. */
 function codeGrant(hx){
   function has(a){return a.indexOf(hx)>=0;}
-  if(has(CODES_CMB_PRO))return {mult:'pro',mental:'pro'};
-  if(has(CODES_CMB_STD))return {mult:'standard',mental:'standard'};
+  if(has(CODES_CMB))return {mult:'pro',mental:'pro'};
   if(has(CODES_PRO))return {mult:'pro',mental:null};
   if(has(CODES_STD))return {mult:'standard',mental:null};
-  if(has(CODES_MNT_PRO))return {mult:null,mental:'pro'};
-  if(has(CODES_MNT_STD))return {mult:null,mental:'standard'};
+  if(has(CODES_MNT))return {mult:null,mental:'pro'};
   return null;}
-function anyCodes(){return CODES_STD.length+CODES_PRO.length+CODES_CMB_STD.length+CODES_CMB_PRO.length+CODES_MNT_STD.length+CODES_MNT_PRO.length>0;}
-function rub(s){return parseInt(String(s).replace(/\D/g,''),10)||0;}
-function fmtRub(n){return String(n).replace(/\B(?=(\d{3})+$)/,'\u00A0')+'\u00A0₽';}
-/* три колонки тарифов: Умножение, Устный счёт, Комбо */
-function tariffCols(){
-  function row(name,price,url){return '<div class="trow"><span class="tname">'+name+'</span><b class="tprice">'+price+'</b><a class="btn" href="'+url+'" rel="noopener" target="_blank">Купить</a></div>';}
-  function col(cls,title,sub,items,rows,badge){return '<div class="tcol'+cls+'">'+(badge?'<span class="tbadge">'+badge+'</span>':'')+'<h3>'+title+'</h3><p class="tsub">'+sub+'</p><ul>'+items.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul>'+rows+'</div>';}
-  var s1=rub(PRICE_STD)+rub(PRICE_MNT_STD)-rub(PRICE_CMB_STD),s2=rub(PRICE_PRO)+rub(PRICE_MNT_PRO)-rub(PRICE_CMB_PRO);
+function anyCodes(){return CODES_STD.length+CODES_PRO.length+CODES_MNT.length+CODES_CMB.length>0;}
+/* четыре плашки: Бесплатный, Умножение, Устный счёт, Комбо. cur: 'mult' | 'mental' | 'landing' (куда ведёт кнопка «Попробовать бесплатно») */
+function tariffCols(cur){
+  function buy(cls,label,price,url){return '<a class="btn '+cls+'" href="'+url+'" rel="noopener" target="_blank">'+label+' · '+price.replace(/ /g,'\u00a0')+'</a>';}
+  function col(cls,title,price,sub,items,act,badge){return '<div class="tcol'+cls+'">'+(badge?'<span class="tbadge">'+badge+'</span>':'')+'<h3>'+title+'</h3><p class="tprice">'+price+'</p><p class="tsub">'+sub+'</p><ul>'+items.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul><div class="tact">'+act+'</div></div>';}
+  var free=cur==='landing'?'<a class="btn ghost" href="trainer.html">Попробовать бесплатно</a>':'<button type="button" class="btn ghost" data-v="home">Попробовать бесплатно</button>';
   return '<div class="tcols">'
-   +col('','Умножение','Таблица умножения и деления',['Блоки с картинками и кнопкой «Объясни по-другому»','Стандарт: все блоки, без лимита по времени, итоговая проверка','Продвинутый: повторения через 1, 3, 7 дней, игры, награды, печать'],row('Стандарт',PRICE_STD,PAY_URL_STD)+row('Продвинутый',PRICE_PRO,PAY_URL_PRO))
-   +col('','Устный счёт','Сложение и вычитание в уме',['Четыре модуля: состав числа, сложение и вычитание через десяток','Стандарт: все модули, игра «Дай сдачу», тренажёр без лимита','Продвинутый: повторения примеров через 1, 3, 7, 14 дней, подробный отчёт'],row('Стандарт',PRICE_MNT_STD,PAY_URL_MNT_STD)+row('Продвинутый',PRICE_MNT_PRO,PAY_URL_MNT_PRO))
-   +col(' combo','Комбо: всё сразу','Оба тренажёра по одному коду',['«Умножение» и «Устный счёт» открываются вместе','Тот же тариф в обоих тренажёрах','Выгода: '+fmtRub(s1)+' на Стандарте, '+fmtRub(s2)+' на Продвинутом'],row('Стандарт',PRICE_CMB_STD,PAY_URL_CMB_STD)+row('Продвинутый',PRICE_CMB_PRO,PAY_URL_CMB_PRO),'Выгодно')
+   +col(' free','Бесплатный','0 ₽','Чтобы попробовать',['5 блоков в «Умножении»','Модуль «Состав числа» в «Устном счёте»','До 10 минут в день','Без регистрации'],free)
+   +col('','Таблица умножения','от '+PRICE_MULT_STD,'Полный курс умножения и деления',['Все блоки и деление','Безлимитное время','Итоговая проверка','В Продвинутом: игры, повторения через 1, 3, 7 дней, награды, печать'],buy('ghost','Купить Стандарт',PRICE_MULT_STD,PAY_URL_MULT_STD)+buy('','Купить Продвинутый',PRICE_MULT_PRO,PAY_URL_MULT_PRO))
+   +col('','Устный счёт',PRICE_MENTAL,'Сложение и вычитание в уме',['Все 9 модулей','Игра «Дай сдачу»','Тренажёр с повторениями','Подробный отчёт для родителя','Без лимита времени'],buy('',  'Купить Устный счёт',PRICE_MENTAL,PAY_URL_MENTAL))
+   +col(' combo','Комбо: всё сразу',PRICE_COMBO,'Оба тренажёра по одному коду',['Всё из «Таблицы умножения» (Продвинутый)','Всё из «Устного счёта»','Один код открывает оба тренажёра','Доступ навсегда'],buy('big','Купить Комбо',PRICE_COMBO,PAY_URL_COMBO),'Всё сразу')
    +'</div>';}
 /* Маскот «Клетик»: плоский inline SVG (около 1,5 КБ на экземпляр). Эмоции: joy, think, sorry, party. */
 function clk(e,cls){
@@ -86,8 +78,13 @@ var TYPES={
   addc:{name:'Сложение через десяток'},
   sub:{name:'Вычитание без занятия'},
   subc:{name:'Вычитание с переходом через десяток'},
-  chg:{name:'Сдача в магазине'}};
-var ALL_T=['b10','add','addc','sub','subc','chg'];
+  chg:{name:'Сдача в магазине'},
+  a20:{name:'Сложение до 20 через десяток'},
+  s20:{name:'Вычитание до 20 через десяток'},
+  b100:{name:'Дополнение до 100'},
+  near:{name:'Прибавить и вычесть 9, 8, 19'},
+  addh:{name:'Сложение через сотню'}};
+var ALL_T=['b10','a20','s20','add','addc','sub','subc','b100','near','addh','chg'];
 
 /* ---------- склонение ---------- */
 function pl(n,o,f,m){n=Math.abs(n)%100;var d=n%10;if(n>10&&n<20)return m;if(d===1)return o;if(d>=2&&d<=4)return f;return m;}
@@ -128,7 +125,12 @@ function exSub(){var ta=ri(3,9),tb=ri(1,ta-1),ua=ri(1,9),ub=ri(1,ua);var a=ta*10
 function exSubc(){var ta=ri(3,9),tb=ri(1,ta-1),ua=ri(0,7),ub=ri(ua+1,9);var a=ta*10+ua,b=tb*10+ub;return {type:'subc',a:a,b:b,key:'subc-'+a+'-'+b};}
 var GOODS=['хлеб','молоко','сок','тетрадь','ручку','альбом','яблоки','булочку','линейку','пенал'];
 function exChg(){var pay=pick([50,100,100]);var p=pay===100?ri(11,99):ri(11,49);if(p===pay)p--;return {type:'chg',price:p,pay:pay,item:pick(GOODS),key:'chg-'+pay+'-'+p};}
-var GEN={b10:exB10,add:exAdd,addc:exAddc,sub:exSub,subc:exSubc,chg:exChg};
+function exA20(){var a=ri(6,9),b=ri(11-a,9);return {type:'a20',a:a,b:b,key:'a20-'+a+'-'+b};}
+function exS20(){var ua=ri(2,8),a=10+ua,b=ri(ua+1,9);return {type:'s20',a:a,b:b,key:'s20-'+a+'-'+b};}
+function exB100(){var a=ri(1,9)*10+ri(1,9);if(a<12)a=12;return {type:'b100',a:a,key:'b100-'+a};}
+function exNear(){var b=pick([8,9,9,18,19,19,28,29]),plus=Math.random()<0.6,a=plus?ri(14,68):ri(Math.max(b+3,31),95);return {type:'near',a:a,b:b,plus:plus,key:'near-'+a+(plus?'+':'-')+b};}
+function exAddh(){var a=ri(5,9)*10+ri(2,9),b=ri(101-a,99);if(b%10===0)b++;if(b<12)b=12;return {type:'addh',a:a,b:b,key:'addh-'+a+'-'+b};}
+var GEN={b10:exB10,a20:exA20,s20:exS20,add:exAdd,addc:exAddc,sub:exSub,subc:exSubc,b100:exB100,near:exNear,addh:exAddh,chg:exChg};
 function gen(t){var e=GEN[t]();return e;}
 
 function dig(n){return {t:Math.floor(n/10),u:n%10};}
@@ -141,9 +143,14 @@ function stepsFor(e){
     if(e.type==='sub'||x%10>=B.u)return [a+' − '+B.t*10+' = '+x,x+' − '+B.u+' = '+(a-b)];
     var r=x%10,t=x-r-10,ones=10+r,k=ones-B.u,s=[a+' − '+B.t*10+' = '+x,'Занимаем десяток: '+x+' = '+t+' + '+ones,ones+' − '+B.u+' = '+k];
     if(t>0)s.push(t+' + '+k+' = '+(a-b));else s[s.length-1]+=' (это и есть ответ)';return s;}
+  if(e.type==='a20'){var nd=10-a;return ['До 10 не хватает '+nd+'.','Берём '+nd+' из числа '+b+'. Остаётся '+(b-nd)+'.','10 + '+(b-nd)+' = '+(a+b)];}
+  if(e.type==='s20'){var u1=a-10,r1=b-u1;return [a+' − '+u1+' = 10 (дошли до десятка)','Осталось вычесть '+r1+', ведь '+b+' = '+u1+' + '+r1+'.','10 − '+r1+' = '+(a-b)];}
+  if(e.type==='b100'){var n1=10-a%10,m1=a+n1,n2=100-m1;return [a+' + '+n1+' = '+m1+' (до круглого десятка)',m1+' + '+n2+' = 100 (до ста)',n1+' + '+n2+' = '+(n1+n2)+'. Не хватало '+(n1+n2)+'.'];}
+  if(e.type==='near'){var BB=Math.ceil(b/10)*10,dd=BB-b;return e.plus?[b+' почти '+BB+': не хватает '+dd+'.',a+' + '+BB+' = '+(a+BB),(a+BB)+' − '+dd+' = '+(a+b)]:[b+' почти '+BB+': не хватает '+dd+'.',a+' − '+BB+' = '+(a-BB),(a-BB)+' + '+dd+' = '+(a-b)];}
+  if(e.type==='addh'){var n3=100-a,rm=b-n3;return ['До 100 не хватает '+n3+'.','Берём '+n3+' из числа '+b+'. Остаётся '+rm+'.','100 + '+rm+' = '+(a+b)];}
   if(e.type==='chg'){var tt=Math.floor(e.price/10)*10,u=e.price%10,y=e.pay-tt,s2=[e.pay+' − '+tt+' = '+y];if(u)s2.push(y+' − '+u+' = '+(e.pay-e.price));return s2;}
   return [];}
-function ansFor(e){return e.type==='b10'?10-e.a:(e.type==='add'||e.type==='addc'?e.a+e.b:(e.type==='chg'?e.pay-e.price:e.a-e.b));}
+function ansFor(e){var t=e.type;if(t==='b10')return 10-e.a;if(t==='b100')return 100-e.a;if(t==='add'||t==='addc'||t==='a20'||t==='addh')return e.a+e.b;if(t==='near')return e.plus?e.a+e.b:e.a-e.b;if(t==='chg')return e.pay-e.price;return e.a-e.b;}
 
 /* ---------- рисунки ---------- */
 /* десять клеток для яблок: a яблок лежат, остальные клетки пустые */
@@ -153,6 +160,22 @@ function tenFrame(a,o){o=o||{};var s='',i,x,y,w=o.w||300;
     s+='<rect x="'+x+'" y="'+y+'" width="44" height="46" rx="9" class="'+(i<a?'mv-fr':'mv-em')+'"/>'+(i<a?apple(x+22,y+24,15):'<text x="'+(x+22)+'" y="'+(y+33)+'" class="mv-q" text-anchor="middle">?</text>');}
   return s;}
 function homes(a){return '<svg class="mviz" viewBox="0 0 300 140" role="img" aria-label="Десять клеток, '+a+' яблок лежат, остальные клетки пустые">'+tenFrame(a)+'<text x="150" y="130" class="mv-t" text-anchor="middle">'+a+' яблок + ? = 10</text></svg>';}
+/* десять клеток и ещё яблоки: a лежат в рамке, из b-яблок первые need (жёлтые) переедут в рамку */
+function frameAdd(a,b){var need=10-a,s='<svg class="mviz" viewBox="0 0 300 150" role="img" aria-label="Рамка на десять яблок: лежит '+a+', рядом ещё '+b+'">',i;
+  s+='<g transform="translate(-10 4) scale(.62)">'+tenFrame(a)+'</g>';
+  for(i=0;i<b;i++){var x=170+(i%5)*26,y=20+Math.floor(i/5)*30;s+='<g class="'+(i<need?'mv-pk':'')+'">'+(i<need?'<circle cx="'+x+'" cy="'+(y+2)+'" r="13" class="mv-y"/>':'')+apple(x,y,9)+'</g>';}
+  return s+'<text x="150" y="140" class="mv-t" text-anchor="middle">'+a+' + '+b+' = ?</text></svg>';}
+function frameSub(a,b){var ua=a-10,rem=b-ua,s='<svg class="mviz" viewBox="0 0 300 150" role="img" aria-label="'+a+' яблок: полная рамка и ещё '+ua+'">',i;
+  s+='<g transform="translate(-10 4) scale(.62)">'+tenFrame(10)+'</g>';
+  s+='<g transform="translate(-10 4) scale(.62)">';for(i=10-rem;i<10;i++){var x=30+(i%5)*48,y=12+Math.floor(i/5)*52;s+='<rect x="'+x+'" y="'+y+'" width="44" height="46" rx="9" class="mv-x"/>';}s+='</g>';
+  for(i=0;i<ua;i++){var x2=170+(i%5)*26,y2=20+Math.floor(i/5)*30;s+='<circle cx="'+x2+'" cy="'+(y2+2)+'" r="13" class="mv-x"/>'+apple(x2,y2,9);}
+  return s+'<text x="150" y="140" class="mv-t" text-anchor="middle">'+a+' − '+b+' = ?</text></svg>';}
+/* полоска на 100: ta десятков, ua единиц, need жёлтых */
+function bar100(a,hl){var ta=Math.floor(a/10),ua=a%10,s='<svg class="mviz" viewBox="0 0 300 110" role="img" aria-label="Полоска на 100, закрашено '+a+'">',i;
+  for(i=0;i<10;i++){var x=10+i*28;s+='<rect x="'+x+'" y="18" width="26" height="40" rx="6" class="'+(i<ta?'mv-b':'mv-em')+'"/>';}
+  if(ua){var x3=10+ta*28;s+='<rect x="'+x3+'" y="18" width="26" height="40" rx="6" class="mv-em"/><rect x="'+x3+'" y="'+(18+40*(1-ua/10))+'" width="26" height="'+(40*ua/10)+'" rx="4" class="mv-b2"/>';}
+  s+='<text x="'+(10+ta*14)+'" y="82" class="mv-t" text-anchor="middle">'+a+'</text><text x="'+(10+(a/100)*280+(280-(a/100)*280)/2)+'" y="82" class="mv-t" text-anchor="middle">'+(hl||'?')+'</text>';
+  return s+'<text x="150" y="104" class="mv-t2" text-anchor="middle">вся полоска = 100</text></svg>';}
 function numlineInner(pts,labs,W,Hh){
   var mn=Math.min.apply(null,pts),mx=Math.max.apply(null,pts),sp=mx-mn||1,y=Hh*0.62,s='';
   function X(v){return 24+(v-mn)/sp*(W-48);}
@@ -180,6 +203,10 @@ function chipsRow(e){
   if(e.type==='b10')return '<div class="mrow"><span class="mchip t">10</span><span class="mop">=</span><span class="mchip u">'+e.a+'</span><span class="mop">+</span><span class="mchip y">'+(10-e.a)+'</span></div>';
   if(e.type==='add'||e.type==='addc')return '<div class="mrow">'+sp(e.a)+'<span class="mop">+</span>'+sp(e.b)+'</div>';
   if(e.type==='sub'||e.type==='subc')return '<div class="mrow">'+sp(e.a)+'<span class="mop">−</span>'+sp(e.b)+'</div>';
+  if(e.type==='a20'||e.type==='addh'){var nn=(e.type==='a20'?10:100)-e.a;return '<div class="mrow"><span class="mchip t">'+e.a+'</span><span class="mop">+</span><span class="mchip y">'+nn+'</span><span class="mop">+</span><span class="mchip u">'+(e.b-nn)+'</span></div>';}
+  if(e.type==='s20'){var uu=e.a-10;return '<div class="mrow"><span class="mchip t">'+e.a+'</span><span class="mop">−</span><span class="mchip y">'+uu+'</span><span class="mop">−</span><span class="mchip u">'+(e.b-uu)+'</span></div>';}
+  if(e.type==='b100'){var q1=10-e.a%10;return '<div class="mrow"><span class="mchip t">'+e.a+'</span><span class="mop">+</span><span class="mchip y">'+q1+'</span><span class="mop">+</span><span class="mchip u">'+(100-e.a-q1)+'</span></div>';}
+  if(e.type==='near'){var BN=Math.ceil(e.b/10)*10;return '<div class="mrow"><span class="mchip t">'+e.b+'</span><span class="mop">=</span><span class="mchip y">'+BN+'</span><span class="mop">'+(e.plus?'−':'+')+'</span><span class="mchip u">'+(BN-e.b)+'</span></div>';}
   return '';}
 function explain(e,vi){var h0=explain0(e,vi);return vi===2?h0.replace('</p>','</p>'+chipsRow(e)):h0;}
 function explain0(e,vi){
@@ -200,6 +227,26 @@ function explain0(e,vi){
     if(vi===0)return p('Из '+e.a+' уберём '+B.t+' '+pl(B.t,'десяток','десятка','десятков')+' и ещё '+B.u+' '+pl(B.u,'единицу','единицы','единиц')+'. Убранное выцветает.')+blocks(e.a,{goneT:B.t,goneU:(x%10>=B.u?B.u:0)})+lines(st);
     if(vi===1)return p('Идём назад по ленте: сначала на '+B.t*10+', потом на '+B.u+'.')+numline([e.a,x,e.a-e.b],['−'+B.t*10,'−'+B.u])+lines(st);
     return p('Вычитаем по частям. Число '+e.b+' разложим: '+e.b+' = '+B.t*10+' + '+B.u+'.')+lines(st);}
+  if(e.type==='a20'){var nd=10-e.a,rr=e.b-nd,sm=e.a+e.b;
+    if(vi===0)return p('В рамке лежит '+e.a+' '+pl(e.a,'яблоко','яблока','яблок')+'. Чтобы заполнить её, нужно ещё '+nd+'. Возьмём их из второй кучки (жёлтые).')+frameAdd(e.a,e.b)+lines(st);
+    if(vi===1)return p('Прыгаем по ленте: сначала до 10, потом остаток.')+numline([e.a,10,sm],['+'+nd,'+'+rr])+lines(st);
+    return p('Разложим второе число: '+e.b+' = '+nd+' + '+rr+'.')+lines([e.a+' + '+nd+' = 10','10 + '+rr+' = '+sm]);}
+  if(e.type==='s20'){var u1=e.a-10,r1=e.b-u1;
+    if(vi===0)return p('Было '+e.a+' яблок: полная рамка и ещё '+u1+'. Сначала уберём лишние '+u1+', потом ещё '+r1+' из рамки. Убранное выцветает.')+frameSub(e.a,e.b)+lines(st);
+    if(vi===1)return p('Идём назад по ленте: сначала до 10, потом дальше.')+numline([e.a,10,e.a-e.b],['−'+u1,'−'+r1])+lines(st);
+    return p('Разложим вычитаемое: '+e.b+' = '+u1+' + '+r1+'.')+lines([e.a+' − '+u1+' = 10','10 − '+r1+' = '+(e.a-e.b)]);}
+  if(e.type==='b100'){var n1=10-e.a%10,m1=e.a+n1,n2=100-m1,all=n1+n2;
+    if(vi===0)return p('Полоска на 100 клеток. Закрашено '+e.a+'. Сколько осталось закрасить?')+bar100(e.a,'?')+lines(st);
+    if(vi===1)return p('Идём по ленте от '+e.a+' до 100: сначала до круглого десятка, потом до ста.')+numline([e.a,m1,100],['+'+n1,'+'+n2])+lines(st);
+    return p('Дополняем в два шага: до десятка и до сотни. Складываем добавки.')+lines([e.a+' + '+n1+' = '+m1,m1+' + '+n2+' = 100',n1+' + '+n2+' = '+all]);}
+  if(e.type==='near'){var BN=Math.ceil(e.b/10)*10,dd=BN-e.b,r2=e.plus?e.a+e.b:e.a-e.b,mid=e.plus?e.a+BN:e.a-BN;
+    if(vi===0)return p(e.plus?'Прибавить '+e.b+' — это прибавить '+BN+' и тут же вернуть '+dd+'. Так считать проще.':'У тебя '+e.a+' ₽. Нужно заплатить '+e.b+' ₽. Дадим '+BN+' ₽ и получим '+dd+' ₽ сдачи.')+lines(st);
+    if(vi===1)return p('На ленте: большой прыжок на '+BN+' и маленький возврат на '+dd+'.')+numline([e.a,mid,r2],[(e.plus?'+':'−')+BN,(e.plus?'−':'+')+dd])+lines(st);
+    return p('Заменим '+e.b+' на «круглое минус немного»: '+e.b+' = '+BN+' − '+dd+'.')+lines(st);}
+  if(e.type==='addh'){var n3=100-e.a,rm=e.b-n3,sum=e.a+e.b;
+    if(vi===0)return p('До полной сотни не хватает '+n3+'. Возьмём эти '+n3+' из числа '+e.b+' (жёлтые клетки).')+bar100(e.a,'+'+n3)+lines(st);
+    if(vi===1)return p('Прыгаем по ленте до 100, потом прибавляем остаток.')+numline([e.a,100,sum],['+'+n3,'+'+rm])+lines(st);
+    return p('Разложим второе число: '+e.b+' = '+n3+' + '+rm+'.')+lines([e.a+' + '+n3+' = 100','100 + '+rm+' = '+sum]);}
   return '';}
 
 /* ---------- вопрос по примеру ---------- */
@@ -207,15 +254,21 @@ function mkQ(e){
   var q={e:e,type:e.type,key:e.key,ans:ansFor(e)};
   if(e.type==='b10'){q.lead='Сколько не хватает до 10?';q.eq=e.a+' + ? = 10';q.vis=homes(e.a);}
   else if(e.type==='chg'){q.lead='Покупаем '+e.item+'. Товар стоит '+e.price+' ₽, даём '+e.pay+' ₽. Сколько сдачи?';q.eq='Сдача: ?';}
-  else{q.lead=e.type==='add'||e.type==='addc'?'Сложи в уме.':'Вычти в уме.';q.eq=e.a+(e.type==='add'||e.type==='addc'?' + ':' − ')+e.b+' = ?';}
+  else if(e.type==='b100'){q.lead='Сколько не хватает до 100?';q.eq=e.a+' + ? = 100';q.vis=bar100(e.a,'?');}
+  else{var plus=e.type==='add'||e.type==='addc'||e.type==='a20'||e.type==='addh'||(e.type==='near'&&e.plus);q.lead=plus?'Сложи в уме.':'Вычти в уме.';q.eq=e.a+(plus?' + ':' − ')+e.b+' = ?';}
   q.steps=stepsFor(e);return q;}
 
 /* ---------- модули ---------- */
 var MODS=[
  {id:'n1',tag:'10 = 7 + 3',title:'Состав числа',sub:'Дополняем до 10',type:'b10',need:'free',canon:{type:'b10',a:7,key:'b10-7'},art:['#2B59E6','#5B7FF0']},
+ {id:'n5',tag:'8 + 7',title:'Сложение до 20',sub:'Через десяток: 8 + 2 + 5',type:'a20',need:'standard',canon:{type:'a20',a:8,b:7,key:'a20-8-7'},art:['#0E8FB0','#35C2D0'],note:'8 + 2 = 10, 10 + 5 = 15'},
+ {id:'n6',tag:'15 − 8',title:'Вычитание до 20',sub:'Через десяток: 15 − 5 − 3',type:'s20',need:'standard',canon:{type:'s20',a:15,b:8,key:'s20-15-8'},art:['#C92A2A','#FF8787'],note:'15 − 5 = 10, 10 − 3 = 7'},
  {id:'n2',tag:'23 + 45',title:'Сложение без перехода',sub:'Десятки и единицы',type:'add',need:'standard',canon:{type:'add',a:23,b:45,key:'add-23-45'},art:['#0E8F6A','#2FC79A']},
  {id:'n3',tag:'47 + 28',title:'Сложение через десяток',sub:'Достраиваем до круглого',type:'addc',need:'standard',canon:{type:'addc',a:47,b:28,key:'addc-47-28'},art:['#7A2FC4','#B05CF0']},
- {id:'n4',tag:'80 − 34',title:'Вычитание по частям',sub:'Сначала десятки, потом единицы',type:'sub',need:'standard',canon:{type:'subc',a:80,b:34,key:'subc-80-34'},art:['#C2255C','#FF6F91']}];
+ {id:'n4',tag:'80 − 34',title:'Вычитание по частям',sub:'Сначала десятки, потом единицы',type:'subc',types:['subc','sub'],ex2:'sub',need:'standard',canon:{type:'subc',a:80,b:34,key:'subc-80-34'},art:['#C2255C','#FF6F91']},
+ {id:'n7',tag:'63 + ? = 100',title:'Дополнение до 100',sub:'До десятка, потом до сотни',type:'b100',need:'standard',canon:{type:'b100',a:63,key:'b100-63'},art:['#2F9E44','#74D68A'],note:'63 + 7 = 70, 70 + 30 = 100'},
+ {id:'n8',tag:'47 + 19',title:'Прибавить и вычесть 9, 8, 19',sub:'Круглое число и поправка',type:'near',need:'standard',canon:{type:'near',a:47,b:19,plus:true,key:'near-47+19'},art:['#5F3DC4','#9775FA'],note:'+19 = +20 − 1'},
+ {id:'n9',tag:'68 + 47',title:'Сложение через сотню',sub:'Достраиваем до 100',type:'addh',need:'standard',canon:{type:'addh',a:68,b:47,key:'addh-68-47'},art:['#E67700','#FFC53D'],note:'68 + 32 = 100, 100 + 15 = 115'}];
 function modById(id){for(var i=0;i<MODS.length;i++)if(MODS[i].id===id)return MODS[i];return null;}
 function locked(m){return !atLeast(m.need);}
 function lockSvg(){return '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" style="vertical-align:-2px;margin-right:4px"><rect x="5" y="11" width="14" height="9" rx="2" fill="currentColor"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';}
@@ -223,6 +276,7 @@ function modArt(m){
   var inner='';
   if(m.id==='n1'){inner='<g transform="translate(-10 -2) scale(1.07)"><rect x="20" y="4" width="270" height="112" rx="12" fill="#fff" opacity=".92"/><g transform="translate(2 6) scale(.9)">'+tenFrame(7)+'</g></g>';}
   else if(m.id==='n2')inner='<text x="80" y="52" class="mv-t2" text-anchor="middle">23 + 45</text><text x="80" y="82" class="mv-t3" text-anchor="middle">20+40, 3+5</text><text x="225" y="62" class="mv-t2" text-anchor="middle">= 68</text>';
+  else if(m.note)inner='<text x="150" y="60" class="mv-t3" style="font-size:34px" text-anchor="middle">'+m.tag+'</text><text x="150" y="92" class="mv-t2" style="font-size:14px" text-anchor="middle">'+m.note+'</text>';
   else if(m.id==='n3')inner='<g transform="translate(0 8)">'+numlineInner([47,50,75],['+3','+25'],300,100)+'</g>';
   else inner='<g transform="translate(0 8)">'+numlineInner([80,50,46],['−30','−4'],300,100)+'</g>';
   return '<svg class="modart" viewBox="0 0 300 120" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true" focusable="false"><defs><linearGradient id="mg-'+m.id+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+m.art[0]+'"/><stop offset="1" stop-color="'+m.art[1]+'"/></linearGradient></defs><rect x="-300" y="-200" width="900" height="520" fill="url(#mg-'+m.id+')"/><circle cx="270" cy="10" r="46" fill="#fff" opacity=".1"/><g class="mart">'+inner+'</g></svg>';}
@@ -257,25 +311,26 @@ function badRate(t){var s=M.stats[t];if(!s||s.ok+s.bad<3)return 0;return s.bad/(
 function rHome(){
   var next=null;for(var i=0;i<MODS.length;i++){if(!M.done[MODS[i].id]&&!locked(MODS[i])){next=MODS[i];break;}}
   var cards=MODS.map(function(m,i){var d=M.done[m.id],lk=locked(m);
-    var st=d?'<span class="stars" aria-label="'+(M.stars[m.id]||2)+' из 3">'+starsStr(M.stars[m.id]||2)+'</span> пройдено':(lk?lockSvg()+'Стандарт и выше':(next&&next.id===m.id?'Следующий':'Новое'));
+    var st=d?'<span class="stars" aria-label="'+(M.stars[m.id]||2)+' из 3">'+starsStr(M.stars[m.id]||2)+'</span> пройдено':(lk?lockSvg()+'В платном тарифе':(next&&next.id===m.id?'Следующий':'Новое'));
     return '<button type="button" class="mod'+(d?' done':'')+'" data-start="'+m.id+'">'+modArt(m)+'<span class="mod-n">Модуль '+(i+1)+'</span><span class="mod-tag">'+m.tag+'</span><span class="mod-t">'+m.title+'</span><span class="mod-s">'+st+'</span></button>';}).join('');
   var today=next?'<div><b>Сегодня: модуль '+(MODS.indexOf(next)+1)+'</b><span>'+next.title+'. Хватит 5–10 минут.</span></div><button type="button" class="btn" data-start="'+next.id+'">'+(Object.keys(M.done).length?'Продолжить':'Начать')+'</button>'
     :'<div><b>Все доступные модули пройдены</b><span>Тренажёр подберёт примеры, которые пока даются труднее.</span></div><button type="button" class="btn" data-v="train">В тренажёр</button>';
-  var free=tier()==='free'?'<section class="note" style="margin-top:14px"><h3>Бесплатный доступ</h3><p>Открыт модуль «Состав числа» и тренажёр на состав числа: до '+FREE_MIN+' '+pl(FREE_MIN,'минуты','минут','минут')+' в день, сегодня осталось '+Math.max(0,FREE_MIN-usedMin())+' мин. Остальные модули и игру «Дай сдачу» откроет Стандарт.</p><button type="button" class="btn" data-v="plans">Посмотреть тарифы</button></section>':'';
+  var free=tier()==='free'?'<section class="note" style="margin-top:14px"><h3>Бесплатный доступ</h3><p>Открыт модуль «Состав числа» и тренажёр на состав числа: до '+FREE_MIN+' '+pl(FREE_MIN,'минуты','минут','минут')+' в день, сегодня осталось '+Math.max(0,FREE_MIN-usedMin())+' мин. Остальные модули и игру «Дай сдачу» откроет тариф «Устный счёт» или «Комбо».</p><button type="button" class="btn" data-v="plans">Посмотреть тарифы</button></section>':'';
   app.innerHTML='<section class="card lift"><p class="kicker">Считаем в уме</p><h1>Устный счёт</h1><p class="lead" style="margin-top:12px">Сначала понимаем приём, потом тренируем. В каждом модуле коротко показываем, как считать быстро: разложить числа, достроить до десятка, пройтись по числовой ленте. Не понял? Нажми «Объясни по-другому».</p><div class="today"><span class="clk-hi">'+clk('joy')+'<i>Привет! Я Клетик</i></span>'+today+'</div></section>'+free
    +'<h2>Модули</h2><div class="mods">'+cards+'</div><h2>Ещё</h2><div class="mods">'
    +'<button type="button" class="mod" data-v="train">'+trainArt()+'<span class="mod-tag">Тренажёр</span><span class="mod-s">Примеры подбираются под тебя'+(tier()==='free'?' · '+lockSvg()+'только состав числа':'')+'</span></button>'
-   +'<button type="button" class="mod" data-v="shop">'+shopArt()+'<span class="mod-tag">Дай сдачу</span><span class="mod-s">'+(atLeast('standard')?'Игра в магазин: сколько сдачи?':lockSvg()+'Стандарт и выше')+'</span></button></div>'
+   +'<button type="button" class="mod" data-v="shop">'+shopArt()+'<span class="mod-tag">Дай сдачу</span><span class="mod-s">'+(atLeast('standard')?'Игра в магазин: сколько сдачи?':lockSvg()+'В платном тарифе')+'</span></button></div>'
    +'<p class="small" style="margin-top:18px">Хорошо заниматься по 5–10 минут каждый день. Таймера на вопросах нет: скорость придёт после понимания.</p>';}
 
 /* ---------- урок ---------- */
 function startModule(id){
   var m=modById(id);if(!m)return;
   if(locked(m)){view={name:'buy',why:'block',title:m.title};render();return;}
-  var items=[{kind:'explain',e:m.canon,v:0},{kind:'explain',e:gen(m.id==='n4'?'sub':m.type),v:0}];
-  var seq=[];for(var i=0;i<4;i++)seq.push(m.id==='n4'?(i%2?'sub':'subc'):m.type);
+  var tp=m.types||[m.type];
+  var items=[{kind:'explain',e:m.canon,v:0},{kind:'explain',e:gen(m.ex2||m.type),v:0}];
+  var seq=[];for(var i=0;i<4;i++)seq.push(tp[i%tp.length]);
   seq.forEach(function(t){items.push({kind:'ask',q:mkQ(gen(t)),phase:'Тренируемся',test:false,w:0});});
-  var tt=[];for(var j=0;j<3;j++)tt.push(m.id==='n4'?(j%2?'sub':'subc'):m.type);
+  var tt=[];for(var j=0;j<3;j++)tt.push(tp[j%tp.length]);
   tt.forEach(function(t){items.push({kind:'ask',q:mkQ(gen(t)),phase:'Проверка',test:true,w:0});});
   R={mod:m,items:items,i:0,mode:'lesson'};view={name:'lesson'};startTimer();render();window.scrollTo(0,0);}
 function barHtml(){var s='';R.items.forEach(function(_,i){s+='<i class="'+(i<R.i?'on':(i===R.i?'now':''))+'"></i>';});return '<div class="bar" aria-hidden="true">'+s+'</div>';}
@@ -356,7 +411,7 @@ function rTrain(){
   var sr=Object.keys(M.sr).length;
   app.innerHTML='<section class="card lift"><p class="kicker">5–10 минут в день</p><h1>Тренажёр</h1><p class="lead" style="margin-top:12px">Около десяти примеров. Таймера на вопросах нет: мы лишь запоминаем твоё лучшее время. Если пример не получился, он вернётся позже.</p>'
    +(weak.length?'<p>Чаще попадутся: <b>'+weak.join(', ')+'</b>.</p>':'<p class="small">Пока мы изучаем, что тебе даётся легко, а что труднее.</p>')
-   +(atLeast('pro')?'<p class="small">Примеров на повторении: '+sr+'. Они возвращаются через 1, 3, 7 и 14 дней.</p>':(atLeast('standard')?'<p class="small">Примеры, которые не получились, возвращаются чаще. Повторение через 1, 3, 7 дней входит в тариф «Продвинутый».</p>':'<p class="small">В бесплатной версии тренажёр даёт примеры на состав числа, до '+FREE_MIN+' минут в день. Остальные типы откроет Стандарт.</p>'))
+   +(atLeast('pro')?'<p class="small">Примеров на повторении: '+sr+'. Они возвращаются через 1, 3, 7 и 14 дней.</p>':(atLeast('standard')?'<p class="small">Примеры, которые не получились, возвращаются чаще.</p>':'<p class="small">В бесплатной версии тренажёр даёт примеры на состав числа, до '+FREE_MIN+' минут в день. Остальные типы откроет тариф «Устный счёт» или «Комбо».</p>'))
    +'<div class="row"><button type="button" class="btn" id="go">Начать</button><button type="button" class="btn ghost" data-v="home">К модулям</button></div></section>';
   $('#go').onclick=startTrain;}
 function rSum(){
@@ -441,11 +496,11 @@ function planHtml(name,price,url,items,pro){
   return '<div class="plan'+(pro?' pro':'')+'"><h3>'+name+'</h3><p class="price">'+price+' <span class="small">один раз</span></p><ul>'+items.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul><a class="btn'+(pro?'':' ghost')+'" href="'+url+'" rel="noopener" target="_blank">Купить '+name+'</a></div>';}
 function rBuy(){
   var why=view.why||'plans',title,lead;
-  if(why==='limit'){title='На сегодня всё!';lead='Бесплатный доступ: '+FREE_MIN+' минут занятий в день. Прогресс сохранён. Чтобы заниматься без ограничений, выберите Стандарт. Завтра бесплатные минуты появятся снова.';}
-  else if(why==='feature'){title=(view.title||'Эта возможность')+' входит в тариф «'+(view.need==='pro'?'Продвинутый':'Стандарт')+'»';lead='Сначала можно пользоваться бесплатной версией, потом открыть нужный тариф. Оплата один раз, без подписки.';}
-  else if(why==='block'){title='Модуль «'+(view.title||'')+'» входит в платные тарифы';lead='В бесплатной версии открыт модуль «Состав числа». Остальные модули откроет Стандарт или Продвинутый.';}
+  if(why==='limit'){title='На сегодня всё!';lead='Бесплатный доступ: '+FREE_MIN+' минут занятий в день. Прогресс сохранён. Чтобы заниматься без ограничений, выберите «Устный счёт» или «Комбо». Завтра бесплатные минуты появятся снова.';}
+  else if(why==='feature'){title=(view.title||'Эта возможность')+' входит в платный тариф';lead='Сначала можно пользоваться бесплатной версией, потом открыть нужный тариф. Оплата один раз, без подписки.';}
+  else if(why==='block'){title='Модуль «'+(view.title||'')+'» входит в платные тарифы';lead='В бесплатной версии открыт модуль «Состав числа». Остальные модули откроет тариф «Устный счёт» или «Комбо».';}
   else{title='Тарифы';lead='Бесплатная версия остаётся навсегда: модуль «Состав числа» и тренажёр на состав числа до '+FREE_MIN+' минут в день. Платные тарифы оплачиваются один раз, без подписки. Коды «Комбо» открывают оба тренажёра сразу.';}
-  app.innerHTML='<section class="card lift"><h1 style="margin:0 0 10px">'+title+'</h1><p class="lead">'+lead+'</p></section>'+tariffCols()
+  app.innerHTML='<section class="card lift"><h1 style="margin:0 0 10px">'+title+'</h1><p class="lead">'+lead+'</p></section>'+tariffCols('mental')
    +'<section class="card" style="margin-top:14px"><h3>У меня есть код</h3><div class="answer"><input class="ans" style="width:14ch;font-size:24px" id="code" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Код доступа"><button type="button" class="btn" id="codego">Открыть доступ</button></div><p class="small" id="codemsg" aria-live="polite"></p><p class="small">Оплата проходит на странице платёжного сервиса. Здесь мы не просим данные карты, имя, почту или телефон. После оплаты на странице успеха появится код доступа. Введите его здесь.</p></section><p style="margin-top:14px"><button type="button" class="btn ghost" data-v="home">Назад</button></p>';
   var inp=$('#code'),msg=$('#codemsg');
   function go2(){tryCode(inp.value,msg,function(){go({name:'home'});});}

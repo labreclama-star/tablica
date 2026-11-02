@@ -1,6 +1,6 @@
 /* Офлайн-режим. Меняйте VERSION при каждом обновлении сайта,
    иначе у пользователей останется старая версия из кэша. */
-const VERSION = "v28-2026-11-01";
+const VERSION = "v30-2026-11-02";
 const CACHE = 'tablica-' + VERSION;
 const ASSETS = [
   './', 'app.css', 'fonts.css', 'app.js', 'app_mental.js',
@@ -32,20 +32,23 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  const req = event.request; if (req.method !== 'GET') return;
-  const url = new URL(req.url); if (url.origin !== self.location.origin) return;
-  if (req.mode === 'navigate') {
-    event.respondWith(fetch(req).then((res) => {
-        if (res && res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); }
-        return res;
-      }).catch(() => caches.match(req).then(hit => hit || caches.match('index.html'))));
-    return;
-  }
-  event.respondWith(caches.match(req, { ignoreSearch: true }).then((hit) => {
-      if (hit) return hit;
-      return fetch(req).then((res) => {
-        if (res && res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); }
-        return res;
-      });
-    }));
+  const req = event.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return; /* чужие адреса не трогаем */
+
+  event.respondWith(
+    caches.match(req, { ignoreSearch: true }).then((hit) => {
+      if (hit) return hit; /* cache-first для статики */
+      return fetch(req)
+        .then((res) => {
+          if (res && res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(req, copy));
+          }
+          return res;
+        })
+        .catch(() => (req.mode === 'navigate' ? caches.match('index.html') : Response.error()));
+    })
+  );
 });
