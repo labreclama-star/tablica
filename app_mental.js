@@ -15,7 +15,7 @@ var FREE_MIN=10;
 var PRICE_MULT_STD='990 ₽';
 var PRICE_MULT_PRO='1 990 ₽';
 var PRICE_MENTAL='990 ₽';
-var PRICE_COMBO='2 990 ₽';
+var PRICE_COMBO = '2 490 ₽';
 var PAY_URL_MULT_STD='https://example.com/pay?plan=mult-standard';  /* страницы оплаты у платёжного агрегатора */
 var PAY_URL_MULT_PRO='https://example.com/pay?plan=mult-pro';
 var PAY_URL_MENTAL='https://example.com/pay?plan=mental';
