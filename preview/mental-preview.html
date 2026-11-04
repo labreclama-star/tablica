@@ -495,9 +495,10 @@ var PRICE_MULT_STD='990 ₽';
 var PRICE_MULT_PRO='1 990 ₽';
 var PRICE_MENTAL='990 ₽';
 var PRICE_COMBO='2 490 ₽';
-  
-
-
+var PAY_URL_MULT_STD='https://example.com/pay?plan=mult-standard';  /* страницы оплаты у платёжного агрегатора */
+var PAY_URL_MULT_PRO='https://example.com/pay?plan=mult-pro';
+var PAY_URL_MENTAL='https://example.com/pay?plan=mental';
+var PAY_URL_COMBO='https://example.com/pay?plan=combo';
 
 var PAY_URL_MULT_STD='success.html';
 var PAY_URL_MULT_PRO='success.html';
@@ -623,16 +624,16 @@ function dig(n){return {t:Math.floor(n/10),u:n%10};}
 function stepsFor(e){
   var a=e.a,b=e.b,A,B;
   if(e.type==='b10')return ['До 10 не хватает '+(10-a)+'.',a+' + '+(10-a)+' = 10'];
-  if(e.type==='add'){A=dig(a);B=dig(b);return ['Десятки: '+A.t*10+' + '+B.t*10+' = '+(A.t+B.t)*10,'Единицы: '+A.u+' + '+B.u+' = '+(A.u+B.u),'Вместе: '+(A.t+B.t)*10+' + '+(A.u+B.u)+' = '+(a+b)];}
-  if(e.type==='addc'){A=dig(a);B=dig(b);var need=10-A.u,tn=a+B.t*10,rem=B.u-need;return ['Сначала десятки: '+a+' + '+B.t*10+' = '+tn+'.','Теперь единицы: '+tn+' + '+B.u+'. До '+(tn+need)+' не хватает '+need+': '+tn+' + '+need+' = '+(tn+need)+'.','Осталось '+B.u+' − '+need+' = '+rem+': '+(tn+need)+' + '+rem+' = '+(a+b)];}
+  if(e.type==='add'){A=dig(a);B=dig(b);return ['Десятки. '+A.t*10+' + '+B.t*10+' = '+(A.t+B.t)*10,'Единицы. '+A.u+' + '+B.u+' = '+(A.u+B.u),'Вместе. '+(A.t+B.t)*10+' + '+(A.u+B.u)+' = '+(a+b)];}
+  if(e.type==='addc'){A=dig(a);B=dig(b);var need=10-A.u,tn=a+B.t*10,rem=B.u-need;return ['Сначала десятки. '+a+' + '+B.t*10+' = '+tn+'.','Теперь единицы. '+tn+' + '+B.u+'. До '+(tn+need)+' не хватает '+need+', значит '+tn+' + '+need+' = '+(tn+need)+'.','Осталось '+B.u+' − '+need+' = '+rem+', значит '+(tn+need)+' + '+rem+' = '+(a+b)];}
   if(e.type==='sub'||e.type==='subc'){A=dig(a);B=dig(b);var x=a-B.t*10;
     if(e.type==='sub'||x%10>=B.u)return [a+' − '+B.t*10+' = '+x,x+' − '+B.u+' = '+(a-b)];
-    var r=x%10,t=x-r-10,ones=10+r,k=ones-B.u,s=[a+' − '+B.t*10+' = '+x,'Занимаем десяток: '+x+' = '+t+' + '+ones,ones+' − '+B.u+' = '+k];
+    var r=x%10,t=x-r-10,ones=10+r,k=ones-B.u,s=[a+' − '+B.t*10+' = '+x,'Занимаем десяток, значит '+x+' = '+t+' + '+ones,ones+' − '+B.u+' = '+k];
     if(t>0)s.push(t+' + '+k+' = '+(a-b));else s[s.length-1]+=' (это и есть ответ)';return s;}
   if(e.type==='a20'){var nd=10-a;return ['До 10 не хватает '+nd+'.','Берём '+nd+' из числа '+b+'. Остаётся '+(b-nd)+'.','10 + '+(b-nd)+' = '+(a+b)];}
   if(e.type==='s20'){var u1=a-10,r1=b-u1;return [a+' − '+u1+' = 10 (дошли до десятка)','Осталось вычесть '+r1+', ведь '+b+' = '+u1+' + '+r1+'.','10 − '+r1+' = '+(a-b)];}
   if(e.type==='b100'){var n1=10-a%10,m1=a+n1,n2=100-m1;return [a+' + '+n1+' = '+m1+' (до круглого десятка)',m1+' + '+n2+' = 100 (до ста)',n1+' + '+n2+' = '+(n1+n2)+'. Не хватало '+(n1+n2)+'.'];}
-  if(e.type==='near'){var BB=Math.ceil(b/10)*10,dd=BB-b;return e.plus?[b+' почти '+BB+': не хватает '+dd+'.',a+' + '+BB+' = '+(a+BB),(a+BB)+' − '+dd+' = '+(a+b)]:[b+' почти '+BB+': не хватает '+dd+'.',a+' − '+BB+' = '+(a-BB),(a-BB)+' + '+dd+' = '+(a-b)];}
+  if(e.type==='near'){var BB=Math.ceil(b/10)*10,dd=BB-b;return e.plus?[b+' почти '+BB+', не хватает '+dd+'.',a+' + '+BB+' = '+(a+BB),(a+BB)+' − '+dd+' = '+(a+b)]:[b+' почти '+BB+', не хватает '+dd+'.',a+' − '+BB+' = '+(a-BB),(a-BB)+' + '+dd+' = '+(a-b)];}
   if(e.type==='addh'){var n3=100-a,rm=b-n3;return ['До 100 не хватает '+n3+'.','Берём '+n3+' из числа '+b+'. Остаётся '+rm+'.','100 + '+rm+' = '+(a+b)];}
   if(e.type==='chg'){var tt=Math.floor(e.price/10)*10,u=e.price%10,y=e.pay-tt,s2=[e.pay+' − '+tt+' = '+y];if(u)s2.push(y+' − '+u+' = '+(e.pay-e.price));return s2;}
   return [];}
@@ -713,21 +714,21 @@ function explain0(e,vi){
     if(vi===1)return p('Прыгаем по ленте: сначала прибавим десятки, потом единицы.')+numline([e.a,e.a+B.t*10,e.a+e.b],['+'+B.t*10,'+'+B.u])+lines(st);
     return p('Разложим числа на десятки и единицы.')+lines([e.a+' = '+A.t*10+' + '+A.u,e.b+' = '+B.t*10+' + '+B.u])+lines(st);}
   if(e.type==='addc'){A=dig(e.a);B=dig(e.b);var need=10-A.u,tn=e.a+B.t*10,rem=B.u-need;
-    if(vi===0)return p(FRUIT_NOTE+'Сначала сложим ящики. Потом груши: к '+A.u+' добавим '+need+' из '+B.u+' (жёлтые), получится ещё один ящик, и останется '+rem+'.')+'<div class="mrow">'+blocks(e.a)+'<span class="mop">+</span>'+blocks(e.b,{mark:need})+'</div>'+lines(st);
+    if(vi===0)return p(FRUIT_NOTE+'Сначала сложим ящики. Потом груши. К '+A.u+' добавим '+need+' из '+B.u+' (жёлтые), получится ещё один ящик, и останется '+rem+'.')+'<div class="mrow">'+blocks(e.a)+'<span class="mop">+</span>'+blocks(e.b,{mark:need})+'</div>'+lines(st);
     if(vi===1)return p('Сначала прыгаем на десятки, потом на единицы. Единицы добавляем в два шага: до круглого десятка, потом остаток.')+numline([e.a,tn,tn+need,e.a+e.b],['+'+B.t*10,'+'+need,'+'+rem])+lines(st);
-    return p('Разложим числа на десятки и единицы: '+e.a+' = '+A.t*10+' + '+A.u+', '+e.b+' = '+B.t*10+' + '+B.u+'.')+lines([A.t*10+' + '+B.t*10+' = '+(A.t+B.t)*10,A.u+' + '+B.u+' = '+(A.u+B.u)+' (это десяток и ещё '+(A.u+B.u-10)+')',(A.t+B.t)*10+' + '+(A.u+B.u)+' = '+(e.a+e.b)]);}
+    return p('Разложим числа на десятки и единицы. '+e.a+' = '+A.t*10+' + '+A.u+', '+e.b+' = '+B.t*10+' + '+B.u+'.')+lines([A.t*10+' + '+B.t*10+' = '+(A.t+B.t)*10,A.u+' + '+B.u+' = '+(A.u+B.u)+' (это десяток и ещё '+(A.u+B.u-10)+')',(A.t+B.t)*10+' + '+(A.u+B.u)+' = '+(e.a+e.b)]);}
   if(e.type==='sub'||e.type==='subc'){A=dig(e.a);B=dig(e.b);var x=e.a-B.t*10;
     if(vi===0){var bor=B.u>0&&x%10<B.u;return p(FRUIT_NOTE+'Из '+e.a+' уберём '+B.t+' '+pl(B.t,'ящик','ящика','ящиков')+' и ещё '+B.u+' '+pl(B.u,'груша','груши','груш')+(bor?'. Груш не хватает, поэтому один ящик раскроем: его яблоки станут грушами, чтобы было что убирать.':'.')+' Убранное бледное, с пунктиром.')+blocks(e.a,{goneT:B.t,goneU:B.u,open:bor})+lines(st);}
     if(vi===1)return p('Идём назад по ленте: сначала на '+B.t*10+', потом на '+B.u+'.')+numline([e.a,x,e.a-e.b],['−'+B.t*10,'−'+B.u])+lines(st);
-    return p('Вычитаем по частям. Число '+e.b+' разложим: '+e.b+' = '+B.t*10+' + '+B.u+'.')+lines(st);}
+    return p('Вычитаем по частям. Число '+e.b+' разложим на части. '+e.b+' = '+B.t*10+' + '+B.u+'.')+lines(st);}
   if(e.type==='a20'){var nd=10-e.a,rr=e.b-nd,sm=e.a+e.b;
     if(vi===0)return p('В рамке лежит '+e.a+' '+pl(e.a,'яблоко','яблока','яблок')+'. Чтобы заполнить её, нужно ещё '+nd+'. Возьмём их из второй кучки (жёлтые).')+frameAdd(e.a,e.b)+lines(st);
     if(vi===1)return p('Прыгаем по ленте: сначала до 10, потом остаток.')+numline([e.a,10,sm],['+'+nd,'+'+rr])+lines(st);
-    return p('До десятка не хватает '+nd+'. Поэтому отделим от числа '+e.b+' ровно '+nd+': '+e.b+' = '+nd+' + '+rr+'.')+lines([e.a+' + '+nd+' = 10','10 + '+rr+' = '+sm]);}
+    return p('До десятка не хватает '+nd+'. Поэтому отделим от числа '+e.b+' ровно '+nd+', то есть '+e.b+' = '+nd+' + '+rr+'.')+lines([e.a+' + '+nd+' = 10','10 + '+rr+' = '+sm]);}
   if(e.type==='s20'){var u1=e.a-10,r1=e.b-u1;
     if(vi===0)return p('Было '+e.a+' яблок: полная рамка и ещё '+u1+'. Сначала уберём лишние '+u1+', потом ещё '+r1+' из рамки. Убранное выцветает.')+frameSub(e.a,e.b)+lines(st);
     if(vi===1)return p('Идём назад по ленте: сначала до 10, потом дальше.')+numline([e.a,10,e.a-e.b],['−'+u1,'−'+r1])+lines(st);
-    return p('Разложим вычитаемое: '+e.b+' = '+u1+' + '+r1+'.')+lines([e.a+' − '+u1+' = 10','10 − '+r1+' = '+(e.a-e.b)]);}
+    return p('Разложим вычитаемое. '+e.b+' = '+u1+' + '+r1+'.')+lines([e.a+' − '+u1+' = 10','10 − '+r1+' = '+(e.a-e.b)]);}
   if(e.type==='b100'){var n1=10-e.a%10,m1=e.a+n1,n2=100-m1,all=n1+n2;
     if(vi===0)return p('Полоска на 100 клеток. Закрашено '+e.a+'. Сколько осталось закрасить?')+bar100(e.a,'?')+lines(st);
     if(vi===1)return p('Идём по ленте от '+e.a+' до 100: сначала до круглого десятка, потом до ста.')+numline([e.a,m1,100],['+'+n1,'+'+n2])+lines(st);
@@ -735,11 +736,11 @@ function explain0(e,vi){
   if(e.type==='near'){var BN=Math.ceil(e.b/10)*10,dd=BN-e.b,r2=e.plus?e.a+e.b:e.a-e.b,mid=e.plus?e.a+BN:e.a-BN;
     if(vi===0)return p(e.plus?'Прибавить '+e.b+' — это прибавить '+BN+' и тут же вернуть '+dd+'. Так считать проще.':'У тебя '+e.a+' ₽. Нужно заплатить '+e.b+' ₽. Дадим '+BN+' ₽ и получим '+dd+' ₽ сдачи.')+lines(st);
     if(vi===1)return p('На ленте: большой прыжок на '+BN+' и маленький возврат на '+dd+'.')+numline([e.a,mid,r2],[(e.plus?'+':'−')+BN,(e.plus?'−':'+')+dd])+lines(st);
-    return p('Заменим '+e.b+' на «круглое минус немного»: '+e.b+' = '+BN+' − '+dd+'.')+lines(st);}
+    return p('Заменим '+e.b+' на «круглое минус немного», то есть '+e.b+' = '+BN+' − '+dd+'.')+lines(st);}
   if(e.type==='addh'){var n3=100-e.a,rm=e.b-n3,sum=e.a+e.b;
     if(vi===0)return p('До полной сотни не хватает '+n3+'. Возьмём эти '+n3+' из числа '+e.b+' (жёлтые клетки).')+bar100(e.a,'+'+n3)+lines(st);
     if(vi===1)return p('Прыгаем по ленте до 100, потом прибавляем остаток.')+numline([e.a,100,sum],['+'+n3,'+'+rm])+lines(st);
-    return p('До сотни не хватает '+n3+'. Поэтому отделим от числа '+e.b+' ровно '+n3+': '+e.b+' = '+n3+' + '+rm+'.')+lines([e.a+' + '+n3+' = 100','100 + '+rm+' = '+sum]);}
+    return p('До сотни не хватает '+n3+'. Поэтому отделим от числа '+e.b+' ровно '+n3+', то есть '+e.b+' = '+n3+' + '+rm+'.')+lines([e.a+' + '+n3+' = 100','100 + '+rm+' = '+sum]);}
   return '';}
 
 /* ---------- вопрос по примеру ---------- */
@@ -754,8 +755,8 @@ function mkQ(e){
 /* ---------- модули ---------- */
 var MODS=[
  {id:'n1',tag:'10 = 7 + 3',title:'Состав числа',sub:'Дополняем до 10',type:'b10',need:'free',canon:{type:'b10',a:7,key:'b10-7'},art:['#2B59E6','#5B7FF0']},
- {id:'n5',tag:'8 + 7',title:'Сложение до 20',sub:'Через десяток: 8 + 2 + 5',type:'a20',need:'standard',canon:{type:'a20',a:8,b:7,key:'a20-8-7'},art:['#0E8FB0','#35C2D0'],note:'8 + 2 = 10, 10 + 5 = 15'},
- {id:'n6',tag:'15 − 8',title:'Вычитание до 20',sub:'Через десяток: 15 − 5 − 3',type:'s20',need:'standard',canon:{type:'s20',a:15,b:8,key:'s20-15-8'},art:['#C92A2A','#FF8787'],note:'15 − 5 = 10, 10 − 3 = 7'},
+ {id:'n5',tag:'8 + 7',title:'Сложение до 20',sub:'Через десяток · 8 + 2 + 5',type:'a20',need:'standard',canon:{type:'a20',a:8,b:7,key:'a20-8-7'},art:['#0E8FB0','#35C2D0'],note:'8 + 2 = 10, 10 + 5 = 15'},
+ {id:'n6',tag:'15 − 8',title:'Вычитание до 20',sub:'Через десяток · 15 − 5 − 3',type:'s20',need:'standard',canon:{type:'s20',a:15,b:8,key:'s20-15-8'},art:['#C92A2A','#FF8787'],note:'15 − 5 = 10, 10 − 3 = 7'},
  {id:'n2',tag:'23 + 45',title:'Сложение без перехода',sub:'Десятки и единицы',type:'add',need:'standard',canon:{type:'add',a:23,b:45,key:'add-23-45'},art:['#0E8F6A','#2FC79A']},
  {id:'n3',tag:'47 + 28',title:'Сложение через десяток',sub:'Достраиваем до круглого',type:'addc',need:'standard',canon:{type:'addc',a:47,b:28,key:'addc-47-28'},art:['#7A2FC4','#B05CF0']},
  {id:'n4',tag:'80 − 34',title:'Вычитание по частям',sub:'Сначала десятки, потом единицы',type:'subc',types:['subc','sub'],ex2:'sub',need:'standard',canon:{type:'subc',a:80,b:34,key:'subc-80-34'},art:['#C2255C','#FF6F91']},
