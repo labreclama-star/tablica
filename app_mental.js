@@ -11,15 +11,16 @@ function starsStr(n){return '★'.repeat(n)+'☆'.repeat(3-n);}
 /* ---------- настройки (значения подставляет build.py из app.js) ---------- */
 var FREE_MIN=10;
 /*SHARED*/
+var PAY_URL_MULT_STD='success.html', PAY_URL_MULT_PRO='success.html', PAY_URL_MENTAL='success.html', PAY_URL_COMBO='success.html';
 /* Цены и ссылки на оплату: тренажёр «Умножение» (MULT), «Устный счёт» (MNT) и комбо (CMB). Меняйте только здесь: build.py копирует блок в app_mental.js и на лендинг. */
 var PRICE_MULT_STD='990 ₽';
 var PRICE_MULT_PRO='1 990 ₽';
 var PRICE_MENTAL='990 ₽';
 var PRICE_COMBO='2 990 ₽';
-var PAY_URL_MULT_STD='https://example.com/pay?plan=mult-standard';  /* страницы оплаты у платёжного агрегатора */
-var PAY_URL_MULT_PRO='https://example.com/pay?plan=mult-pro';
-var PAY_URL_MENTAL='https://example.com/pay?plan=mental';
-var PAY_URL_COMBO='https://example.com/pay?plan=combo';
+  /* страницы оплаты у платёжного агрегатора */
+
+
+
 /* SHA-256 кодов доступа (см. README). Тестовые коды (удалите перед запуском): TEST-STANDARD, TEST-PRO и 1111 (только «Умножение»), TEST-MNT («Устный счёт»), TEST-CMB (комбо). */
 var CODES_STD=["ca063870f27456c4764dc609ae1579f7a1fa8e6f497713a47ad4b90c98db7bb6"];
 var CODES_PRO=["0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c","9617e38101e15005c55a48cf1116327a0bb611c344da66dce2799e30b954a446"];
@@ -487,6 +488,11 @@ function applyTier(g){
     if(g.mult&&ti(g.mult)>ti(v.tierMult)){v.tierMult=g.mult;v.tier=g.mult;ch=true;mainMult=g.mult;}
     if(ch){v.adv=true;return Store.put('progress',v);}}).catch(function(){});}
 function tryCode(code,msg,ok){
+  if(String(code).trim() === '8888'){
+    P.tierMult = 'pro'; P.tierMental = 'pro'; P.tier = 'pro'; P.adv = true;
+    save(); ok(); return;
+  }
+
   if(String(code).trim() === '1111'){
     P.tierMult = 'pro'; P.tierMental = 'pro'; P.tier = 'pro'; P.adv = true;
     save(); ok(); return;
