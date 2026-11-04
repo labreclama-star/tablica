@@ -106,7 +106,7 @@ HEAD_COMMON='''<meta charset="utf-8">
 <meta name="apple-mobile-web-app-title" content="Таблица">
 <link rel="stylesheet" href="fonts.css">
 <link rel="stylesheet" href="app.css">
-<script src="theme.js" defer></script>'''
+<script src="theme.js"></script>'''
 if os.path.exists(os.path.join(ROOT,'metrika.js')):
     # Яндекс.Метрика + куки-баннер подключаются, только если рядом лежит metrika.js
     HEAD_COMMON=HEAD_COMMON.replace("script-src 'self'","script-src 'self' https://mc.yandex.ru https://yastatic.net").replace("img-src 'self' data:","img-src 'self' data: https://mc.yandex.ru").replace("connect-src 'self'","connect-src 'self' https://mc.yandex.ru wss://mc.yandex.ru")+'\n<script src="metrika.js" defer></script>'
@@ -292,7 +292,6 @@ INDEX='''<!doctype html>
   '''+FOOT+'''
 </div>
 <script src="app.js" defer></script>
-<script src="blog.js" defer></script>
 </body>
 </html>
 '''
@@ -314,7 +313,6 @@ def content_page(path,title,desc,kw,inner,ld=(),typ='website',back=True,publishe
   '''+('<p style="margin-top:14px"><a class="btn ghost" href="trainer.html" style="text-decoration:none;display:inline-flex;align-items:center">← К тренажёру</a></p>' if back else '')+'''</main>
   '''+FOOT+'''
 </div>
-<script src="blog.js" defer></script>
 </body>
 </html>
 '''
@@ -428,6 +426,7 @@ def landing_body(preview,hero_src):
     foot=FOOT
     if preview: foot=preview_links(foot)
     return '''<div class="lp">
+<main>
 <header class="lp-top"><span class="brand" style="cursor:default">'''+BRAND+'''</span>'''+'<nav class="lp-nav" aria-label="Разделы">'+('<a href="#mental-sec">Устный счёт</a><a href="#blog">Блог</a>' if preview else '<a href="#mental-sec">Устный счёт</a><a href="#tariffs">Тарифы</a><a href="blog.html">Блог</a>')+'</nav>'+THEME_BTN+'''</header>
 <section class="lp-hero"><div>
 <p class="kicker">Умножение и деление</p>
@@ -461,6 +460,7 @@ def landing_body(preview,hero_src):
 <h2>Вопросы и ответы</h2>
 '''+faq_html()+'''
 '''+foot+'''
+</main>
 </div>'''
 def hero_data():
     p=os.path.join(ROOT,'img','hero.png')
@@ -469,7 +469,9 @@ _hd=hero_data()
 import struct
 HERO_WH=struct.unpack('>II',_hd[16:24]) if _hd else (480,640)
 _pn=lambda s:re.sub(r'\D','',s)
-def cfg(n): return re.search(r"var\s+" + n + r"\s*=\s*'([^']+)'", _app).group(1)
+def cfg(n):
+    m = re.search(r"var\s+" + n + r"\s*=\s*['\"]([^'\"]+)['\"]", _app)
+    return m.group(1) if m else "https://example.com/pay"
 SOFTAPP_LD={"@context":"https://schema.org","@type":"SoftwareApplication","name":"Таблица без зубрёжки","description":META['index'][1],"url":abs_url(''),"applicationCategory":"EducationalApplication","operatingSystem":"Web (любой современный браузер)","inLanguage":"ru","image":SITE_URL+'/img/og.png',"audience":{"@type":"PeopleAudience","suggestedMinAge":6},"offers":[{"@type":"Offer","name":"Бесплатный","price":"0","priceCurrency":"RUB"}]+[{"@type":"Offer","name":n,"price":_pn(cfg(p)),"priceCurrency":"RUB","url":cfg(u)} for n,p,u in (("Таблица умножения: Стандарт","PRICE_MULT_STD","PAY_URL_MULT_STD"),("Таблица умножения: Продвинутый","PRICE_MULT_PRO","PAY_URL_MULT_PRO"),("Устный счёт","PRICE_MENTAL","PAY_URL_MENTAL"),("Комбо: оба тренажёра","PRICE_COMBO","PAY_URL_COMBO"))]}
 LANDING=('''<!doctype html>
 <html lang="ru">
@@ -483,7 +485,6 @@ LANDING=('''<!doctype html>
 <body>
 '''+landing_body(False,'img/hero.png' if _hd else '')+'''
 <script src="landing.js" defer></script>
-<script src="blog.js" defer></script>
 </body>
 </html>
 ''')
@@ -516,7 +517,6 @@ MENTAL_HTML='''<!doctype html>
   '''+FOOT+'''
 </div>
 <script src="app_mental.js" defer></script>
-<script src="blog.js" defer></script>
 </body>
 </html>
 '''
@@ -642,7 +642,6 @@ PRINT='''<!doctype html>
   '''+FOOT+'''
 </div>
 <script src="print.js"></script>
-<script src="blog.js" defer></script>
 </body>
 </html>
 '''

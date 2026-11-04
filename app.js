@@ -18,7 +18,7 @@ var FREE_MIN=10;              /* минут занятий в день на бе
 var PRICE_MULT_STD='990 ₽';
 var PRICE_MULT_PRO='1 990 ₽';
 var PRICE_MENTAL='990 ₽';
-var PRICE_COMBO = '2 490 ₽';
+var PRICE_COMBO='2 990 ₽';
 var PAY_URL_MULT_STD='https://example.com/pay?plan=mult-standard';  /* страницы оплаты у платёжного агрегатора */
 var PAY_URL_MULT_PRO='https://example.com/pay?plan=mult-pro';
 var PAY_URL_MENTAL='https://example.com/pay?plan=mental';
@@ -834,7 +834,7 @@ function dueList(){var t=iso(),o=[];for(var k in P.sr){if(P.sr[k].due<=t){var p=
 function shuffle(a){for(var i=a.length-1;i>0;i--){var j=ri(0,i),t=a[i];a[i]=a[j];a[j]=t;}return a;}
 function syncChrome(){var sw=document.querySelector('.adv-sw');if(sw)sw.setAttribute('aria-checked',P.adv?'true':'false');
   var g=document.querySelector('.nav [data-v="games"]');if(g)g.hidden=!can('games');var sk=document.querySelector('.nav [data-v="stickers"]');if(sk)sk.hidden=!can('stickers');}
-function setAdv(on){if(on&&tier()==='free'){go({name:'buy',why:'plans'});return;}
+function setAdv(on){if(on&&tier()==='free'){go({name:'buy',why:'feature',need:'standard',title:'Продвинутый режим'});return;}
   P.adv=!!on;if(!P.adv&&['games','hard','stickers'].indexOf(view.name)>=0)view={name:'home'};save();syncChrome();render();}
 
 /* что вспомнить до объяснения и что рассказать после */

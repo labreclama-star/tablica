@@ -15,7 +15,7 @@ var FREE_MIN=10;
 var PRICE_MULT_STD='990 ₽';
 var PRICE_MULT_PRO='1 990 ₽';
 var PRICE_MENTAL='990 ₽';
-var PRICE_COMBO = '2 490 ₽';
+var PRICE_COMBO='2 990 ₽';
 var PAY_URL_MULT_STD='https://example.com/pay?plan=mult-standard';  /* страницы оплаты у платёжного агрегатора */
 var PAY_URL_MULT_PRO='https://example.com/pay?plan=mult-pro';
 var PAY_URL_MENTAL='https://example.com/pay?plan=mental';
@@ -138,7 +138,7 @@ function stepsFor(e){
   var a=e.a,b=e.b,A,B;
   if(e.type==='b10')return ['До 10 не хватает '+(10-a)+'.',a+' + '+(10-a)+' = 10'];
   if(e.type==='add'){A=dig(a);B=dig(b);return ['Десятки: '+A.t*10+' + '+B.t*10+' = '+(A.t+B.t)*10,'Единицы: '+A.u+' + '+B.u+' = '+(A.u+B.u),'Вместе: '+(A.t+B.t)*10+' + '+(A.u+B.u)+' = '+(a+b)];}
-  if(e.type==='addc'){A=dig(a);var need=10-A.u,mid=a+need,rem=b-need;return ['Сделаем '+a+' круглым: до '+mid+' не хватает '+need+'.','Берём '+need+' из числа '+b+'. Остаётся '+rem+'.',mid+' + '+rem+' = '+(a+b)];}
+  if(e.type==='addc'){A=dig(a);B=dig(b);var need=10-A.u,tn=a+B.t*10,rem=B.u-need;return ['Сначала десятки: '+a+' + '+B.t*10+' = '+tn+'.','Теперь единицы: '+tn+' + '+B.u+'. До '+(tn+need)+' не хватает '+need+': '+tn+' + '+need+' = '+(tn+need)+'.','Осталось '+B.u+' − '+need+' = '+rem+': '+(tn+need)+' + '+rem+' = '+(a+b)];}
   if(e.type==='sub'||e.type==='subc'){A=dig(a);B=dig(b);var x=a-B.t*10;
     if(e.type==='sub'||x%10>=B.u)return [a+' − '+B.t*10+' = '+x,x+' − '+B.u+' = '+(a-b)];
     var r=x%10,t=x-r-10,ones=10+r,k=ones-B.u,s=[a+' − '+B.t*10+' = '+x,'Занимаем десяток: '+x+' = '+t+' + '+ones,ones+' − '+B.u+' = '+k];
@@ -185,14 +185,17 @@ function numlineInner(pts,labs,W,Hh){
   for(var j=0;j<pts.length;j++){s+='<circle cx="'+X(pts[j])+'" cy="'+y+'" r="4.5" class="mv-b"/><text x="'+X(pts[j])+'" y="'+(y+20)+'" class="mv-t" text-anchor="middle">'+pts[j]+'</text>';}
   return s;}
 function numline(pts,labs){return '<svg class="mviz" viewBox="0 0 300 100" role="img" aria-label="Числовая лента: '+pts.join(', ')+'">'+numlineInner(pts,labs,300,100)+'</svg>';}
-/* блоки: десятки столбиками, единицы квадратиками; gone — сколько десятков и единиц убрано, mark — жёлтые единицы */
-function blocks(n,o){o=o||{};var d=dig(n),w=d.t*17+(d.u?44:0)+10,s='<svg class="mviz mviz-s" viewBox="0 0 '+Math.max(w,60)+' 74" role="img" aria-label="'+n+': '+d.t+' '+pl(d.t,'десяток','десятка','десятков')+' и '+d.u+' '+pl(d.u,'единица','единицы','единиц')+'">';
-  var gone=o.goneT||0,i,j;
-  for(i=0;i<d.t;i++){var x=4+i*17;for(j=0;j<10;j++)s+='<rect x="'+x+'" y="'+(4+j*6.4)+'" width="13" height="5.2" rx="1.5" class="'+(i>=d.t-gone?'mv-x':'mv-b')+'"/>';}
-  var ux=4+d.t*17+4;
-  for(i=0;i<d.u;i++){var col=i%2,row=Math.floor(i/2),isMark=(o.mark&&i>=d.u-o.mark),isGone=(o.goneU&&i>=d.u-o.goneU);
-    s+='<rect x="'+(ux+col*19)+'" y="'+(4+row*13)+'" width="15" height="11" rx="2.5" class="'+(isMark?'mv-y':(isGone?'mv-x':'mv-b2'))+'"/>';}
+/* фрукты: ящик = десяток яблок, апельсин = единица. goneT ящиков и goneU единиц убраны (бледные, пунктиром); open — один ящик раскрыт (его фрукты считаем единицами); mark — жёлтые единицы */
+function fruit(cx,cy,r,cls){return '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" class="'+cls+'"/>'+(cls==='mv-x'?'':'<path d="M'+cx+' '+(cy-r)+'q0-3 2.5-3.6" class="mv-st"/><circle cx="'+(cx-r*0.35)+'" cy="'+(cy-r*0.3)+'" r="'+(r*0.28)+'" fill="#fff" opacity=".6"/>');}
+function blocks(n,o){o=o||{};var d=dig(n),gone=o.goneT||0,open=o.open?1:0,gu=o.goneU||0,mk=o.mark||0,i,j,s='',nc=d.t-gone-open,L=(open?10:0)+d.u,cols=Math.ceil(L/5),slots=d.t-open,w=6+slots*26+(cols?cols*13+4:0);
+  s='<svg class="mviz mviz-s" viewBox="0 0 '+Math.max(w,60)+' 74" role="img" aria-label="'+n+': '+d.t+' '+pl(d.t,'ящик','ящика','ящиков')+' по 10 яблок и '+d.u+' '+pl(d.u,'груша','груши','груш')+'">';
+  for(i=0;i<slots;i++){var x=4+i*26,g=i>=nc;s+='<rect x="'+x+'" y="3" width="22" height="67" rx="5" class="'+(g?'mv-crx':'mv-crate')+'"/>';
+    for(j=0;j<10;j++)s+=fruit(x+6+(j%2)*10,10+Math.floor(j/2)*13,4.6,g?'mv-x':'mv-ap');}
+  var ux=4+slots*26+4;
+  for(i=0;i<L;i++){var isG=i>=L-gu,isM=!isG&&mk&&i>=d.u-mk&&!open;
+    s+=fruit(ux+6.5+Math.floor(i/5)*13,10+(i%5)*13,5.6,isG?'mv-x':(isM?'mv-y':'mv-or'));}
   return s+'</svg>';}
+var FRUIT_NOTE='Ящик — это десять яблок, груша — одна единица. ';
 
 /* ---------- объяснения: три варианта на шаг ---------- */
 var VNAME=['Через предметы','Числовая лента','Разложение'];
@@ -216,21 +219,21 @@ function explain0(e,vi){
     if(vi===1)return p('Идём по ленте от '+e.a+' до 10. Считаем прыжок.')+numline([e.a,10],['+'+k])+p('Прыжок '+k+'. Значит, '+e.a+' + '+k+' = 10.');
     return p('Число 10 можно «разобрать» на две части. Одна часть '+e.a+', а вторая — недостающая.')+lines(['10 = '+e.a+' + '+k,'10 = '+k+' + '+e.a])+p('Эти два числа — пара. Запомни пару, и всегда найдёшь вторую.');}
   if(e.type==='add'){A=dig(e.a);B=dig(e.b);
-    if(vi===0)return p('Складываем десятки с десятками, а единицы с единицами.')+'<div class="mrow">'+blocks(e.a)+'<span class="mop">+</span>'+blocks(e.b)+'</div>'+lines(st);
+    if(vi===0)return p(FRUIT_NOTE+'Складываем ящики с ящиками, а груши с грушами.')+'<div class="mrow">'+blocks(e.a)+'<span class="mop">+</span>'+blocks(e.b)+'</div>'+lines(st);
     if(vi===1)return p('Прыгаем по ленте: сначала прибавим десятки, потом единицы.')+numline([e.a,e.a+B.t*10,e.a+e.b],['+'+B.t*10,'+'+B.u])+lines(st);
     return p('Разложим числа на десятки и единицы.')+lines([e.a+' = '+A.t*10+' + '+A.u,e.b+' = '+B.t*10+' + '+B.u])+lines(st);}
-  if(e.type==='addc'){A=dig(e.a);var need=10-A.u,mid=e.a+need,rem=e.b-need;
-    if(vi===0)return p('В числе '+e.a+' не хватает '+need+' до круглого. Возьмём эти '+need+' из числа '+e.b+' (жёлтые квадратики).')+'<div class="mrow">'+blocks(e.a)+'<span class="mop">+</span>'+blocks(e.b,{mark:need})+'</div>'+lines(st);
-    if(vi===1)return p('Как сделать '+e.a+' круглым? Нужно '+need+'. Где взять '+need+'? Отщипнём от '+e.b+'. Останется '+rem+'.')+numline([e.a,mid,e.a+e.b],['+'+need,'+'+rem])+lines(st);
-    return p('Разложим второе число: '+e.b+' = '+need+' + '+rem+'.')+lines([e.a+' + '+need+' = '+mid,mid+' + '+rem+' = '+(e.a+e.b)])+p('Сначала достроили до десятка, потом прибавили остаток.');}
+  if(e.type==='addc'){A=dig(e.a);B=dig(e.b);var need=10-A.u,tn=e.a+B.t*10,rem=B.u-need;
+    if(vi===0)return p(FRUIT_NOTE+'Сначала сложим ящики. Потом груши: к '+A.u+' добавим '+need+' из '+B.u+' (жёлтые), получится ещё один ящик, и останется '+rem+'.')+'<div class="mrow">'+blocks(e.a)+'<span class="mop">+</span>'+blocks(e.b,{mark:need})+'</div>'+lines(st);
+    if(vi===1)return p('Сначала прыгаем на десятки, потом на единицы. Единицы добавляем в два шага: до круглого десятка, потом остаток.')+numline([e.a,tn,tn+need,e.a+e.b],['+'+B.t*10,'+'+need,'+'+rem])+lines(st);
+    return p('Разложим числа на десятки и единицы: '+e.a+' = '+A.t*10+' + '+A.u+', '+e.b+' = '+B.t*10+' + '+B.u+'.')+lines([A.t*10+' + '+B.t*10+' = '+(A.t+B.t)*10,A.u+' + '+B.u+' = '+(A.u+B.u)+' (это десяток и ещё '+(A.u+B.u-10)+')',(A.t+B.t)*10+' + '+(A.u+B.u)+' = '+(e.a+e.b)]);}
   if(e.type==='sub'||e.type==='subc'){A=dig(e.a);B=dig(e.b);var x=e.a-B.t*10;
-    if(vi===0)return p('Из '+e.a+' уберём '+B.t+' '+pl(B.t,'десяток','десятка','десятков')+' и ещё '+B.u+' '+pl(B.u,'единицу','единицы','единиц')+'. Убранное выцветает.')+blocks(e.a,{goneT:B.t,goneU:(x%10>=B.u?B.u:0)})+lines(st);
+    if(vi===0){var bor=B.u>0&&x%10<B.u;return p(FRUIT_NOTE+'Из '+e.a+' уберём '+B.t+' '+pl(B.t,'ящик','ящика','ящиков')+' и ещё '+B.u+' '+pl(B.u,'груша','груши','груш')+(bor?'. Груш не хватает, поэтому один ящик раскроем: его яблоки станут грушами, чтобы было что убирать.':'.')+' Убранное бледное, с пунктиром.')+blocks(e.a,{goneT:B.t,goneU:B.u,open:bor})+lines(st);}
     if(vi===1)return p('Идём назад по ленте: сначала на '+B.t*10+', потом на '+B.u+'.')+numline([e.a,x,e.a-e.b],['−'+B.t*10,'−'+B.u])+lines(st);
     return p('Вычитаем по частям. Число '+e.b+' разложим: '+e.b+' = '+B.t*10+' + '+B.u+'.')+lines(st);}
   if(e.type==='a20'){var nd=10-e.a,rr=e.b-nd,sm=e.a+e.b;
     if(vi===0)return p('В рамке лежит '+e.a+' '+pl(e.a,'яблоко','яблока','яблок')+'. Чтобы заполнить её, нужно ещё '+nd+'. Возьмём их из второй кучки (жёлтые).')+frameAdd(e.a,e.b)+lines(st);
     if(vi===1)return p('Прыгаем по ленте: сначала до 10, потом остаток.')+numline([e.a,10,sm],['+'+nd,'+'+rr])+lines(st);
-    return p('Разложим второе число: '+e.b+' = '+nd+' + '+rr+'.')+lines([e.a+' + '+nd+' = 10','10 + '+rr+' = '+sm]);}
+    return p('До десятка не хватает '+nd+'. Поэтому отделим от числа '+e.b+' ровно '+nd+': '+e.b+' = '+nd+' + '+rr+'.')+lines([e.a+' + '+nd+' = 10','10 + '+rr+' = '+sm]);}
   if(e.type==='s20'){var u1=e.a-10,r1=e.b-u1;
     if(vi===0)return p('Было '+e.a+' яблок: полная рамка и ещё '+u1+'. Сначала уберём лишние '+u1+', потом ещё '+r1+' из рамки. Убранное выцветает.')+frameSub(e.a,e.b)+lines(st);
     if(vi===1)return p('Идём назад по ленте: сначала до 10, потом дальше.')+numline([e.a,10,e.a-e.b],['−'+u1,'−'+r1])+lines(st);
@@ -246,7 +249,7 @@ function explain0(e,vi){
   if(e.type==='addh'){var n3=100-e.a,rm=e.b-n3,sum=e.a+e.b;
     if(vi===0)return p('До полной сотни не хватает '+n3+'. Возьмём эти '+n3+' из числа '+e.b+' (жёлтые клетки).')+bar100(e.a,'+'+n3)+lines(st);
     if(vi===1)return p('Прыгаем по ленте до 100, потом прибавляем остаток.')+numline([e.a,100,sum],['+'+n3,'+'+rm])+lines(st);
-    return p('Разложим второе число: '+e.b+' = '+n3+' + '+rm+'.')+lines([e.a+' + '+n3+' = 100','100 + '+rm+' = '+sum]);}
+    return p('До сотни не хватает '+n3+'. Поэтому отделим от числа '+e.b+' ровно '+n3+': '+e.b+' = '+n3+' + '+rm+'.')+lines([e.a+' + '+n3+' = 100','100 + '+rm+' = '+sum]);}
   return '';}
 
 /* ---------- вопрос по примеру ---------- */
