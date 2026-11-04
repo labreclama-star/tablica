@@ -22,6 +22,12 @@ var PRICE_COMBO='2 490 ₽';
   
 
 
+
+var PAY_URL_MULT_STD='success.html';
+var PAY_URL_MULT_PRO='success.html';
+var PAY_URL_MENTAL='success.html';
+var PAY_URL_COMBO='success.html';
+
 /* SHA-256 кодов доступа (см. README). Тестовые коды (удалите перед запуском): TEST-STANDARD, TEST-PRO и 1111 (только «Умножение»), TEST-MNT («Устный счёт»), TEST-CMB (комбо). */
 var CODES_STD=["ca063870f27456c4764dc609ae1579f7a1fa8e6f497713a47ad4b90c98db7bb6"];
 var CODES_PRO=["0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c","9617e38101e15005c55a48cf1116327a0bb611c344da66dce2799e30b954a446"];
