@@ -16,8 +16,7 @@ var PRICE_MULT_STD='990 ₽';
 var PRICE_MULT_PRO='1 990 ₽';
 var PRICE_MENTAL='990 ₽';
 var PRICE_COMBO='2 490 ₽';
-  /* страницы оплаты у платёжного агрегатора */
-
+  
 
 
 /* SHA-256 кодов доступа (см. README). Тестовые коды (удалите перед запуском): TEST-STANDARD, TEST-PRO и 1111 (только «Умножение»), TEST-MNT («Устный счёт»), TEST-CMB (комбо). */
