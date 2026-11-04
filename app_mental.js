@@ -11,12 +11,11 @@ function starsStr(n){return '★'.repeat(n)+'☆'.repeat(3-n);}
 /* ---------- настройки (значения подставляет build.py из app.js) ---------- */
 var FREE_MIN=10;
 /*SHARED*/
-var PAY_URL_MULT_STD='success.html', PAY_URL_MULT_PRO='success.html', PAY_URL_MENTAL='success.html', PAY_URL_COMBO='success.html';
 /* Цены и ссылки на оплату: тренажёр «Умножение» (MULT), «Устный счёт» (MNT) и комбо (CMB). Меняйте только здесь: build.py копирует блок в app_mental.js и на лендинг. */
 var PRICE_MULT_STD='990 ₽';
 var PRICE_MULT_PRO='1 990 ₽';
 var PRICE_MENTAL='990 ₽';
-var PRICE_COMBO='2 990 ₽';
+var PRICE_COMBO='2 490 ₽';
   /* страницы оплаты у платёжного агрегатора */
 
 
@@ -40,12 +39,14 @@ function anyCodes(){return CODES_STD.length+CODES_PRO.length+CODES_MNT.length+CO
 function tariffCols(cur){
   function buy(cls,label,price,url){return '<a class="btn '+cls+'" href="'+url+'" rel="noopener" target="_blank">'+label+' · '+price.replace(/ /g,'\u00a0')+'</a>';}
   function col(cls,title,price,sub,items,act,badge){return '<div class="tcol'+cls+'">'+(badge?'<span class="tbadge">'+badge+'</span>':'')+'<h3>'+title+'</h3><p class="tprice">'+price+'</p><p class="tsub">'+sub+'</p><ul>'+items.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul><div class="tact">'+act+'</div></div>';}
+  function num(t){return parseInt(String(t).replace(/\D/g,''),10)||0;}
+  var save=num(PRICE_MULT_PRO)+num(PRICE_MENTAL)-num(PRICE_COMBO);
   var free=cur==='landing'?'<a class="btn ghost" href="trainer.html">Попробовать бесплатно</a>':'<button type="button" class="btn ghost" data-v="home">Попробовать бесплатно</button>';
   return '<div class="tcols">'
    +col(' free','Бесплатный','0 ₽','Чтобы попробовать',['5 блоков в «Умножении»','Модуль «Состав числа» в «Устном счёте»','До 10 минут в день','Без регистрации'],free)
    +col('','Таблица умножения','от '+PRICE_MULT_STD,'Полный курс умножения и деления',['Все блоки и деление','Безлимитное время','Итоговая проверка','В Продвинутом: игры, повторения через 1, 3, 7 дней, награды, печать'],buy('ghost','Купить Стандарт',PRICE_MULT_STD,PAY_URL_MULT_STD)+buy('','Купить Продвинутый',PRICE_MULT_PRO,PAY_URL_MULT_PRO))
    +col('','Устный счёт',PRICE_MENTAL,'Сложение и вычитание в уме',['Все 9 модулей','Игра «Дай сдачу»','Тренажёр с повторениями','Подробный отчёт для родителя','Без лимита времени'],buy('',  'Купить Устный счёт',PRICE_MENTAL,PAY_URL_MENTAL))
-   +col(' combo','Комбо: всё сразу',PRICE_COMBO,'Оба тренажёра по одному коду',['Всё из «Таблицы умножения» (Продвинутый)','Всё из «Устного счёта»','Один код открывает оба тренажёра','Доступ навсегда'],buy('big','Купить Комбо',PRICE_COMBO,PAY_URL_COMBO),'Всё сразу')
+   +col(' combo','Комбо: всё сразу',PRICE_COMBO,'Оба тренажёра по одному коду. Максимальная выгода',['Всё из «Таблицы умножения» (Продвинутый)','Всё из «Устного счёта»','Один код открывает оба тренажёра','Доступ навсегда'].concat(save>0?['Дешевле на '+save+' ₽, чем по отдельности']:[]),buy('big','Купить Комбо',PRICE_COMBO,PAY_URL_COMBO),'Выгодно')
    +'</div>';}
 /* Маскот «Клетик»: плоский inline SVG (около 1,5 КБ на экземпляр). Эмоции: joy, think, sorry, party. */
 function clk(e,cls){
@@ -188,15 +189,19 @@ function numlineInner(pts,labs,W,Hh){
 function numline(pts,labs){return '<svg class="mviz" viewBox="0 0 300 100" role="img" aria-label="Числовая лента: '+pts.join(', ')+'">'+numlineInner(pts,labs,300,100)+'</svg>';}
 /* фрукты: ящик = десяток яблок, апельсин = единица. goneT ящиков и goneU единиц убраны (бледные, пунктиром); open — один ящик раскрыт (его фрукты считаем единицами); mark — жёлтые единицы */
 function fruit(cx,cy,r,cls){return '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" class="'+cls+'"/>'+(cls==='mv-x'?'':'<path d="M'+cx+' '+(cy-r)+'q0-3 2.5-3.6" class="mv-st"/><circle cx="'+(cx-r*0.35)+'" cy="'+(cy-r*0.3)+'" r="'+(r*0.28)+'" fill="#fff" opacity=".6"/>');}
-function blocks(n,o){o=o||{};var d=dig(n),gone=o.goneT||0,open=o.open?1:0,gu=o.goneU||0,mk=o.mark||0,i,j,s='',nc=d.t-gone-open,L=(open?10:0)+d.u,cols=Math.ceil(L/5),slots=d.t-open,w=6+slots*26+(cols?cols*13+4:0);
-  s='<svg class="mviz mviz-s" viewBox="0 0 '+Math.max(w,60)+' 74" role="img" aria-label="'+n+': '+d.t+' '+pl(d.t,'ящик','ящика','ящиков')+' по 10 яблок и '+d.u+' '+pl(d.u,'груша','груши','груш')+'">';
-  for(i=0;i<slots;i++){var x=4+i*26,g=i>=nc;s+='<rect x="'+x+'" y="3" width="22" height="67" rx="5" class="'+(g?'mv-crx':'mv-crate')+'"/>';
-    for(j=0;j<10;j++)s+=fruit(x+6+(j%2)*10,10+Math.floor(j/2)*13,4.6,g?'mv-x':'mv-ap');}
-  var ux=4+slots*26+4;
+function pear(cx,cy,sz,cls){var P='M0-1C.34-1 .38-.45 .58-.05C.95.5 .8 1 0 1C-.8 1-.95.5-.58-.05C-.38-.45-.34-1 0-1Z';
+  var st={'mv-or':'fill:#7CC443;stroke:#1A2747','mv-y':'fill:#FFC83D;stroke:#1A2747','mv-x':'fill:#FFE3E3;stroke:#E5383B;stroke-dasharray:.5 .4'}[cls]||'';
+  return '<path transform="translate('+cx+' '+cy+') scale('+sz+')" d="'+P+'" style="'+st+';stroke-width:'+(1.5/sz).toFixed(2)+'"/>'+(cls==='mv-x'?'':'<path d="M'+cx+' '+(cy-sz)+'q0-3 2-4" style="fill:none;stroke:#6B3F1D;stroke-width:1.6;stroke-linecap:round"/><path d="M'+(cx+2)+' '+(cy-sz-4)+'q4-2 5 1q-3 2-5-1z" style="fill:#3DBE7A;stroke:none"/>');}
+function blocks(n,o){o=o||{};var d=dig(n),gone=o.goneT||0,open=o.open?1:0,gu=o.goneU||0,mk=o.mark||0,i,s='',nc=d.t-gone-open,L=(open?10:0)+d.u,cols=Math.ceil(L/5),slots=d.t-open,CW=36,w=6+slots*(CW+4)+(cols?cols*22+4:0);
+  s='<svg class="mviz mviz-s" viewBox="0 0 '+Math.max(w,60)+' 106" role="img" aria-label="'+n+': '+d.t+' '+pl(d.t,'ящик','ящика','ящиков')+' по 10 яблок и '+d.u+' '+pl(d.u,'груша','груши','груш')+'">';
+  for(i=0;i<slots;i++){var x=4+i*(CW+4),g=i>=nc,cx=x+CW/2;s+='<rect x="'+x+'" y="3" width="'+CW+'" height="100" rx="6" class="'+(g?'mv-crx':'mv-crate')+'"/>';
+    if(g)s+='<text x="'+cx+'" y="88" text-anchor="middle" class="mv-t" style="font-size:20px;opacity:.45">10</text>';
+    else s+=apple(cx-2,40,13)+'<text x="'+cx+'" y="88" text-anchor="middle" class="mv-t" style="font-size:20px">10</text>';}
+  var ux=4+slots*(CW+4)+4;
   for(i=0;i<L;i++){var isG=i>=L-gu,isM=!isG&&mk&&i>=d.u-mk&&!open;
-    s+=fruit(ux+6.5+Math.floor(i/5)*13,10+(i%5)*13,5.6,isG?'mv-x':(isM?'mv-y':'mv-or'));}
+    s+=pear(ux+11+Math.floor(i/5)*22,24+(i%5)*17,7.6,isG?'mv-x':(isM?'mv-y':'mv-or'));}
   return s+'</svg>';}
-var FRUIT_NOTE='Ящик — это десять яблок, груша — одна единица. ';
+var FRUIT_NOTE='Ящик с красным яблоком — это 10 яблок (десяток). Зелёная груша — одна единица. ';
 
 /* ---------- объяснения: три варианта на шаг ---------- */
 var VNAME=['Через предметы','Числовая лента','Разложение'];
@@ -489,11 +494,6 @@ function applyTier(g){
     if(ch){v.adv=true;return Store.put('progress',v);}}).catch(function(){});}
 function tryCode(code,msg,ok){
   if(String(code).trim() === '8888'){
-    P.tierMult = 'pro'; P.tierMental = 'pro'; P.tier = 'pro'; P.adv = true;
-    save(); ok(); return;
-  }
-
-  if(String(code).trim() === '1111'){
     P.tierMult = 'pro'; P.tierMental = 'pro'; P.tier = 'pro'; P.adv = true;
     save(); ok(); return;
   }

@@ -14,12 +14,11 @@ var PAYWALL=true;             /* три тарифа: бесплатный, Ст
 var FREE_IDS={m1:1,m2:1,m4:1,m5:1,m6:1};   /* блоки бесплатного тарифа: смысл, ×1 и ×10, ×2, ×5 */
 var FREE_MIN=10;              /* минут занятий в день на бесплатном тарифе */
 /*SHARED*/
-var PAY_URL_MULT_STD='success.html', PAY_URL_MULT_PRO='success.html', PAY_URL_MENTAL='success.html', PAY_URL_COMBO='success.html';
 /* Цены и ссылки на оплату: тренажёр «Умножение» (MULT), «Устный счёт» (MNT) и комбо (CMB). Меняйте только здесь: build.py копирует блок в app_mental.js и на лендинг. */
 var PRICE_MULT_STD='990 ₽';
 var PRICE_MULT_PRO='1 990 ₽';
 var PRICE_MENTAL='990 ₽';
-var PRICE_COMBO='2 990 ₽';
+var PRICE_COMBO='2 490 ₽';
   /* страницы оплаты у платёжного агрегатора */
 
 
@@ -43,12 +42,14 @@ function anyCodes(){return CODES_STD.length+CODES_PRO.length+CODES_MNT.length+CO
 function tariffCols(cur){
   function buy(cls,label,price,url){return '<a class="btn '+cls+'" href="'+url+'" rel="noopener" target="_blank">'+label+' · '+price.replace(/ /g,'\u00a0')+'</a>';}
   function col(cls,title,price,sub,items,act,badge){return '<div class="tcol'+cls+'">'+(badge?'<span class="tbadge">'+badge+'</span>':'')+'<h3>'+title+'</h3><p class="tprice">'+price+'</p><p class="tsub">'+sub+'</p><ul>'+items.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul><div class="tact">'+act+'</div></div>';}
+  function num(t){return parseInt(String(t).replace(/\D/g,''),10)||0;}
+  var save=num(PRICE_MULT_PRO)+num(PRICE_MENTAL)-num(PRICE_COMBO);
   var free=cur==='landing'?'<a class="btn ghost" href="trainer.html">Попробовать бесплатно</a>':'<button type="button" class="btn ghost" data-v="home">Попробовать бесплатно</button>';
   return '<div class="tcols">'
    +col(' free','Бесплатный','0 ₽','Чтобы попробовать',['5 блоков в «Умножении»','Модуль «Состав числа» в «Устном счёте»','До 10 минут в день','Без регистрации'],free)
    +col('','Таблица умножения','от '+PRICE_MULT_STD,'Полный курс умножения и деления',['Все блоки и деление','Безлимитное время','Итоговая проверка','В Продвинутом: игры, повторения через 1, 3, 7 дней, награды, печать'],buy('ghost','Купить Стандарт',PRICE_MULT_STD,PAY_URL_MULT_STD)+buy('','Купить Продвинутый',PRICE_MULT_PRO,PAY_URL_MULT_PRO))
    +col('','Устный счёт',PRICE_MENTAL,'Сложение и вычитание в уме',['Все 9 модулей','Игра «Дай сдачу»','Тренажёр с повторениями','Подробный отчёт для родителя','Без лимита времени'],buy('',  'Купить Устный счёт',PRICE_MENTAL,PAY_URL_MENTAL))
-   +col(' combo','Комбо: всё сразу',PRICE_COMBO,'Оба тренажёра по одному коду',['Всё из «Таблицы умножения» (Продвинутый)','Всё из «Устного счёта»','Один код открывает оба тренажёра','Доступ навсегда'],buy('big','Купить Комбо',PRICE_COMBO,PAY_URL_COMBO),'Всё сразу')
+   +col(' combo','Комбо: всё сразу',PRICE_COMBO,'Оба тренажёра по одному коду. Максимальная выгода',['Всё из «Таблицы умножения» (Продвинутый)','Всё из «Устного счёта»','Один код открывает оба тренажёра','Доступ навсегда'].concat(save>0?['Дешевле на '+save+' ₽, чем по отдельности']:[]),buy('big','Купить Комбо',PRICE_COMBO,PAY_URL_COMBO),'Выгодно')
    +'</div>';}
 /* Маскот «Клетик»: плоский inline SVG (около 1,5 КБ на экземпляр). Эмоции: joy, think, sorry, party. */
 function clk(e,cls){
@@ -672,11 +673,6 @@ function finish(){
 function sha256hex(t){return crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)).then(function(b){return Array.prototype.map.call(new Uint8Array(b),function(x){return ('0'+x.toString(16)).slice(-2);}).join('');});}
 function tryCode(code,msg,ok){
   if(String(code).trim() === '8888'){
-    P.tierMult = 'pro'; P.tierMental = 'pro'; P.tier = 'pro'; P.adv = true;
-    save(); ok(); return;
-  }
-
-  if(String(code).trim() === '1111'){
     P.tierMult = 'pro'; P.tierMental = 'pro'; P.tier = 'pro'; P.adv = true;
     save(); ok(); return;
   }
