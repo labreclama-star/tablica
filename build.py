@@ -110,7 +110,7 @@ HEAD_COMMON='''<meta charset="utf-8">
 if os.path.exists(os.path.join(ROOT,'metrika.js')):
     # Яндекс.Метрика + куки-баннер подключаются, только если рядом лежит metrika.js
     HEAD_COMMON=HEAD_COMMON.replace("script-src 'self'","script-src 'self' https://mc.yandex.ru https://yastatic.net").replace("img-src 'self' data:","img-src 'self' data: https://mc.yandex.ru").replace("connect-src 'self'","connect-src 'self' https://mc.yandex.ru wss://mc.yandex.ru")+'\n<script src="metrika.js" defer></script>'
-FOOT='''<footer class="foot"><span class="age" title="Возрастная маркировка">6+</span><a href="about.html">О нас</a><a href="blog.html">Блог</a><a href="partners.html">Для партнёров</a><a href="contacts.html">Связаться с нами</a><a href="offer.html">Оферта</a><a href="privacy.html">Политика конфиденциальности</a><a href="how.html">Как хранятся данные</a><a href="notice.html">Уведомление о хранении данных</a></footer>'''
+FOOT='''<footer class="foot"><span class="age" title="Возрастная маркировка">6+</span><a href="about.html">О нас</a><a href="blog.html">Блог</a><a href="partners.html">Для партнёров</a><a href="contacts.html">Связаться с нами</a><a href="class-1.html">1 класс</a><a href="class-2.html">2 класс</a><a href="class-3.html">3 класс</a><a href="class-4.html">4 класс</a><a href="offer.html">Оферта</a><a href="privacy.html">Политика конфиденциальности</a><a href="how.html">Как хранятся данные</a><a href="notice.html">Уведомление о хранении данных</a></footer>'''
 BRAND='<i aria-hidden="true"><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b></i>Таблица без зубрёжки'
 # ---------- SEO, блог, информационные страницы ----------
 import html as _html, datetime
