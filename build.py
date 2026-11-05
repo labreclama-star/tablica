@@ -471,7 +471,7 @@ HERO_WH=struct.unpack('>II',_hd[16:24]) if _hd else (480,640)
 _pn=lambda s:re.sub(r'\D','',s)
 def cfg(n):
     m = re.search(r"var\s+" + n + r"\s*=\s*['\"]([^'\"]+)['\"]", _app)
-    return m.group(1) if m else "https://example.com/pay"
+    return m.group(1) if m else "success.html"
 SOFTAPP_LD={"@context":"https://schema.org","@type":"SoftwareApplication","name":"Таблица без зубрёжки","description":META['index'][1],"url":abs_url(''),"applicationCategory":"EducationalApplication","operatingSystem":"Web (любой современный браузер)","inLanguage":"ru","image":SITE_URL+'/img/og.png',"audience":{"@type":"PeopleAudience","suggestedMinAge":6},"offers":[{"@type":"Offer","name":"Бесплатный","price":"0","priceCurrency":"RUB"}]+[{"@type":"Offer","name":n,"price":_pn(cfg(p)),"priceCurrency":"RUB","url":cfg(u)} for n,p,u in (("Таблица умножения: Стандарт","PRICE_MULT_STD","PAY_URL_MULT_STD"),("Таблица умножения: Продвинутый","PRICE_MULT_PRO","PAY_URL_MULT_PRO"),("Устный счёт","PRICE_MENTAL","PAY_URL_MENTAL"),("Комбо: оба тренажёра","PRICE_COMBO","PAY_URL_COMBO"))]}
 LANDING=('''<!doctype html>
 <html lang="ru">
