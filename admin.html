@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="app.css">
+<title>Мини-админка — Умножай-ка</title>
+<style>
+  body { padding: 20px; max-width: 800px; margin: 0 auto; }
+  .admin-card { background: var(--card); border: 2px solid var(--edge); border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+  h1 { color: var(--blue); }
+  .stat { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin: 20px 0; }
+  .stat-box { background: var(--blue-soft); padding: 16px; border-radius: 8px; border: 2px solid var(--edge); }
+  .stat-box .num { font-size: 36px; font-weight: 800; color: var(--blue); }
+  .stat-box .lbl { font-size: 14px; color: var(--ink2); }
+  .log { max-height: 400px; overflow-y: auto; background: var(--paper); border: 1px solid var(--line); border-radius: 4px; padding: 10px; font-family: monospace; font-size: 13px; }
+  .log div { padding: 4px 0; border-bottom: 1px solid var(--line); }
+  .log .time { color: var(--ink2); }
+  .log .ok { color: var(--ok); font-weight: 700; }
+  .log .warn { color: var(--try); }
+  .danger { background: var(--try-soft); border-color: var(--try); }
+</style>
+</head>
+<body>
+  <h1>🔐 Мини-админка</h1>
+  <p class="small">Эта страница показывает статистику <b>только на этом устройстве</b>. Для реальных пользователей используйте Яндекс.Метрику и Telegram-уведомления.</p>
+
+  <div class="stat">
+    <div class="stat-box"><div class="num" id="cntFree">0</div><div class="lbl">Бесплатных активаций (8888)</div></div>
+    <div class="stat-box"><div class="num" id="cntMult">0</div><div class="lbl">Платных: Умножение</div></div>
+    <div class="stat-box"><div class="num" id="cntMental">0</div><div class="lbl">Платных: Устный счёт</div></div>
+    <div class="stat-box"><div class="num" id="cntCombo">0</div><div class="lbl">Платных: Комбо</div></div>
+    <div class="stat-box"><div class="num" id="cntBuy">0</div><div class="lbl">Кликов «Купить»</div></div>
+    <div class="stat-box"><div class="num" id="cntTry">0</div><div class="lbl">Кликов «Попробовать»</div></div>
+  </div>
+
+  <div class="admin-card">
+    <h3>📋 Журнал событий (последние 100)</h3>
+    <div class="log" id="log"></div>
+  </div>
+
+  <div class="admin-card danger">
+    <h3>⚠️ Опасная зона</h3>
+    <p class="small">Очистить всю статистику этого браузера (не повлияет на реальных пользователей).</p>
+    <button onclick="if(confirm('Точно очистить?')) { localStorage.removeItem('admin_log'); location.reload(); }" class="btn">Очистить журнал</button>
+  </div>
+
+  <p><a href="index.html">← На главную</a></p>
+
+  <script>
+    const log = JSON.parse(localStorage.getItem('admin_log') || '[]');
+    const counts = { free: 0, mult: 0, mental: 0, combo: 0, buy: 0, try: 0 };
+    log.forEach(e => { if (counts[e.type] !== undefined) counts[e.type]++; });
+    document.getElementById('cntFree').textContent = counts.free;
+    document.getElementById('cntMult').textContent = counts.mult;
+    document.getElementById('cntMental').textContent = counts.mental;
+    document.getElementById('cntCombo').textContent = counts.combo;
+    document.getElementById('cntBuy').textContent = counts.buy;
+    document.getElementById('cntTry').textContent = counts.try;
+
+    const logEl = document.getElementById('log');
+    if (log.length === 0) {
+      logEl.innerHTML = '<div class="small">Событий пока нет. Попробуйте ввести код или нажать кнопку.</div>';
+    } else {
+      log.slice().reverse().forEach(e => {
+        const d = new Date(e.ts);
+        const cls = e.type === 'free' ? 'ok' : (e.type.startsWith('mult') || e.type.startsWith('mental') || e.type.startsWith('combo')) ? 'ok' : 'warn';
+        logEl.innerHTML += '<div><span class="time">' + d.toLocaleString('ru') + '</span> — <span class="' + cls + '">' + e.label + '</span> ' + (e.code ? '(код: ' + e.code + ')' : '') + '</div>';
+      });
+    }
+  </script>
+</body>
+</html>

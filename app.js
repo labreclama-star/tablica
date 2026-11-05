@@ -678,6 +678,19 @@ function finish(){
 /* ---------- доступ (оплата у агрегатора, без форм на сайте) ---------- */
 function sha256hex(t){return crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)).then(function(b){return Array.prototype.map.call(new Uint8Array(b),function(x){return ('0'+x.toString(16)).slice(-2);}).join('');});}
 function tryCode(code,msg,ok){
+  // Логирование в локальную админку
+  try {
+    var logEntry = { ts: Date.now(), type: 'unknown', label: 'Ввод кода', code: String(code).trim() };
+    if (String(code).trim() === '8888') { logEntry.type = 'free'; logEntry.label = '🆓 Бесплатная активация'; }
+    else if (String(code).trim().startsWith('CMB-')) { logEntry.type = 'combo'; logEntry.label = '💰 Активация Комбо'; }
+    else if (String(code).trim().startsWith('MNT-')) { logEntry.type = 'mental'; logEntry.label = '💰 Активация Устный счёт'; }
+    else if (String(code).trim().startsWith('PRO-') || String(code).trim().startsWith('STANDARD-')) { logEntry.type = 'mult'; logEntry.label = '💰 Активация Умножение'; }
+    var log = JSON.parse(localStorage.getItem('admin_log') || '[]');
+    log.push(logEntry);
+    if (log.length > 500) log = log.slice(-500);
+    localStorage.setItem('admin_log', JSON.stringify(log));
+  } catch(e) {}
+
   if(String(code).trim() === '8888'){
     P.tierMult = 'pro'; P.tierMental = 'pro'; P.tier = 'pro'; P.adv = true;
     save(); ok(); return;
@@ -1262,3 +1275,18 @@ setInterval(function(){if(!document.hidden&&(view.name==='run'||view.name==='tra
 if(!PREVIEW&&'serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){window.addEventListener('load',function(){navigator.serviceWorker.register('service-worker.js').catch(function(){});});}
 boot();
 })();
+
+/* Admin logging для кнопок */
+document.addEventListener('click', function(e) {
+  try {
+    var log = JSON.parse(localStorage.getItem('admin_log') || '[]');
+    var isBuy = e.target.closest('a[href*="success"], a[href*="pay"], .tact a');
+    var isTry = e.target.closest('a[href="trainer.html"], a[href="mental.html"]');
+    if (isBuy) { log.push({ts: Date.now(), type: 'buy', label: '🛒 Клик «Купить»'}); }
+    else if (isTry && !e.target.closest('.nav')) { log.push({ts: Date.now(), type: 'try', label: '▶️ Клик «Попробовать»'}); }
+    if (isBuy || isTry) {
+      if (log.length > 500) log = log.slice(-500);
+      localStorage.setItem('admin_log', JSON.stringify(log));
+    }
+  } catch(e) {}
+});
