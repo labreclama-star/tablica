@@ -1204,21 +1204,22 @@ function weekLine(){
 /* главная и родительский раздел */
 function freeLeft(){return Math.max(0,FREE_MIN-Math.floor((P.days[dayKey()]||0)/60));}
 function homeAdv(){
-  var hero0=app.querySelector('section.card.lift');if(!hero0)return;var html='';
+  var hero0=app.querySelector('section.card.lift');if(!hero0)return;var html='',bottom='';
   if(tier()==='free'){
     html='<section class="note"><h3>Бесплатный доступ</h3><p>Открыты пять блоков: смысл умножения, ×1, ×2, ×5 и ×10. Занятия до '+FREE_MIN+' минут в день, сегодня осталось '+freeLeft()+' мин.</p><div class="row"><button type="button" class="btn" data-v="buy">Открыть все блоки</button></div></section>';}
   else if(!P.adv){html='<section class="note"><h3>Продвинутый режим</h3><p>Включите переключатель вверху страницы. Появятся '+(tier()==='pro'?'повторения через дни, трудные примеры, игры, награды и итоговая проверка.':'чередование примеров, текстовые задачи, трудные примеры и итоговая проверка.')+'</p><div class="row"><button type="button" class="btn ghost" data-act="adv">Включить</button></div></section>';}
   else{
     var d=dailyNow(),due=dueList().length,last=P.final.length?P.final[P.final.length-1]:null;
-    function row2(ok,txt,v){return '<button type="button" class="grow'+(ok?' done':'')+'" data-v="'+v+'"><i class="tick" aria-hidden="true">'+(ok?'✓':'')+'</i><span>'+txt+'</span></button>';}
-    var goals=row2(d.ex>=5,'Примеры: '+Math.min(d.ex,5)+' из 5','train')+(can('sr')?row2(d.rev>=1,'Повтор в тренажёре'+(due?' (ждут: '+due+')':''),'train'):'')+(can('games')?row2(d.game>=1,'Одна игра','games'):'');
+    function ring(v,max,ok){var r=9,c=2*Math.PI*r,f=Math.min(1,v/max);return '<svg class="gring" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="'+r+'" class="gr-bg"/><circle cx="12" cy="12" r="'+r+'" class="gr-fg" stroke-dasharray="'+(c*f).toFixed(1)+' '+c.toFixed(1)+'" transform="rotate(-90 12 12)"/>'+(ok?'<path d="M7.5 12.5l3 3 6-6.5" class="gr-ok"/>':'')+'</svg>';}
+    function row2(ok,txt,v,cur,max){return '<button type="button" class="grow'+(ok?' done':'')+'" data-v="'+v+'">'+ring(cur,max,ok)+'<span>'+txt+'</span></button>';}
+    var goals=row2(d.ex>=5,'Примеры '+Math.min(d.ex,5)+'/5','train',d.ex,5)+(can('sr')?row2(d.rev>=1,'Повтор'+(due?' · ждут '+due:''),'train',d.rev,1):'')+(can('games')?row2(d.game>=1,'Игра','games',d.game,1):'');
     var L=stickerList(),n=L.filter(function(x){return x.ok;}).length,wk=weakKeys()[0],hint2='';
     if(wk&&can('hard')){var p=wk.split('×');hint2='<p class="small" style="margin:10px 0 0">Давай потренируем '+p[0]+' × '+p[1]+'. <button type="button" class="linkb" data-hard="'+wk+'">Открыть</button></p>';}
     function tile(v,t,s2,ok){return '<button type="button" class="mod" data-v="'+v+'"><span class="mod-tag">'+t+'</span><span class="mod-s">'+(ok?s2:lockSvg()+'Тариф «Продвинутый»')+'</span></button>';}
-    html='<section class="card goals"><h3>Цели на сегодня</h3><div class="goal-list">'+goals+'</div></section>'
-     +'<section class="note"><h3>Итоговая проверка</h3><p>'+FINAL_N+' примеров без подсказок и таймера. Цель: '+FINAL_PASS+'% и выше.'+(last?' Последний результат: '+last.ok+' из '+last.n+'.':'')+'</p><div class="row"><button type="button" class="btn ghost" data-act="final">Пройти итоговую проверку</button></div></section>'
+    html='<section class="card goals goals-row"><h3>Цели на сегодня</h3><div class="goal-list">'+goals+'</div></section>';
+    bottom='<section class="note" style="margin-top:22px"><h3>Итоговая проверка</h3><p>'+FINAL_N+' примеров без подсказок и таймера. Цель: '+FINAL_PASS+'% и выше.'+(last?' Последний результат: '+last.ok+' из '+last.n+'.':'')+'</p><div class="row"><button type="button" class="btn ghost" data-act="final">Пройти итоговую проверку</button></div></section>'
      +'<section class="note"><h3>Ещё можно</h3><div class="mods">'+tile('hard','Трудные примеры','Пять самых сложных',true)+tile('games','Игры','Четыре короткие игры',can('games'))+tile('stickers','Награды','Наклеек: '+n+' из '+L.length,can('stickers'))+'</div>'+hint2+'</section>';}
-  hero0.insertAdjacentHTML('afterend',html);}
+  hero0.insertAdjacentHTML('afterend',html);if(bottom)app.insertAdjacentHTML('beforeend',bottom);}
 function weekCount(){var n=0,i;for(i=0;i<7;i++){var d=new Date();d.setDate(d.getDate()-i);if((P.days[dayKey(d)]||0)>=60)n++;}return n;}
 function advParent(){
   if(tier()==='free')return '<h2>Продвинутый режим</h2><section class="card"><p>Входит в тарифы «Стандарт» и «Продвинутый»: чередование примеров, текстовые задачи, итоговая проверка и другое.</p><div class="row" style="margin-top:12px"><button type="button" class="btn" data-v="buy">Посмотреть тарифы</button></div></section>';

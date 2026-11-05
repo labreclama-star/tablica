@@ -425,3 +425,11 @@ summary{padding-block:10px;min-height:44px}
 .mviz .mv-x{fill:#FFF;stroke:#E5383B;stroke-width:1.2;stroke-dasharray:2.5 2;opacity:.85}
 
 .eq.exq{font-size:clamp(30px,8vw,44px);margin:2px 0 10px}
+
+/* цели на сегодня: одна строка с кольцами прогресса */
+.goals-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:10px 14px;margin-top:14px}
+.goals-row h3{margin:0;font-size:17px;white-space:nowrap}
+.goals-row .goal-list{display:flex;flex-wrap:wrap;gap:8px;margin:0}
+.goals-row .grow{min-height:40px;padding:6px 12px 6px 8px;gap:8px;font-size:15px;border-radius:999px}
+.gring{flex:none}.gr-bg{fill:none;stroke:var(--line);stroke-width:3.4}.gr-fg{fill:none;stroke:var(--blue);stroke-width:3.4;stroke-linecap:round}
+.gr-ok{fill:none;stroke:var(--ok);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.grow.done .gr-fg{stroke:var(--ok)}

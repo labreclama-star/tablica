@@ -459,6 +459,14 @@ summary{padding-block:10px;min-height:44px}
 
 .eq.exq{font-size:clamp(30px,8vw,44px);margin:2px 0 10px}
 
+/* цели на сегодня: одна строка с кольцами прогресса */
+.goals-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:10px 14px;margin-top:14px}
+.goals-row h3{margin:0;font-size:17px;white-space:nowrap}
+.goals-row .goal-list{display:flex;flex-wrap:wrap;gap:8px;margin:0}
+.goals-row .grow{min-height:40px;padding:6px 12px 6px 8px;gap:8px;font-size:15px;border-radius:999px}
+.gring{flex:none}.gr-bg{fill:none;stroke:var(--line);stroke-width:3.4}.gr-fg{fill:none;stroke:var(--blue);stroke-width:3.4;stroke-linecap:round}
+.gr-ok{fill:none;stroke:var(--ok);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.grow.done .gr-fg{stroke:var(--ok)}
+
 </style>
 <div class="wrap">
   <header class="top">
@@ -992,7 +1000,7 @@ function tryCode(code,msg,ok){
     if(!newMental&&!newMult){msg.textContent='Этот код ничего не добавит: у вас уже открыт такой тариф или выше.';return;}
     applyTier(g);ok();}).catch(function(){msg.textContent='Не удалось проверить код.';});}
 function planHtml(name,price,url,items,pro){
-  return '<div class="plan'+(pro?' pro':'')+'"><h3>'+name+'</h3><p class="price">'+price+' <span class="small">один раз</span></p><ul>'+items.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul><a class="btn'+(pro?'':' ghost')+'" href="'+url+'" rel="noopener" target="_blank">Купить '+name+'</a></div>';}
+  return '<div class="plan'+(pro?' pro':'')+'"><h3>'+name+'</h3><p class="price">'+price+' <span class="small">один раз</span></p><ul>'+items.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul><a class="btn'+(pro?'':' ghost')+'" href="'+url+'">Купить '+name+'</a></div>';}
 function rBuy(){
   var why=view.why||'plans',title,lead;
   if(why==='limit'){title='На сегодня всё!';lead='Бесплатный доступ: '+FREE_MIN+' минут занятий в день. Прогресс сохранён. Чтобы заниматься без ограничений, выберите «Устный счёт» или «Комбо». Завтра бесплатные минуты появятся снова.';}

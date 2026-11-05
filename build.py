@@ -128,6 +128,8 @@ def seo_head(path,title,desc,keywords,typ='website',ld=(),robots=None,published=
     u=abs_url(path); img=SITE_URL+'/'+(image or 'img/og.png')
     h='<title>%s</title>\n<meta name="description" content="%s">\n<meta name="keywords" content="%s">\n<link rel="canonical" href="%s">\n'%(E(title),E(desc),E(keywords),E(u))
     if robots: h+='<meta name="robots" content="%s">\n'%robots
+    for _n,_e in (('yandex-verification','YANDEX_VERIFICATION'),('google-site-verification','GOOGLE_VERIFICATION')):
+        if os.environ.get(_e): h+='<meta name="%s" content="%s">\n'%(_n,E(os.environ[_e]))
     h+='<meta property="og:type" content="%s">\n<meta property="og:site_name" content="Таблица без зубрёжки">\n<meta property="og:locale" content="ru_RU">\n<meta property="og:title" content="%s">\n<meta property="og:description" content="%s">\n<meta property="og:url" content="%s">\n<meta property="og:image" content="%s">\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n'%(typ,E(title),E(desc),E(u),E(img))
     if published: h+='<meta property="article:published_time" content="%s">\n'%published
     h+='<meta name="twitter:card" content="summary_large_image">\n<meta name="twitter:title" content="%s">\n<meta name="twitter:description" content="%s">\n<meta name="twitter:image" content="%s">\n'%(E(title),E(desc),E(img))
@@ -268,8 +270,6 @@ INDEX='''<!doctype html>
 <head>
 '''+HEAD_COMMON+'''
 '''+seo_head('trainer.html',*META['trainer'])+'''
-<meta name="yandex-verification" content="73b3544d9deeac4e" />
-<meta name="google-site-verification" content="oaPBgIsXMc0ltcgUDEdRqV1Kcd8Sn7BnaIkOcplcHh4" />
 </head>
 <body>
 <div class="wrap">
@@ -303,8 +303,6 @@ def content_page(path,title,desc,kw,inner,ld=(),typ='website',back=True,publishe
 <head>
 '''+HEAD_COMMON+'''
 '''+seo_head(path,title,desc,kw,typ=typ,ld=ld,published=published,image=image)+'''
-<meta name="yandex-verification" content="73b3544d9deeac4e" />
-<meta name="google-site-verification" content="oaPBgIsXMc0ltcgUDEdRqV1Kcd8Sn7BnaIkOcplcHh4" />
 </head>
 <body class="docpage">
 <div class="wrap">
@@ -395,7 +393,7 @@ def tariff_html(preview):
     js="""const vm=require('vm');const c={};vm.createContext(c);vm.runInContext(process.argv[1]+';this.out=tariffCols("landing");',c);process.stdout.write(c.out);"""
     h=subprocess.run(['node','-e',js,_shared_block()],capture_output=True,text=True,encoding='utf-8',check=True).stdout
     if preview:
-        h=re.sub(r'<a class="btn ?([^"]*)" href="[^"]*">([^<]*)</a>',lambda m:'<button type="button" class="btn %s" data-lp="buy">%s</button>'%(m.group(1),m.group(2)),h)
+        h=re.sub(r'<a class="btn ?([^"]*)" href="[^"]*" rel="noopener" target="_blank">([^<]*)</a>',lambda m:'<button type="button" class="btn %s" data-lp="buy">%s</button>'%(m.group(1),m.group(2)),h)
         h=h.replace('<a class="btn ghost" href="trainer.html">Попробовать бесплатно</a>','<button type="button" class="btn ghost" data-lp="free">Попробовать бесплатно</button>')
     return h
 _clk_cache={}
@@ -479,8 +477,6 @@ LANDING=('''<!doctype html>
 '''+HEAD_COMMON+'''
 '''+seo_head('',*META['index'],ld=[SOFTAPP_LD,faq_ld()])+'''
 <style>'''+LCSS+'''</style>
-<meta name="yandex-verification" content="73b3544d9deeac4e" />
-<meta name="google-site-verification" content="oaPBgIsXMc0ltcgUDEdRqV1Kcd8Sn7BnaIkOcplcHh4" />
 </head>
 <body>
 '''+landing_body(False,'img/hero.png' if _hd else '')+'''
@@ -495,8 +491,6 @@ MENTAL_HTML='''<!doctype html>
 <head>
 '''+HEAD_COMMON+'''
 '''+seo_head('mental.html',*META['mental'],ld=[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Устный счёт","url":abs_url('mental.html'),"applicationCategory":"EducationalApplication","operatingSystem":"Any","inLanguage":"ru","offers":{"@type":"Offer","price":"0","priceCurrency":"RUB"}}])+'''
-<meta name="yandex-verification" content="73b3544d9deeac4e" />
-<meta name="google-site-verification" content="oaPBgIsXMc0ltcgUDEdRqV1Kcd8Sn7BnaIkOcplcHh4" />
 </head>
 <body>
 <div class="wrap">
@@ -530,7 +524,7 @@ wr('index.html',LANDING)
 ALLDOCS=dict(DOCS); ALLDOCS.update(EXTRA_DOCS)
 for k,(t,body_) in ALLDOCS.items(): wr(k+'.html',content_page(k+'.html',*META[k],body_))
 wr('blog.html',content_page('blog.html',*META['blog'],blog_inner(),ld=[{"@context":"https://schema.org","@type":"Blog","name":"Блог о таблице умножения","url":abs_url('blog.html'),"inLanguage":"ru","blogPost":[{"@type":"BlogPosting","headline":a['h1'],"url":abs_url(a['file']),"datePublished":a['date']} for a in ARTS]}],back=False))
-for a in ARTS: wr(a['file'],content_page(a['file'],a['title'],a['description'],a['keywords'],article_inner(a),ld=[article_ld(a)],typ='article',back=False,published=a['date'],image=a.get('image')))
+for a in ARTS: wr(a['file'],content_page(a['file'],a['title'],a['description'],a['keywords'],article_inner(a),ld=[article_ld(a),{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":abs_url('')},{"@type":"ListItem","position":2,"name":"Блог","item":abs_url('blog.html')},{"@type":"ListItem","position":3,"name":a['h1'],"item":abs_url(a['file'])}]}],typ='article',back=False,published=a['date'],image=a.get('image')))
 # sitemap.xml, robots.txt
 _pages=[('',1.0,'weekly',TODAY),('mental.html',0.9,'weekly',TODAY),('trainer.html',0.9,'weekly',TODAY),('blog.html',0.8,'weekly',max(a['date'] for a in ARTS))]
 _pages+=[(a['file'],0.7,'monthly',a['date']) for a in ARTS]
@@ -628,8 +622,6 @@ PRINT='''<!doctype html>
 .cd .a p{margin:6px 0 0;font-size:15px}
 @media print{.noprint{display:none!important}body{background:#fff}.cd,.pt th,.pt td{border-color:#000}.pt th{background:#eee}.pgb{break-before:page}}
 </style>
-<meta name="yandex-verification" content="73b3544d9deeac4e" />
-<meta name="google-site-verification" content="oaPBgIsXMc0ltcgUDEdRqV1Kcd8Sn7BnaIkOcplcHh4" />
 </head>
 <body class="docpage">
 <div class="wrap">

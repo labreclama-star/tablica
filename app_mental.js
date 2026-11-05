@@ -513,7 +513,7 @@ function tryCode(code,msg,ok){
     if(!newMental&&!newMult){msg.textContent='Этот код ничего не добавит: у вас уже открыт такой тариф или выше.';return;}
     applyTier(g);ok();}).catch(function(){msg.textContent='Не удалось проверить код.';});}
 function planHtml(name,price,url,items,pro){
-  return '<div class="plan'+(pro?' pro':'')+'"><h3>'+name+'</h3><p class="price">'+price+' <span class="small">один раз</span></p><ul>'+items.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul><a class="btn'+(pro?'':' ghost')+'" href="'+url+'" rel="noopener" target="_blank">Купить '+name+'</a></div>';}
+  return '<div class="plan'+(pro?' pro':'')+'"><h3>'+name+'</h3><p class="price">'+price+' <span class="small">один раз</span></p><ul>'+items.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul><a class="btn'+(pro?'':' ghost')+'" href="'+url+'">Купить '+name+'</a></div>';}
 function rBuy(){
   var why=view.why||'plans',title,lead;
   if(why==='limit'){title='На сегодня всё!';lead='Бесплатный доступ: '+FREE_MIN+' минут занятий в день. Прогресс сохранён. Чтобы заниматься без ограничений, выберите «Устный счёт» или «Комбо». Завтра бесплатные минуты появятся снова.';}
