@@ -433,3 +433,10 @@ summary{padding-block:10px;min-height:44px}
 .goals-row .grow{min-height:40px;padding:6px 12px 6px 8px;gap:8px;font-size:15px;border-radius:999px}
 .gring{flex:none}.gr-bg{fill:none;stroke:var(--line);stroke-width:3.4}.gr-fg{fill:none;stroke:var(--blue);stroke-width:3.4;stroke-linecap:round}
 .gr-ok{fill:none;stroke:var(--ok);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.grow.done .gr-fg{stroke:var(--ok)}
+
+/* Четкость картинок на Retina-экранах */
+.lp-hero img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  image-rendering: auto;
+}
