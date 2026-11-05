@@ -395,7 +395,7 @@ def tariff_html(preview):
     js="""const vm=require('vm');const c={};vm.createContext(c);vm.runInContext(process.argv[1]+';this.out=tariffCols("landing");',c);process.stdout.write(c.out);"""
     h=subprocess.run(['node','-e',js,_shared_block()],capture_output=True,text=True,encoding='utf-8',check=True).stdout
     if preview:
-        h=re.sub(r'<a class="btn ?([^"]*)" href="[^"]*" rel="noopener" target="_blank">([^<]*)</a>',lambda m:'<button type="button" class="btn %s" data-lp="buy">%s</button>'%(m.group(1),m.group(2)),h)
+        h=re.sub(r'<a class="btn ?([^"]*)" href="[^"]*">([^<]*)</a>',lambda m:'<button type="button" class="btn %s" data-lp="buy">%s</button>'%(m.group(1),m.group(2)),h)
         h=h.replace('<a class="btn ghost" href="trainer.html">Попробовать бесплатно</a>','<button type="button" class="btn ghost" data-lp="free">Попробовать бесплатно</button>')
     return h
 _clk_cache={}

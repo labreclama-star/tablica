@@ -46,7 +46,7 @@ function codeGrant(hx){
 function anyCodes(){return CODES_STD.length+CODES_PRO.length+CODES_MNT.length+CODES_CMB.length>0;}
 /* четыре плашки: Бесплатный, Умножение, Устный счёт, Комбо. cur: 'mult' | 'mental' | 'landing' (куда ведёт кнопка «Попробовать бесплатно») */
 function tariffCols(cur){
-  function buy(cls,label,price,url){return '<a class="btn '+cls+'" href="'+url+'" rel="noopener" target="_blank">'+label+' · '+price.replace(/ /g,'\u00a0')+'</a>';}
+  function buy(cls,label,price,url){return '<a class="btn '+cls+'" href="'+url+'">'+label+' · '+price.replace(/ /g,'\u00a0')+'</a>';}
   function col(cls,title,price,sub,items,act,badge){return '<div class="tcol'+cls+'">'+(badge?'<span class="tbadge">'+badge+'</span>':'')+'<h3>'+title+'</h3><p class="tprice">'+price+'</p><p class="tsub">'+sub+'</p><ul>'+items.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul><div class="tact">'+act+'</div></div>';}
   function num(t){return parseInt(String(t).replace(/\D/g,''),10)||0;}
   var save=num(PRICE_MULT_PRO)+num(PRICE_MENTAL)-num(PRICE_COMBO);
