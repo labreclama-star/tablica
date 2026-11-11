@@ -15,44 +15,50 @@ var FREE_MIN=10;
 var PRICE_MULT_STD='990 ₽';
 var PRICE_MULT_PRO='1 990 ₽';
 var PRICE_MENTAL='990 ₽';
+var PRICE_TRACH='990 ₽';
 var PRICE_COMBO='2 490 ₽';
 var PAY_URL_MULT_STD='https://example.com/pay?plan=mult-standard';  /* страницы оплаты у платёжного агрегатора */
 var PAY_URL_MULT_PRO='https://example.com/pay?plan=mult-pro';
 var PAY_URL_MENTAL='https://example.com/pay?plan=mental';
+var PAY_URL_TRACH='https://example.com/pay?plan=trahtenberg';
 var PAY_URL_COMBO='https://example.com/pay?plan=combo';
 
 var PAY_URL_MULT_STD='success.html';
 var PAY_URL_MULT_PRO='success.html';
 var PAY_URL_MENTAL='success.html';
 var PAY_URL_COMBO='success.html';
+var PAY_URL_TRX='success.html';
 
 /* SHA-256 кодов доступа (см. README). Тестовые коды (удалите перед запуском): TEST-STANDARD, TEST-PRO и 1111 (только «Умножение»), TEST-MNT («Устный счёт»), TEST-CMB (комбо). */
 var CODES_STD=["ca063870f27456c4764dc609ae1579f7a1fa8e6f497713a47ad4b90c98db7bb6"];
 var CODES_PRO=["0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c","9617e38101e15005c55a48cf1116327a0bb611c344da66dce2799e30b954a446"];
 var CODES_MNT=["364567710a202e131e3aabb9531abb0d23648784ea6db328eedea3b01f9bb16a"];
 var CODES_CMB=["c7bdbefc81151c12307080feadd770a9eb413db17783a48fa8847269de7c49ca"];
-/* что открывает код: {mult, mental}; null, если код не найден.
-   STANDARD-/PRO-: только «Умножение» (Стандарт или Продвинутый). MNT-: «Устный счёт» целиком (Продвинутый). CMB-: оба тренажёра на максимум. */
+var CODES_TRX=["e94d02710d01a8dc7929f06fd3a65c90e0c3083463028ca5141b941b1dbaa749"];  /* тестовый TEST-TRX, удалите перед запуском */
+/* что открывает код: {mult, mental, trach}; null, если код не найден.
+   STANDARD-/PRO-: только «Умножение» (Стандарт или Продвинутый). MNT-: «Устный счёт» целиком (Продвинутый). TRX-: «Быстрый счёт по Трахтенбергу» целиком. CMB-: все три тренажёра на максимум. */
 function codeGrant(hx){
   function has(a){return a.indexOf(hx)>=0;}
-  if(has(CODES_CMB))return {mult:'pro',mental:'pro'};
-  if(has(CODES_PRO))return {mult:'pro',mental:null};
-  if(has(CODES_STD))return {mult:'standard',mental:null};
-  if(has(CODES_MNT))return {mult:null,mental:'pro'};
+  if(has(CODES_CMB))return {mult:'pro',mental:'pro',trach:'pro'};
+  if(has(CODES_PRO))return {mult:'pro',mental:null,trach:null};
+  if(has(CODES_STD))return {mult:'standard',mental:null,trach:null};
+  if(has(CODES_MNT))return {mult:null,mental:'pro',trach:null};
+  if(has(CODES_TRX))return {mult:null,mental:null,trach:'pro'};
   return null;}
-function anyCodes(){return CODES_STD.length+CODES_PRO.length+CODES_MNT.length+CODES_CMB.length>0;}
-/* четыре плашки: Бесплатный, Умножение, Устный счёт, Комбо. cur: 'mult' | 'mental' | 'landing' (куда ведёт кнопка «Попробовать бесплатно») */
+function anyCodes(){return CODES_STD.length+CODES_PRO.length+CODES_MNT.length+CODES_CMB.length+CODES_TRX.length>0;}
+/* пять плашек: Бесплатный, Умножение, Устный счёт, Быстрый счёт, Комбо. cur: 'mult' | 'mental' | 'landing' (куда ведёт кнопка «Попробовать бесплатно») */
 function tariffCols(cur){
   function buy(cls,label,price,url){return '<a class="btn '+cls+'" href="'+url+'">'+label+' · '+price.replace(/ /g,'\u00a0')+'</a>';}
   function col(cls,title,price,sub,items,act,badge){return '<div class="tcol'+cls+'">'+(badge?'<span class="tbadge">'+badge+'</span>':'')+'<h3>'+title+'</h3><p class="tprice">'+price+'</p><p class="tsub">'+sub+'</p><ul>'+items.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul><div class="tact">'+act+'</div></div>';}
   function num(t){return parseInt(String(t).replace(/\D/g,''),10)||0;}
-  var save=num(PRICE_MULT_PRO)+num(PRICE_MENTAL)-num(PRICE_COMBO);
+  var save=num(PRICE_MULT_PRO)+num(PRICE_MENTAL)+num(PRICE_TRACH)-num(PRICE_COMBO);
   var free=cur==='landing'?'<a class="btn ghost" href="trainer.html">Попробовать бесплатно</a>':'<button type="button" class="btn ghost" data-v="home">Попробовать бесплатно</button>';
   return '<div class="tcols">'
-   +col(' free','Бесплатный','0 ₽','Чтобы попробовать',['5 блоков в «Умножении»','Модуль «Состав числа» в «Устном счёте»','До 10 минут в день','Без регистрации'],free)
+   +col(' free','Бесплатный','0 ₽','Чтобы попробовать',['5 блоков в «Умножении»','Модуль «Состав числа» в «Устном счёте»','Модуль «Сосед и нулик» в «Быстром счёте»','До 10 минут в день','Без регистрации'],free)
    +col('','Таблица умножения','от '+PRICE_MULT_STD,'Полный курс умножения и деления',['Все блоки и деление','Безлимитное время','Итоговая проверка','В Продвинутом: игры, повторения через 1, 3, 7 дней, награды, печать'],buy('ghost','Купить Стандарт',PRICE_MULT_STD,PAY_URL_MULT_STD)+buy('','Купить Продвинутый',PRICE_MULT_PRO,PAY_URL_MULT_PRO))
    +col('','Устный счёт',PRICE_MENTAL,'Сложение и вычитание в уме',['Все 9 модулей','Игра «Дай сдачу»','Тренажёр с повторениями','Подробный отчёт для родителя','Без лимита времени'],buy('',  'Купить Устный счёт',PRICE_MENTAL,PAY_URL_MENTAL))
-   +col(' combo','Комбо: всё сразу',PRICE_COMBO,'Оба тренажёра по одному коду. Максимальная выгода',['Всё из «Таблицы умножения» (Продвинутый)','Всё из «Устного счёта»','Один код открывает оба тренажёра','Доступ навсегда'].concat(save>0?['Дешевле на '+save+' ₽, чем по отдельности']:[]),buy('big','Купить Комбо',PRICE_COMBO,PAY_URL_COMBO),'Выгодно')
+   +col('','Быстрый счёт по Трахтенбергу',PRICE_TRACH,'Система быстрого счёта Якова Трахтенберга',['13 модулей: умножение на 2–9, 11 и 12 без таблицы','Квадрат числа на 5 и метод двух пальцев','Проверка девяткой','Тренажёр с повторениями','Без лимита времени'],buy('','Купить Быстрый счёт',PRICE_TRACH,PAY_URL_TRACH))
+   +col(' combo','Комбо: всё сразу',PRICE_COMBO,'Все три тренажёра по одному коду. Максимальная выгода',['Всё из «Таблицы умножения» (Продвинутый)','Всё из «Устного счёта»','Всё из «Быстрого счёта по Трахтенбергу»','Один код открывает все тренажёры','Доступ навсегда'].concat(save>0?['Дешевле на '+save+' ₽, чем по отдельности']:[]),buy('big','Купить Комбо',PRICE_COMBO,PAY_URL_COMBO),'Выгодно')
    +'</div>';}
 /* Маскот «Клетик»: плоский inline SVG (около 1,5 КБ на экземпляр). Эмоции: joy, think, sorry, party. */
 function clk(e,cls){
@@ -99,7 +105,7 @@ function pl(n,o,f,m){n=Math.abs(n)%100;var d=n%10;if(n>10&&n<20)return m;if(d===
 
 /* ---------- хранение ---------- */
 function fresh(){return {app:'ustny-schet',schemaVersion:1,done:{},stars:{},stats:{},sr:{},rec:{},days:{},alts:{},tier:'free',onboarded:false};}
-var M=fresh(),mainTier='free',mainMult='free',storage={mode:'init'};
+var M=fresh(),mainTier='free',mainMult='free',mainTrach='free',storage={mode:'init'};
 var Store=(function(){
   var DB='tablica',ST='kv',dbp=null;
   function open(){return new Promise(function(res,rej){
@@ -468,7 +474,7 @@ function rParent(){
   app.innerHTML='<section class="card lift"><p class="kicker">Родителям</p><h1>Прогресс по устному счёту</h1><p class="lead" style="margin-top:12px">Занятия сегодня: '+mins+' мин. Лучше 5–10 минут каждый день, чем час раз в неделю.</p></section>'
    +'<section class="card" style="margin-top:14px"><h3>Модули</h3><div class="bars">'+MODS.map(function(m){return '<div><span>'+m.title+'</span><b>'+(M.done[m.id]?starsStr(M.stars[m.id]||1):(locked(m)?'закрыт':'не пройден'))+'</b></div>';}).join('')+'</div></section>'
    +'<section class="card" style="margin-top:14px"><h3>Над чем поработать</h3><div class="bars">'+rows+'</div><p class="small">Примеры, которые давались трудно, тренажёр показывает чаще. «Верно» считается по всем попыткам.</p></section>'
-   +'<section class="card" style="margin-top:14px"><h3>Доступ</h3><p class="small">Сейчас открыт тариф «Устный счёт»: <b>'+TIER_NAME[tier()]+'</b>. «Умножение»: <b>'+TIER_NAME[mainMult]+'</b>. Коды тарифов «Комбо» открывают оба тренажёра сразу.</p><div class="row"><button type="button" class="btn ghost" data-v="plans">Тарифы и код доступа</button><a class="btn ghost" style="text-decoration:none;display:inline-flex;align-items:center" href="trainer.html">Тренажёр умножения</a></div></section>'
+   +'<section class="card" style="margin-top:14px"><h3>Доступ</h3><p class="small">Сейчас открыт тариф «Устный счёт»: <b>'+TIER_NAME[tier()]+'</b>. «Умножение»: <b>'+TIER_NAME[mainMult]+'</b>. Коды тарифа «Комбо» открывают все три тренажёра сразу.</p><div class="row"><button type="button" class="btn ghost" data-v="plans">Тарифы и код доступа</button><a class="btn ghost" style="text-decoration:none;display:inline-flex;align-items:center" href="trainer.html">Тренажёр умножения</a></div></section>'
    +'<section class="card" style="margin-top:14px"><h3>Сохранить прогресс</h3><p class="small">Прогресс хранится в браузере этого устройства. Сохраните файл, чтобы перенести его на другое устройство.</p><div class="row"><button type="button" class="btn" id="exp">Экспортировать</button><label class="btn ghost" for="imp" style="cursor:pointer">Импортировать</label><input type="file" id="imp" accept="application/json,.json" hidden></div><div id="expmsg" class="small" aria-live="polite"></div></section>'
    +'<p style="margin-top:14px"><button type="button" class="btn ghost" data-v="home">К модулям</button></p>';
   $('#exp').onclick=function(){
@@ -496,24 +502,12 @@ function applyTier(g){
     v=(v&&typeof v==='object')?v:{};
     var ch=false,ti=function(x){return RANK[x]||0;};
     if(g.mental&&ti(g.mental)>ti(v.tierMental)){v.tierMental=g.mental;ch=true;}
+    if(g.trach&&ti(g.trach)>ti(v.tierTrach)){v.tierTrach=g.trach;ch=true;mainTrach=g.trach;}
     if(g.mult&&ti(g.mult)>ti(v.tierMult)){v.tierMult=g.mult;v.tier=g.mult;ch=true;mainMult=g.mult;}
     if(ch){v.adv=true;return Store.put('progress',v);}}).catch(function(){});}
 function tryCode(code,msg,ok){
-  // Логирование в локальную админку
-  try {
-    var logEntry = { ts: Date.now(), type: 'unknown', label: 'Ввод кода', code: String(code).trim() };
-    if (String(code).trim() === '8888') { logEntry.type = 'free'; logEntry.label = '🆓 Бесплатная активация'; }
-    else if (String(code).trim().startsWith('CMB-')) { logEntry.type = 'combo'; logEntry.label = '💰 Активация Комбо'; }
-    else if (String(code).trim().startsWith('MNT-')) { logEntry.type = 'mental'; logEntry.label = '💰 Активация Устный счёт'; }
-    else if (String(code).trim().startsWith('PRO-') || String(code).trim().startsWith('STANDARD-')) { logEntry.type = 'mult'; logEntry.label = '💰 Активация Умножение'; }
-    var log = JSON.parse(localStorage.getItem('admin_log') || '[]');
-    log.push(logEntry);
-    if (log.length > 500) log = log.slice(-500);
-    localStorage.setItem('admin_log', JSON.stringify(log));
-  } catch(e) {}
-
   if(String(code).trim() === '8888'){
-    P.tierMult = 'pro'; P.tierMental = 'pro'; P.tier = 'pro'; P.adv = true;
+    P.tierMult = 'pro'; P.tierMental = 'pro'; P.tierTrahtenberg = 'pro'; P.tier = 'pro'; P.adv = true;
     save(); ok(); return;
   }
 
@@ -522,8 +516,8 @@ function tryCode(code,msg,ok){
   sha256hex(String(code).trim().toUpperCase()).then(function(hx){
     var g=codeGrant(hx);
     if(!g){msg.textContent='Код не подошёл. Проверьте, нет ли лишних символов.';return;}
-    var newMental=g.mental&&RANK[g.mental]>RANK[tier()],newMult=g.mult&&RANK[g.mult]>RANK[mainMult];
-    if(!newMental&&!newMult){msg.textContent='Этот код ничего не добавит: у вас уже открыт такой тариф или выше.';return;}
+    var newMental=g.mental&&RANK[g.mental]>RANK[tier()],newMult=g.mult&&RANK[g.mult]>RANK[mainMult],newTrach=g.trach&&RANK[g.trach]>RANK[mainTrach];
+    if(!newMental&&!newMult&&!newTrach){msg.textContent='Этот код ничего не добавит: у вас уже открыт такой тариф или выше.';return;}
     applyTier(g);ok();}).catch(function(){msg.textContent='Не удалось проверить код.';});}
 function planHtml(name,price,url,items,pro){
   return '<div class="plan'+(pro?' pro':'')+'"><h3>'+name+'</h3><p class="price">'+price+' <span class="small">один раз</span></p><ul>'+items.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul><a class="btn'+(pro?'':' ghost')+'" href="'+url+'">Купить '+name+'</a></div>';}
@@ -532,7 +526,7 @@ function rBuy(){
   if(why==='limit'){title='На сегодня всё!';lead='Бесплатный доступ: '+FREE_MIN+' минут занятий в день. Прогресс сохранён. Чтобы заниматься без ограничений, выберите «Устный счёт» или «Комбо». Завтра бесплатные минуты появятся снова.';}
   else if(why==='feature'){title=(view.title||'Эта возможность')+' входит в платный тариф';lead='Сначала можно пользоваться бесплатной версией, потом открыть нужный тариф. Оплата один раз, без подписки.';}
   else if(why==='block'){title='Модуль «'+(view.title||'')+'» входит в платные тарифы';lead='В бесплатной версии открыт модуль «Состав числа». Остальные модули откроет тариф «Устный счёт» или «Комбо».';}
-  else{title='Тарифы';lead='Бесплатная версия остаётся навсегда: модуль «Состав числа» и тренажёр на состав числа до '+FREE_MIN+' минут в день. Платные тарифы оплачиваются один раз, без подписки. Коды «Комбо» открывают оба тренажёра сразу.';}
+  else{title='Тарифы';lead='Бесплатная версия остаётся навсегда: модуль «Состав числа» и тренажёр на состав числа до '+FREE_MIN+' минут в день. Платные тарифы оплачиваются один раз, без подписки. Коды «Комбо» открывают все три тренажёра сразу.';}
   app.innerHTML='<section class="card lift"><h1 style="margin:0 0 10px">'+title+'</h1><p class="lead">'+lead+'</p></section>'+tariffCols('mental')
    +'<section class="card" style="margin-top:14px"><h3>У меня есть код</h3><div class="answer"><input class="ans" style="width:14ch;font-size:24px" id="code" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Код доступа"><button type="button" class="btn" id="codego">Открыть доступ</button></div><p class="small" id="codemsg" aria-live="polite"></p><p class="small">Оплата проходит на странице платёжного сервиса. Здесь мы не просим данные карты, имя, почту или телефон. После оплаты на странице успеха появится код доступа. Введите его здесь.</p></section><p style="margin-top:14px"><button type="button" class="btn ghost" data-v="home">Назад</button></p>';
   var inp=$('#code'),msg=$('#codemsg');
@@ -550,23 +544,8 @@ document.addEventListener('click',function(e){
 function boot(){
   Store.get('mental').then(function(v){storage.mode='idb';if(v)M=adopt(v);})
    .catch(function(){storage.mode='memory';})
-   .then(function(){return Store.get('progress').then(function(v){if(v){if(RANK[v.tierMental]!==undefined)mainTier=v.tierMental;if(RANK[v.tierMult]!==undefined)mainMult=v.tierMult;else if(RANK[v.tier]!==undefined)mainMult=v.tier;}}).catch(function(){});})
+   .then(function(){return Store.get('progress').then(function(v){if(v){if(RANK[v.tierMental]!==undefined)mainTier=v.tierMental;if(RANK[v.tierTrach]!==undefined)mainTrach=v.tierTrach;if(RANK[v.tierMult]!==undefined)mainMult=v.tierMult;else if(RANK[v.tier]!==undefined)mainMult=v.tier;}}).catch(function(){});})
    .then(function(){render();});}
 if('serviceWorker' in navigator&&location.protocol!=='file:'){window.addEventListener('load',function(){navigator.serviceWorker.register('service-worker.js').catch(function(){});});}
 boot();
 })();
-
-/* Admin logging для кнопок */
-document.addEventListener('click', function(e) {
-  try {
-    var log = JSON.parse(localStorage.getItem('admin_log') || '[]');
-    var isBuy = e.target.closest('a[href*="success"], a[href*="pay"], .tact a');
-    var isTry = e.target.closest('a[href="trainer.html"], a[href="mental.html"]');
-    if (isBuy) { log.push({ts: Date.now(), type: 'buy', label: '🛒 Клик «Купить»'}); }
-    else if (isTry && !e.target.closest('.nav')) { log.push({ts: Date.now(), type: 'try', label: '▶️ Клик «Попробовать»'}); }
-    if (isBuy || isTry) {
-      if (log.length > 500) log = log.slice(-500);
-      localStorage.setItem('admin_log', JSON.stringify(log));
-    }
-  } catch(e) {}
-});
