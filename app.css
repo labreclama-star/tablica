@@ -469,3 +469,24 @@ summary{padding-block:10px;min-height:44px}
 .flnum{display:flex;align-items:center;justify-content:center;min-height:150px;font:800 72px var(--f-head);color:#2B59E6}
 .flnum.dim{color:transparent}
 .tz-key.hv{background:#FF8A4C}.tz-key.ev{background:#2B59E6;color:#fff}
+/* блог: вкладки по темам (без скриптов) */
+.blog-tabs{position:relative}
+.bt-in{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px}
+.bt-bar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 18px;padding:2px 0}
+.bt-bar label{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border:2px solid var(--edge);border-radius:999px;background:var(--card);color:var(--ink);font-weight:700;cursor:pointer;white-space:nowrap}
+.bt-bar label span{font-size:13px;background:var(--edge);border-radius:999px;padding:1px 8px}
+.bt-bar label:hover{border-color:var(--ink)}
+#bt-all:checked~.bt-bar label[for=bt-all]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+#bt-all:focus-visible~.bt-bar label[for=bt-all]{outline:3px solid #2B59E6;outline-offset:2px}
+#bt-mult:checked~.bt-bar label[for=bt-mult]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+#bt-mult:focus-visible~.bt-bar label[for=bt-mult]{outline:3px solid #2B59E6;outline-offset:2px}
+#bt-mult:checked~.blog-grid .post-card:not([data-cat=mult]){display:none}
+#bt-mental:checked~.bt-bar label[for=bt-mental]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+#bt-mental:focus-visible~.bt-bar label[for=bt-mental]{outline:3px solid #2B59E6;outline-offset:2px}
+#bt-mental:checked~.blog-grid .post-card:not([data-cat=mental]){display:none}
+#bt-trach:checked~.bt-bar label[for=bt-trach]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+#bt-trach:focus-visible~.bt-bar label[for=bt-trach]{outline:3px solid #2B59E6;outline-offset:2px}
+#bt-trach:checked~.blog-grid .post-card:not([data-cat=trach]){display:none}
+#bt-abak:checked~.bt-bar label[for=bt-abak]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+#bt-abak:focus-visible~.bt-bar label[for=bt-abak]{outline:3px solid #2B59E6;outline-offset:2px}
+#bt-abak:checked~.blog-grid .post-card:not([data-cat=abak]){display:none}

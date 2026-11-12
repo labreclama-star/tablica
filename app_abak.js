@@ -127,25 +127,26 @@ var AC={hv:'#E8590C',hv2:'#F6C2A0',ev:'#2B59E6',ev2:'#B6C6F7',wood:'#C98A4B',wd:
 function bead(cx,cy,col,at){
   return '<polygon points="'+(cx-23)+','+cy+' '+(cx-11)+','+(cy-11)+' '+(cx+11)+','+(cy-11)+' '+(cx+23)+','+cy+' '+(cx+11)+','+(cy+11)+' '+(cx-11)+','+(cy+11)+'" fill="'+col+'" stroke="#1A2747" stroke-width="2"'+at+'/>';}
 /* v: массив цифр слева направо, o: {edit, num, labels, hl, w} */
+var MINR=7;
 function abacus(v,o){
-  o=o||{};var n=v.length,RW=58,W=n*RW+16,H=204,i,j,s='';
-  var bw=' style="max-width:'+(o.w||Math.round(W*1.2))+'px"';
+  o=o||{};var P=o.pad===false?0:Math.max(0,MINR-v.length),n=v.length+P,RW=58,W=n*RW+16,H=204,i,j,s='';
+  var bw=' style="max-width:'+(o.w||Math.round(W*1.15))+'px"';
   s+='<svg class="abk" viewBox="0 0 '+W+' '+(H+(o.num===false?8:44))+'"'+bw+' role="img" aria-label="Абакус: '+aval(v)+'" focusable="false">';
   s+='<rect x="2" y="2" width="'+(W-4)+'" height="'+(H-4)+'" rx="14" fill="'+AC.wood+'" stroke="'+AC.wd+'" stroke-width="4"/>';
   for(i=0;i<n;i++){
-    var cx=8+RW*i+RW/2,x=v[i],h=x>=5?1:0,e=x%5;
-    if(o.hl===i)s+='<rect x="'+(cx-27)+'" y="8" width="54" height="'+(H-16)+'" rx="10" fill="#FFE066" opacity=".55"/>';
-    s+='<line x1="'+cx+'" y1="10" x2="'+cx+'" y2="'+(H-10)+'" stroke="#3b2a14" stroke-width="3"/>';}
+    var cx=8+RW*i+RW/2;
+    if(i>=P&&o.hl===i-P)s+='<rect x="'+(cx-27)+'" y="8" width="54" height="'+(H-16)+'" rx="10" fill="#FFE066" opacity=".55"/>';
+    s+='<line x1="'+cx+'" y1="10" x2="'+cx+'" y2="'+(H-10)+'" stroke="#3b2a14" stroke-width="3"'+(i<P?' opacity=".45"':'')+'/>';}
   s+='<rect x="6" y="72" width="'+(W-12)+'" height="12" fill="'+AC.wd+'"/>';
   for(i=0;i<n;i++){
-    var c=8+RW*i+RW/2,xx=v[i],hh=xx>=5?1:0,ee=xx%5,dr=o.edit?(' data-ar="'+i+'" data-ab="h" style="cursor:pointer"'):'',cy;
-    cy=hh?58:28;s+='<g'+dr+'>'+(o.edit?'<rect x="'+(c-27)+'" y="'+(cy-15)+'" width="54" height="30" fill="transparent"/>':'')+bead(c,cy,hh?AC.hv:AC.hv2,'')+'</g>';
+    var c=8+RW*i+RW/2,pd=i<P,k=pd?0:i-P,xx=pd?0:v[k],hh=xx>=5?1:0,ee=xx%5,dr=(o.edit&&!pd)?(' data-ar="'+k+'" data-ab="h" style="cursor:pointer"'):'',cy,g=pd?' opacity=".45"':'';
+    cy=hh?58:28;s+='<g'+dr+g+'>'+((o.edit&&!pd)?'<rect x="'+(c-27)+'" y="'+(cy-15)+'" width="54" height="30" fill="transparent"/>':'')+bead(c,cy,hh?AC.hv:AC.hv2,'')+'</g>';
     for(j=1;j<=4;j++){
       cy=j<=ee?(97+23*(j-1)):(H-16-23*(4-j));
-      dr=o.edit?(' data-ar="'+i+'" data-ab="'+j+'" style="cursor:pointer"'):'';
-      s+='<g'+dr+'>'+(o.edit?'<rect x="'+(c-27)+'" y="'+(cy-12)+'" width="54" height="24" fill="transparent"/>':'')+bead(c,cy,j<=ee?AC.ev:AC.ev2,'')+'</g>';}
-    if(o.num!==false)s+='<text x="'+c+'" y="'+(H+26)+'" text-anchor="middle" font-family="Rubik,sans-serif" font-weight="700" font-size="26" fill="#1A2747">'+xx+'</text>';
-    if(o.labels&&RODS[n-1-i])s+='<text x="'+c+'" y="'+(H+(o.num===false?-1:40))+'" text-anchor="middle" font-family="Rubik,sans-serif" font-weight="600" font-size="11" fill="#4B5B7C">'+(o.num===false?'':RODS[n-1-i])+'</text>';}
+      dr=(o.edit&&!pd)?(' data-ar="'+k+'" data-ab="'+j+'" style="cursor:pointer"'):'';
+      s+='<g'+dr+g+'>'+((o.edit&&!pd)?'<rect x="'+(c-27)+'" y="'+(cy-12)+'" width="54" height="24" fill="transparent"/>':'')+bead(c,cy,j<=ee?AC.ev:AC.ev2,'')+'</g>';}
+    if(o.num!==false&&!pd)s+='<text x="'+c+'" y="'+(H+26)+'" text-anchor="middle" font-family="Rubik,sans-serif" font-weight="700" font-size="26" fill="#1A2747">'+xx+'</text>';
+    if(o.labels&&!pd&&RODS[v.length-1-k]&&o.num!==false)s+='<text x="'+c+'" y="'+(H+40)+'" text-anchor="middle" font-family="Rubik,sans-serif" font-weight="600" font-size="11" fill="#4B5B7C">'+RODS[v.length-1-k]+'</text>';}
   return s+'</svg>';}
 /* живой абакус: касание бусины двигает её */
 function mountAbacus(host,v,o,cb){
@@ -159,7 +160,7 @@ function mountAbacus(host,v,o,cb){
   host._set=function(nv){var k;for(k=0;k<v.length;k++)v[k]=nv[k];paint();};
   paint();return host;}
 function abStatic(v,o){o=o||{};return '<div class="abk-wrap">'+abacus(v,o)+'</div>';}
-function miniRow(list){return '<div class="abk-row">'+list.map(function(x){return '<figure>'+abacus(x.v,{num:false,w:70})+'<figcaption>'+x.t+'</figcaption></figure>';}).join('')+'</div>';}
+function miniRow(list){return '<div class="abk-row">'+list.map(function(x){return '<figure>'+abacus(x.v,{num:false,w:70,pad:false})+'<figcaption>'+x.t+'</figcaption></figure>';}).join('')+'</div>';}
 
 /*AENGINE*/
 /* Абакус соробан: у стержня одна верхняя бусина (5) и четыре нижние (по 1). Стержни слева направо: старший разряд первым. */

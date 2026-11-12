@@ -192,9 +192,14 @@ def article_inner(a):
     return ('<nav class="crumbs" aria-label="Хлебные крошки"><a href="./">Главная</a> / <a href="blog.html">Блог</a></nav><h1>'+E(a['h1'])+'</h1>'
       '<p class="post-meta">Автор: '+E(a['author'])+' · <time datetime="'+a['date']+'">'+date_ru(a['date'])+'</time> · Время чтения: '+E(a['read'])+'</p>'
       +fig(a)+cta_for(a)+render_body(a['body'])+cta_for(a)+rel)
+BLOG_CATS=[('mult','Таблица умножения'),('mental','Устный счёт'),('trach','Быстрый счёт'),('abak','Ментальная арифметика')]
 def blog_inner():
-    cards=''.join('<article class="post-card">'+(('<a class="thumb" href="%s" tabindex="-1" aria-hidden="true"><img src="%s" width="1200" height="630" alt="" loading="lazy" decoding="async"></a>'%(a['file'],a['image'])) if a.get('image') else '')+'<h2><a href="%s">%s</a></h2><p>%s</p><p class="post-meta"><time datetime="%s">%s</time> · Время чтения: %s</p><a class="btn ghost" href="%s">Читать статью</a></article>'%(a['file'],E(a['title']),E(a['description']),a['date'],date_ru(a['date']),E(a['read']),a['file']) for a in ARTS)
-    return '<h1>Блог: таблица умножения и устный счёт</h1><p class="lead">Практические статьи для родителей: как объяснить умножение, какие приёмы помогают и во что играть дома. Без обещаний «за три дня», зато с понятными шагами.</p><div class="blog-grid">'+cards+'</div>'+CTA_HTML
+    def cat(a): return a.get('cta') if a.get('cta') in ('mental','trach','abak') else 'mult'
+    cards=''.join('<article class="post-card" data-cat="%s">'%cat(a)+(('<a class="thumb" href="%s" tabindex="-1" aria-hidden="true"><img src="%s" width="1200" height="630" alt="" loading="lazy" decoding="async"></a>'%(a['file'],a['image'])) if a.get('image') else '')+'<h2><a href="%s">%s</a></h2><p>%s</p><p class="post-meta"><time datetime="%s">%s</time> · Время чтения: %s</p><a class="btn ghost" href="%s">Читать статью</a></article>'%(a['file'],E(a['title']),E(a['description']),a['date'],date_ru(a['date']),E(a['read']),a['file']) for a in ARTS)
+    tabs=[('all','Все',len(ARTS))]+[(k,n,sum(1 for a in ARTS if cat(a)==k)) for k,n in BLOG_CATS]
+    ins=''.join('<input class="bt-in" type="radio" name="blogtab" id="bt-%s"%s aria-label="%s">'%(k,' checked' if k=='all' else '',n) for k,n,c in tabs)
+    bar='<div class="bt-bar" role="group" aria-label="Темы блога">'+''.join('<label for="bt-%s">%s <span>%d</span></label>'%(k,n,c) for k,n,c in tabs)+'</div>'
+    return '<h1>Блог: счёт, таблица умножения и ментальная арифметика</h1><p class="lead">Практические статьи для родителей: как объяснить умножение, какие приёмы помогают считать в уме, как устроен абакус и во что играть дома. Без обещаний «за три дня», зато с понятными шагами. Выберите тему во вкладках.</p><div class="blog-tabs">'+ins+bar+'<div class="blog-grid">'+cards+'</div></div>'+CTA_HTML
 def article_ld(a):
     return {"@context":"https://schema.org","@type":"Article","headline":a['h1'],"description":a['description'],"inLanguage":"ru","image":[SITE_URL+'/'+(a.get('image') or 'img/og.png')],"datePublished":a['date'],"dateModified":a['date'],"author":{"@type":"Organization","name":a['author']},"publisher":{"@type":"Organization","name":"Таблица без зубрёжки","logo":{"@type":"ImageObject","url":SITE_URL+'/icons/icon-512.png'}},"mainEntityOfPage":{"@type":"WebPage","@id":abs_url(a['file'])},"keywords":a['keywords']}
 # --- информационные страницы
