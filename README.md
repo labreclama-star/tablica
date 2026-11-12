@@ -217,3 +217,7 @@ var CODES_STD=[...], CODES_PRO=[...];   // хеши кодов, см. шаг 4
 
 ## Третий тренажёр: «Быстрый счёт по Трахтенбергу»
 Файлы: `trahtenberg.html`, `app_trach.js` (блок `/*SHARED*/` подставляет `build.py`), CSS `.tz*` в `app.css`. Ключ хранения `trach`. Цена `PRICE_TRACH`, оплата `PAY_URL_TRACH`, коды `TRX-…` (`python3 tools/make-codes.py trach 50`), `CMB-…` открывает все три тренажёра. Подробности: `HANDOFF.md`, раздел 2026-11-10.
+
+
+## Ментальная арифметика (abakus.html)
+Четвёртый тренажёр: виртуальный абакус, 13 модулей, ключ `abak`, коды ABK/CMB. Сборка с `ABAK_PREVIEW_URL`. 15 статей с `cta: abak`. Подробности в HANDOFF.md (2026-11-12).

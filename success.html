@@ -7,24 +7,27 @@
 <link rel="stylesheet" href="fonts.css">
 <title>Спасибо! Ваш доступ открыт</title>
 <style>
-  body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--paper); margin: 0; }
-  .card { max-width: 500px; text-align: center; padding: 40px; background: var(--card); border: 3px solid var(--edge); border-radius: 12px; box-shadow: 0 8px 0 var(--edge); }
-  h1 { color: var(--blue); margin-bottom: 16px; }
+  body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--paper); margin: 0; padding: 20px; box-sizing: border-box; }
+  .card { max-width: 500px; width: 100%; text-align: center; padding: 40px 20px; background: var(--card); border: 3px solid var(--edge); border-radius: 12px; box-shadow: 0 8px 0 var(--edge); box-sizing: border-box; }
+  h1 { color: var(--blue); margin-bottom: 16px; font-size: 26px; }
   .code { display: inline-block; font-size: 42px; font-weight: 800; letter-spacing: 4px; color: var(--ink); background: var(--yellow); padding: 10px 30px; border-radius: 8px; border: 3px dashed var(--edge); margin: 20px 0; }
-  p { font-size: 18px; color: var(--ink2); margin-bottom: 20px; }
-  .btn { text-decoration: none; display: inline-block; width: 100%; box-sizing: border-box; margin-bottom: 10px;}
+  p { font-size: 18px; color: var(--ink2); margin-bottom: 20px; line-height: 1.4; }
+  .btn { text-decoration: none; display: block; width: 100%; box-sizing: border-box; margin-bottom: 10px; padding: 12px; text-align: center; font-weight: 700; border-radius: 8px; border: 2px solid var(--edge); }
+  .btn.main { background: var(--blue); color: #fff; }
+  .btn.ghost { background: var(--card); color: var(--ink); }
 </style>
 </head>
 <body>
   <div class="card">
     <h1>Ура! Вы в числе первых! 🎉</h1>
-    <p>Мы только запустились, поэтому <b>оплата пока отключена</b>. Мы дарим вам полный доступ ко всем трём тренажёрам абсолютно бесплатно.</p>
-    <p>Ваш секретный код доступа:</p>
+    <p>Оплата пока отключена. Мы дарим вам полный доступ ко всем <b>четырём</b> тренажёрам абсолютно бесплатно.</p>
+    <p>Ваш секретный код:</p>
     <div class="code">8888</div>
-    <p class="small">Скопируйте этот код. Зайдите в тренажёр, откройте раздел «Родителям» (или «Тарифы»), вставьте код в поле и нажмите «Открыть доступ».</p>
-    <a href="trainer.html" class="btn">Умножение</a>
+    <p class="small">Скопируйте код и введите его в разделе «Родителям» или «Тарифы» внутри любого тренажера.</p>
+    <a href="trainer.html" class="btn main">Умножение</a>
     <a href="mental.html" class="btn ghost">Устный счёт</a>
-    <a href="trahtenberg.html" class="btn ghost">Быстрый счёт (Трахтенберг)</a>
+    <a href="trahtenberg.html" class="btn ghost">Трахтенберг</a>
+    <a href="abakus.html" class="btn ghost">Ментальная арифметика</a>
   </div>
 </body>
 </html>

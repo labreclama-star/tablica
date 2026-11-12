@@ -137,6 +137,7 @@ def seo_head(path,title,desc,keywords,typ='website',ld=(),robots=None,published=
     return h
 # --- мета-данные страниц: ключ -> (title, description, keywords)
 META={
+ 'abak':('Ментальная арифметика онлайн: виртуальный абакус и тренажёр для детей','Виртуальный абакус (соробан) и тренажёр ментальной арифметики для детей: числа, сложение и вычитание, помощь брата и друга, счёт в уме по картинке. Первый модуль бесплатно.','ментальная арифметика, абакус, соробан, счёты для детей, ментальный счёт онлайн'),
  'trach':('Быстрый счёт по Трахтенбергу онлайн: тренажёр для детей и школьников','Система быстрого счёта Якова Трахтенберга: умножение на 2–9, 11 и 12 без таблицы, квадрат числа на 5, метод двух пальцев, проверка девяткой. Для детей.','система Трахтенберга, быстрый счёт, счёт по Трахтенбергу, умножение без таблицы умножения, метод двух пальцев, проверка девяткой, тренажёр быстрого счёта'),
  'mental':('Устный счёт онлайн: тренажёр сложения и вычитания в уме для детей','Тренажёр устного счёта для 1–4 классов: состав числа, сложение и вычитание с переходом через десяток, игра «Дай сдачу». Объясняет приём по шагам, без зубрёжки.','устный счёт, счёт в уме, сложение через десяток, вычитание в уме, тренажёр'),
  'index':('Таблица умножения без слёз: онлайн-тренажёр для детей 1–5 классов','Интерактивный тренажёр таблицы умножения и деления для 1–5 классов. Объясняет смысл наглядно, без зубрёжки. Попробуйте бесплатно, без регистрации.','таблица умножения, тренажёр таблицы умножения, умножение для детей, таблица умножения онлайн, как выучить таблицу умножения'),
@@ -161,6 +162,7 @@ def md_inline(s):
         if u.startswith('blog:'): return '<a href="%s">%s</a>'%(SLUG2FILE[u[5:]],t)
         if u=='trainer': return '<a href="trainer.html">%s</a>'%t
         if u=='mental': return '<a href="mental.html">%s</a>'%t
+        if u=='abak': return '<a href="abakus.html">%s</a>'%t
         if u=='trach': return '<a href="trahtenberg.html">%s</a>'%t
         return '<a href="%s" rel="nofollow noopener" target="_blank">%s</a>'%(u,t)
     return re.sub(r'\[([^\]]+)\]\(([^)]+)\)',lk,s)
@@ -179,8 +181,9 @@ CTA_TEXT='Попробуйте наш интерактивный тренажё�
 CTA_HTML='<aside class="cta"><p>'+CTA_TEXT+'</p><a class="btn" href="trainer.html">Попробовать тренажёр бесплатно</a></aside>'
 CTA_MENTAL='<aside class="cta"><p>Попробуйте тренажёр «Устный счёт». Он показывает, как считать в уме: по шагам, на числовой ленте и с подсказками.</p><a class="btn" href="mental.html">Попробовать «Устный счёт» бесплатно</a></aside>'
 CTA_TRACH='<aside class="cta"><p>Попробуйте тренажёр «Быстрый счёт по Трахтенбергу». Он объясняет приёмы так, чтобы понял ребёнок: сосед, нулик и ответ по одной цифре.</p><a class="btn" href="trahtenberg.html">Попробовать «Быстрый счёт» бесплатно</a></aside>'
+CTA_ABAK='<aside class="cta"><p>Попробуйте тренажёр «Ментальная арифметика». Виртуальный абакус показывает, как двигать косточки, а потом учит считать по картинке в уме.</p><a class="btn" href="abakus.html">Попробовать «Ментальная арифметика» бесплатно</a></aside>'
 def cta_for(a):
-    return {'mental':CTA_MENTAL,'trach':CTA_TRACH}.get(a.get('cta'),CTA_HTML)
+    return {'mental':CTA_MENTAL,'trach':CTA_TRACH,'abak':CTA_ABAK}.get(a.get('cta'),CTA_HTML)
 def fig(a):
     return '<figure class="post-fig"><img src="%s" width="1200" height="630" alt="%s" decoding="async"></figure>'%(a['image'],E(a.get('image_alt') or a['h1'])) if a.get('image') else ''
 def article_inner(a):
@@ -267,6 +270,8 @@ def preview_links(h):
     h=h.replace('href="trainer.html"','href="#" data-lp="free"')
     _mu=os.environ.get('MENTAL_PREVIEW_URL','#')
     h=h.replace('href="mental.html"','href="%s"%s'%(_mu,' target="_blank" rel="noopener"' if _mu!='#' else ''))
+    _au=os.environ.get('ABAK_PREVIEW_URL','#')
+    h=h.replace('href="abakus.html"','href="%s"%s'%(_au,' target="_blank" rel="noopener"' if _au!='#' else ''))
     return re.sub(r'href="([\w-]+)\.html"',r'href="#\1"',h)
 
 
@@ -289,6 +294,7 @@ INDEX='''<!doctype html>
       <button type="button" data-v="parent">Родителям</button>
       <a href="mental.html" class="nav-ment">Устный счёт</a>
       <a href="trahtenberg.html" class="nav-ment">Быстрый счёт</a>
+      <a href="abakus.html" class="nav-ment">Ментальная арифметика</a>
       <a href="blog.html">Блог</a>
     </nav>
     '''+THEME_BTN+'''<button type="button" class="adv-sw" role="switch" aria-checked="false" data-act="adv"><span class="knob" aria-hidden="true"></span>Продвинутый режим</button>
@@ -302,7 +308,7 @@ INDEX='''<!doctype html>
 </html>
 '''
 
-HEADER_SIMPLE='<header class="top"><a class="brand" href="./" style="text-decoration:none">'+BRAND+'</a><nav class="nav" aria-label="Разделы"><a href="trainer.html">Умножение</a><a href="mental.html">Устный счёт</a><a href="trahtenberg.html">Быстрый счёт</a><a href="blog.html">Блог</a></nav>'+THEME_BTN+'</header>'
+HEADER_SIMPLE='<header class="top"><a class="brand" href="./" style="text-decoration:none">'+BRAND+'</a><nav class="nav" aria-label="Разделы"><a href="trainer.html">Умножение</a><a href="mental.html">Устный счёт</a><a href="trahtenberg.html">Быстрый счёт</a><a href="abakus.html">Ментальная арифметика</a><a href="blog.html">Блог</a></nav>'+THEME_BTN+'</header>'
 def content_page(path,title,desc,kw,inner,ld=(),typ='website',back=True,published=None,image=None):
     return '''<!doctype html>
 <html lang="ru">
@@ -423,6 +429,19 @@ def mental_section(preview):
 </div>
 <p style="margin:18px 0 0">'''+btn+'''</p></section>
 '''
+def abak_section(preview):
+    href=os.environ.get('ABAK_PREVIEW_URL','#') if preview else 'abakus.html'
+    btn='<a class="btn big" href="%s"%s>Открыть «Ментальную арифметику»</a>'%(href,' target="_blank" rel="noopener"' if preview and href!='#' else '')
+    return '''<section id="abak-sec" class="lp-mental"><p class="kicker">Четвёртый тренажёр</p><h2 style="margin-top:6px">Ментальная арифметика: виртуальный абакус и счёт в уме</h2>
+<p class="lead">Ребёнок двигает косточки на виртуальном соробане, учится читать число по счётам, а потом считает по мысленной картинке. Тренажёр объясняет каждый приём по шагам и не обещает чудес: это честный способ потренировать счёт и внимание.</p>
+<div class="lp-ment">
+<div class="card"><h3>Абакус на экране</h3><p>Косточки двигаются нажатием. Верхняя стоит за пять, каждая нижняя за единицу. Ответ ребёнок набирает на счётах сам.</p></div>
+<div class="card"><h3>Помощь брата и друга</h3><p>Когда не хватает косточек, приём подсказывает, что сделать: добавить пять и убрать лишнее или перейти на десяток.</p></div>
+<div class="card"><h3>13 коротких модулей</h3><p>От знакомства со счётами и чисел до 9999 до сложения и вычитания, вспышки картинки и цепочки в уме.</p></div>
+<div class="card"><h3>Счёт без счётов</h3><p>Абакус показывается на секунды и исчезает. Ребёнок вспоминает картинку и называет число.</p></div>
+</div>
+<p style="margin:18px 0 0">'''+btn+'''</p></section>
+'''
 def trach_section(preview):
     href=os.environ.get('TRACH_PREVIEW_URL','#') if preview else 'trahtenberg.html'
     btn='<a class="btn big" href="%s"%s>Открыть «Быстрый счёт по Трахтенбергу»</a>'%(href,' target="_blank" rel="noopener"' if preview and href!='#' else '')
@@ -472,7 +491,7 @@ def landing_body(preview,hero_src):
 <div class="card"><h3>Секретные приёмы</h3><p>Умножение на 9 на пальцах, на 5 как на часах, на 10 одним нулём.</p></div>
 <div class="card"><h3>Повторения через дни</h3><p>В тарифе «Продвинутый» сервис сам напоминает повторить пример через 1, 3, 7 дней, чтобы знания держались дольше.</p></div>
 </div>
-'''+mental_section(preview)+trach_section(preview)+security_html()+reviews_html()+'''<h2 id="tariffs">Тарифы</h2>
+'''+mental_section(preview)+trach_section(preview)+abak_section(preview)+security_html()+reviews_html()+'''<h2 id="tariffs">Тарифы</h2>
 <div class="card lp-free"><p><b>Бесплатно и без регистрации:</b> в «Умножении» пять блоков, в «Устном счёте» модуль «Состав числа». До '''+str(10)+''' минут занятий в день.</p><p class="lp-free-btns" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:10px">'''+lp_btn('free','Попробовать «Умножение»','',preview)+('<a class="btn ghost" href="mental.html">Попробовать «Устный счёт»</a>' if not preview else '<a class="btn ghost" href="'+os.environ.get('MENTAL_PREVIEW_URL','#')+'" target="_blank" rel="noopener">Попробовать «Устный счёт»</a>')+'''</p></div>
 '''+tariff_html(preview)+'''
 <p class="lp-note">Платёж один раз, без подписки, доступ без ограничения срока. Сервис предоставляется «как есть». Сначала попробуйте бесплатную версию: возврат средств за цифровой товар надлежащего качества не предусмотрен. Уже купили? Можно '''+code+'''.</p>
@@ -491,7 +510,7 @@ _pn=lambda s:re.sub(r'\D','',s)
 def cfg(n):
     m = re.search(r"var\s+" + n + r"\s*=\s*['\"]([^'\"]+)['\"]", _app)
     return m.group(1) if m else "success.html"
-SOFTAPP_LD={"@context":"https://schema.org","@type":"SoftwareApplication","name":"Таблица без зубрёжки","description":META['index'][1],"url":abs_url(''),"applicationCategory":"EducationalApplication","operatingSystem":"Web (любой современный браузер)","inLanguage":"ru","image":SITE_URL+'/img/og.png',"audience":{"@type":"PeopleAudience","suggestedMinAge":6},"offers":[{"@type":"Offer","name":"Бесплатный","price":"0","priceCurrency":"RUB"}]+[{"@type":"Offer","name":n,"price":_pn(cfg(p)),"priceCurrency":"RUB","url":cfg(u)} for n,p,u in (("Таблица умножения: Стандарт","PRICE_MULT_STD","PAY_URL_MULT_STD"),("Таблица умножения: Продвинутый","PRICE_MULT_PRO","PAY_URL_MULT_PRO"),("Устный счёт","PRICE_MENTAL","PAY_URL_MENTAL"),("Быстрый счёт по Трахтенбергу","PRICE_TRACH","PAY_URL_TRACH"),("Комбо: три тренажёра","PRICE_COMBO","PAY_URL_COMBO"))]}
+SOFTAPP_LD={"@context":"https://schema.org","@type":"SoftwareApplication","name":"Таблица без зубрёжки","description":META['index'][1],"url":abs_url(''),"applicationCategory":"EducationalApplication","operatingSystem":"Web (любой современный браузер)","inLanguage":"ru","image":SITE_URL+'/img/og.png',"audience":{"@type":"PeopleAudience","suggestedMinAge":6},"offers":[{"@type":"Offer","name":"Бесплатный","price":"0","priceCurrency":"RUB"}]+[{"@type":"Offer","name":n,"price":_pn(cfg(p)),"priceCurrency":"RUB","url":cfg(u)} for n,p,u in (("Таблица умножения: Стандарт","PRICE_MULT_STD","PAY_URL_MULT_STD"),("Таблица умножения: Продвинутый","PRICE_MULT_PRO","PAY_URL_MULT_PRO"),("Устный счёт","PRICE_MENTAL","PAY_URL_MENTAL"),("Быстрый счёт по Трахтенбергу","PRICE_TRACH","PAY_URL_TRACH"),("Ментальная арифметика","PRICE_ABAK","PAY_URL_ABAK"),("Комбо: четыре тренажёра","PRICE_COMBO","PAY_URL_COMBO"))]}
 LANDING=('''<!doctype html>
 <html lang="ru">
 <head>
@@ -524,6 +543,7 @@ MENTAL_HTML='''<!doctype html>
       <button type="button" data-v="parent">Родителям</button>
       <a href="trainer.html">Умножение</a>
       <a href="trahtenberg.html">Быстрый счёт</a>
+      <a href="abakus.html">Ментальная арифметика</a>
       <a href="blog.html">Блог</a>
     </nav>
     '''+THEME_BTN+'''
@@ -564,6 +584,35 @@ TRACH_HTML='''<!doctype html>
 </body>
 </html>
 '''
+ABAK_HTML='''<!doctype html>
+<html lang="ru">
+<head>
+'''+HEAD_COMMON+'''
+'''+seo_head('abakus.html',*META['abak'],ld=[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Ментальная арифметика","url":abs_url('abakus.html'),"applicationCategory":"EducationalApplication","operatingSystem":"Any","inLanguage":"ru","offers":{"@type":"Offer","price":"0","priceCurrency":"RUB"}}])+'''
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <button class="brand" type="button" data-v="home">'''+BRAND+'''</button>
+    <nav class="nav" aria-label="Разделы">
+      <button type="button" data-v="home">Модули</button>
+      <button type="button" data-v="train">Тренажёр</button>
+      <button type="button" data-v="parent">Родителям</button>
+      <a href="trainer.html">Умножение</a>
+      <a href="mental.html">Устный счёт</a>
+      <a href="trahtenberg.html">Быстрый счёт</a>
+      <a href="blog.html">Блог</a>
+    </nav>
+    '''+THEME_BTN+'''
+  </header>
+  <main id="app"></main>
+  <noscript><p class="card">Для работы тренажёра нужен включённый JavaScript.</p></noscript>
+  '''+FOOT+'''
+</div>
+<script src="app_abak.js" defer></script>
+</body>
+</html>
+'''
 def _shared_js(src):
     blk=_shared_block()
     return re.sub(r"/\*SHARED\*/.*?/\*ENDSHARED\*/",lambda m:blk,src,flags=re.S)
@@ -571,6 +620,8 @@ _mj=_shared_js(rd('app_mental.js')); wr('app_mental.js',_mj)
 wr('mental.html',MENTAL_HTML)
 _tj=_shared_js(rd('app_trach.js')); wr('app_trach.js',_tj)
 wr('trahtenberg.html',TRACH_HTML)
+_aj=_shared_js(rd('app_abak.js')); wr('app_abak.js',_aj)
+wr('abakus.html',ABAK_HTML)
 wr('trainer.html',INDEX)
 wr('index.html',LANDING)
 ALLDOCS=dict(DOCS); ALLDOCS.update(EXTRA_DOCS)
@@ -578,13 +629,13 @@ for k,(t,body_) in ALLDOCS.items(): wr(k+'.html',content_page(k+'.html',*META[k]
 wr('blog.html',content_page('blog.html',*META['blog'],blog_inner(),ld=[{"@context":"https://schema.org","@type":"Blog","name":"Блог о таблице умножения","url":abs_url('blog.html'),"inLanguage":"ru","blogPost":[{"@type":"BlogPosting","headline":a['h1'],"url":abs_url(a['file']),"datePublished":a['date']} for a in ARTS]}],back=False))
 for a in ARTS: wr(a['file'],content_page(a['file'],a['title'],a['description'],a['keywords'],article_inner(a),ld=[article_ld(a),{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":abs_url('')},{"@type":"ListItem","position":2,"name":"Блог","item":abs_url('blog.html')},{"@type":"ListItem","position":3,"name":a['h1'],"item":abs_url(a['file'])}]}],typ='article',back=False,published=a['date'],image=a.get('image')))
 # sitemap.xml, robots.txt
-_pages=[('',1.0,'weekly',TODAY),('mental.html',0.9,'weekly',TODAY),('trahtenberg.html',0.9,'weekly',TODAY),('trainer.html',0.9,'weekly',TODAY),('blog.html',0.8,'weekly',max(a['date'] for a in ARTS))]
+_pages=[('',1.0,'weekly',TODAY),('mental.html',0.9,'weekly',TODAY),('trahtenberg.html',0.9,'weekly',TODAY),('abakus.html',0.9,'weekly',TODAY),('trainer.html',0.9,'weekly',TODAY),('blog.html',0.8,'weekly',max(a['date'] for a in ARTS))]
 _pages+=[(a['file'],0.7,'monthly',a['date']) for a in ARTS]
 _pages+=[('about.html',0.5,'yearly',TODAY),('contacts.html',0.5,'yearly',TODAY),('partners.html',0.4,'yearly',TODAY),('offer.html',0.3,'yearly',TODAY),('privacy.html',0.3,'yearly',TODAY),('how.html',0.3,'yearly',TODAY),('notice.html',0.3,'yearly',TODAY)]
 wr('sitemap.xml','<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+''.join('  <url>\n    <loc>%s</loc>\n    <lastmod>%s</lastmod>\n    <changefreq>%s</changefreq>\n    <priority>%.1f</priority>\n  </url>\n'%(E(abs_url(p)),lm,cf,pr) for p,pr,cf,lm in _pages)+'</urlset>\n')
 wr('robots.txt','User-agent: *\nAllow: /\nDisallow: /print.html\nDisallow: /print.js\nDisallow: /tools/\nDisallow: /src/\n\nSitemap: '+SITE_URL+'/sitemap.xml\n')
 # service-worker: список страниц
-_sw=rd('service-worker.js'); _pg=['index.html','trainer.html','mental.html','trahtenberg.html','blog.html','print.html']+[a['file'] for a in ARTS]+[k+'.html' for k in ALLDOCS]+[a['image'] for a in ARTS if a.get('image')]
+_sw=rd('service-worker.js'); _pg=['index.html','trainer.html','mental.html','trahtenberg.html','abakus.html','blog.html','print.html']+[a['file'] for a in ARTS]+[k+'.html' for k in ALLDOCS]+[a['image'] for a in ARTS if a.get('image')]
 _sw=re.sub(r"/\*PAGES\*/.*?/\*END\*/","/*PAGES*/ "+", ".join("'%s'"%p for p in _pg)+", /*END*/",_sw,flags=re.S); wr('service-worker.js',_sw)
 
 # --- предпросмотр (один файл для артефакта: без service worker, шрифты с Google Fonts)
@@ -625,6 +676,7 @@ prev='''<meta charset="utf-8">
       <button type="button" data-v="parent">Родителям</button>
       <a href="mental.html" class="nav-ment">Устный счёт</a>
       <a href="trahtenberg.html" class="nav-ment">Быстрый счёт</a>
+      <a href="abakus.html" class="nav-ment">Ментальная арифметика</a>
       <a href="blog.html">Блог</a>
     </nav>
     '''+THEME_BTN+'''<button type="button" class="adv-sw" role="switch" aria-checked="false" data-act="adv"><span class="knob" aria-hidden="true"></span>Продвинутый режим</button>
@@ -697,7 +749,7 @@ prev=prev.replace('<a href="blog.html">Блог</a>','<a href="#blog">Блог</
 wr('preview/tablica-preview.html',prev)
 # --- предпросмотр «Устного счёта» (один файл)
 _mhead=re.search(r'<header class="top">.*?</header>',MENTAL_HTML,re.S).group(0)
-_mhead=_mhead.replace('<a href="trainer.html">Умножение</a>','').replace('<a href="trahtenberg.html">Быстрый счёт</a>','').replace('<a href="blog.html">Блог</a>','')
+_mhead=_mhead.replace('<a href="trainer.html">Умножение</a>','').replace('<a href="trahtenberg.html">Быстрый счёт</a>','').replace('<a href="abakus.html">Ментальная арифметика</a>','').replace('<a href="blog.html">Блог</a>','')
 mprev='''<meta charset="utf-8">
 <script>'''+rd('theme.js')+'''</script>
 <title>Устный счёт</title>
@@ -719,7 +771,7 @@ mprev='''<meta charset="utf-8">
 '''
 wr('preview/mental-preview.html',mprev)
 _thead=re.search(r'<header class="top">.*?</header>',TRACH_HTML,re.S).group(0)
-_thead=_thead.replace('<a href="trainer.html">Умножение</a>','').replace('<a href="mental.html">Устный счёт</a>','').replace('<a href="blog.html">Блог</a>','')
+_thead=_thead.replace('<a href="trainer.html">Умножение</a>','').replace('<a href="mental.html">Устный счёт</a>','').replace('<a href="abakus.html">Ментальная арифметика</a>','').replace('<a href="blog.html">Блог</a>','')
 tprev='''<meta charset="utf-8">
 <script>'''+rd('theme.js')+'''</script>
 <title>Быстрый счёт по Трахтенбергу</title>
@@ -740,5 +792,27 @@ tprev='''<meta charset="utf-8">
 </script>
 '''
 wr('preview/trach-preview.html',tprev)
+_ahead=re.search(r'<header class="top">.*?</header>',ABAK_HTML,re.S).group(0)
+_ahead=_ahead.replace('<a href="trainer.html">Умножение</a>','').replace('<a href="mental.html">Устный счёт</a>','').replace('<a href="trahtenberg.html">Быстрый счёт</a>','').replace('<a href="abakus.html">Ментальная арифметика</a>','').replace('<a href="blog.html">Блог</a>','')
+aprev='''<meta charset="utf-8">
+<script>'''+rd('theme.js')+'''</script>
+<title>Ментальная арифметика</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Nunito:wght@600;800&family=Rubik:wght@500;700&display=swap">
+<style>
+'''+css+'''
+</style>
+<div class="wrap">
+  '''+_ahead+'''
+  <main id="app"></main>
+  '''+re.sub(r'<a [^>]*>([^<]*)</a>',r'<span>\1</span>',FOOT)+'''
+</div>
+<script>
+'''+_aj+'''
+</script>
+'''
+wr('preview/abak-preview.html',aprev)
 print('built', len(prev), len(mprev))
 

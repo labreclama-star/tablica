@@ -356,7 +356,7 @@ summary{padding-block:10px;min-height:44px}
 
 /* ===== Тарифы: Умножение / Устный счёт / Комбо ===== */
 .tcols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 16px;align-items:stretch;margin:22px 0 14px}
-.lp .tcols,.tcols.wide{grid-template-columns:repeat(5,minmax(0,1fr));gap:22px 12px}
+.lp .tcols,.tcols.wide{grid-template-columns:repeat(3,minmax(0,1fr));gap:22px 12px}
 .lp .tcol,.tcols.wide .tcol{padding:14px}.lp .tcol h3{font-size:19px}.lp .tcol .tprice{font-size:28px}
 .tcol{position:relative;border:2px solid var(--edge);border-radius:12px;background:var(--card);padding:18px;display:grid;gap:10px;grid-template-rows:auto auto auto 1fr auto;box-shadow:0 5px 0 var(--edge)}
 .tcol h3{margin:0;font-size:22px}
@@ -458,3 +458,14 @@ summary{padding-block:10px;min-height:44px}
 .tz-tab th,.tz-tab td{padding:6px 8px;border-bottom:2px solid var(--line);text-align:left;vertical-align:top}
 .gp{margin:4px 0 10px;font-size:18px}.gp p{margin:0 0 4px}
 .answer.choice{display:flex;flex-wrap:wrap;gap:10px}
+/* ментальная арифметика: абакус */
+.abk-wrap{display:flex;justify-content:center;margin:8px 0 12px;background:#fff;border:2px solid #C9D6F5;border-radius:14px;padding:8px;overflow-x:auto}
+.abk{width:100%;height:auto;display:block;touch-action:manipulation;user-select:none}
+.abk-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:8px 0}
+.abk-row figure{margin:0;text-align:center;background:#fff;border:2px solid #C9D6F5;border-radius:12px;padding:6px;max-width:120px}
+.abk-row figcaption{font:700 13px var(--f-head);color:#1A2747}
+.flb{min-height:170px;display:flex;align-items:center;justify-content:center;margin:8px 0}
+.flcover{display:flex;align-items:center;justify-content:center;min-height:150px;width:100%;max-width:520px;border:3px dashed #9AA8C7;border-radius:16px;background:#EEF2FA;color:#4B5B7C;font:800 34px var(--f-head);text-align:center;padding:10px}
+.flnum{display:flex;align-items:center;justify-content:center;min-height:150px;font:800 72px var(--f-head);color:#2B59E6}
+.flnum.dim{color:transparent}
+.tz-key.hv{background:#FF8A4C}.tz-key.ev{background:#2B59E6;color:#fff}

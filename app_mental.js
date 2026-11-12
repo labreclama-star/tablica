@@ -16,49 +16,55 @@ var PRICE_MULT_STD='990 ₽';
 var PRICE_MULT_PRO='1 990 ₽';
 var PRICE_MENTAL='990 ₽';
 var PRICE_TRACH='990 ₽';
+var PRICE_ABAK='990 ₽';
 var PRICE_COMBO='2 490 ₽';
 var PAY_URL_MULT_STD='https://example.com/pay?plan=mult-standard';  /* страницы оплаты у платёжного агрегатора */
 var PAY_URL_MULT_PRO='https://example.com/pay?plan=mult-pro';
 var PAY_URL_MENTAL='https://example.com/pay?plan=mental';
 var PAY_URL_TRACH='https://example.com/pay?plan=trahtenberg';
+var PAY_URL_ABAK='https://example.com/pay?plan=abakus';
 var PAY_URL_COMBO='https://example.com/pay?plan=combo';
 
 var PAY_URL_MULT_STD='success.html';
 var PAY_URL_MULT_PRO='success.html';
 var PAY_URL_MENTAL='success.html';
-var PAY_URL_COMBO='success.html';
 var PAY_URL_TRX='success.html';
+var PAY_URL_ABK='success.html';
+var PAY_URL_COMBO='success.html';
 
 /* SHA-256 кодов доступа (см. README). Тестовые коды (удалите перед запуском): TEST-STANDARD, TEST-PRO и 1111 (только «Умножение»), TEST-MNT («Устный счёт»), TEST-CMB (комбо). */
 var CODES_STD=["ca063870f27456c4764dc609ae1579f7a1fa8e6f497713a47ad4b90c98db7bb6"];
 var CODES_PRO=["0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c","9617e38101e15005c55a48cf1116327a0bb611c344da66dce2799e30b954a446"];
 var CODES_MNT=["364567710a202e131e3aabb9531abb0d23648784ea6db328eedea3b01f9bb16a"];
 var CODES_CMB=["c7bdbefc81151c12307080feadd770a9eb413db17783a48fa8847269de7c49ca"];
+var CODES_ABK=["44b3fe4bf67206b477b7390eff3029a2bcf227ebca143088d3f9a9eb842458ea"];  /* тестовый TEST-ABK, удалите перед запуском */
 var CODES_TRX=["e94d02710d01a8dc7929f06fd3a65c90e0c3083463028ca5141b941b1dbaa749"];  /* тестовый TEST-TRX, удалите перед запуском */
-/* что открывает код: {mult, mental, trach}; null, если код не найден.
-   STANDARD-/PRO-: только «Умножение» (Стандарт или Продвинутый). MNT-: «Устный счёт» целиком (Продвинутый). TRX-: «Быстрый счёт по Трахтенбергу» целиком. CMB-: все три тренажёра на максимум. */
+/* что открывает код: {mult, mental, trach, abak}; null, если код не найден.
+   STANDARD-/PRO-: только «Умножение» (Стандарт или Продвинутый). MNT-: «Устный счёт» целиком (Продвинутый). TRX-: «Быстрый счёт по Трахтенбергу» целиком. ABK-: «Ментальная арифметика» целиком. CMB-: все четыре тренажёра на максимум. */
 function codeGrant(hx){
   function has(a){return a.indexOf(hx)>=0;}
-  if(has(CODES_CMB))return {mult:'pro',mental:'pro',trach:'pro'};
-  if(has(CODES_PRO))return {mult:'pro',mental:null,trach:null};
-  if(has(CODES_STD))return {mult:'standard',mental:null,trach:null};
-  if(has(CODES_MNT))return {mult:null,mental:'pro',trach:null};
-  if(has(CODES_TRX))return {mult:null,mental:null,trach:'pro'};
+  if(has(CODES_CMB))return {mult:'pro',mental:'pro',trach:'pro',abak:'pro'};
+  if(has(CODES_PRO))return {mult:'pro',mental:null,trach:null,abak:null};
+  if(has(CODES_STD))return {mult:'standard',mental:null,trach:null,abak:null};
+  if(has(CODES_MNT))return {mult:null,mental:'pro',trach:null,abak:null};
+  if(has(CODES_TRX))return {mult:null,mental:null,trach:'pro',abak:null};
+  if(has(CODES_ABK))return {mult:null,mental:null,trach:null,abak:'pro'};
   return null;}
-function anyCodes(){return CODES_STD.length+CODES_PRO.length+CODES_MNT.length+CODES_CMB.length+CODES_TRX.length>0;}
-/* пять плашек: Бесплатный, Умножение, Устный счёт, Быстрый счёт, Комбо. cur: 'mult' | 'mental' | 'landing' (куда ведёт кнопка «Попробовать бесплатно») */
+function anyCodes(){return CODES_STD.length+CODES_PRO.length+CODES_MNT.length+CODES_CMB.length+CODES_TRX.length+CODES_ABK.length>0;}
+/* шесть плашек: Бесплатный, Умножение, Устный счёт, Быстрый счёт, Ментальная арифметика, Комбо. cur: 'mult' | 'mental' | 'landing' (куда ведёт кнопка «Попробовать бесплатно») */
 function tariffCols(cur){
   function buy(cls,label,price,url){return '<a class="btn '+cls+'" href="'+url+'">'+label+' · '+price.replace(/ /g,'\u00a0')+'</a>';}
   function col(cls,title,price,sub,items,act,badge){return '<div class="tcol'+cls+'">'+(badge?'<span class="tbadge">'+badge+'</span>':'')+'<h3>'+title+'</h3><p class="tprice">'+price+'</p><p class="tsub">'+sub+'</p><ul>'+items.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul><div class="tact">'+act+'</div></div>';}
   function num(t){return parseInt(String(t).replace(/\D/g,''),10)||0;}
-  var save=num(PRICE_MULT_PRO)+num(PRICE_MENTAL)+num(PRICE_TRACH)-num(PRICE_COMBO);
+  var save=num(PRICE_MULT_PRO)+num(PRICE_MENTAL)+num(PRICE_TRACH)+num(PRICE_ABAK)-num(PRICE_COMBO);
   var free=cur==='landing'?'<a class="btn ghost" href="trainer.html">Попробовать бесплатно</a>':'<button type="button" class="btn ghost" data-v="home">Попробовать бесплатно</button>';
   return '<div class="tcols">'
-   +col(' free','Бесплатный','0 ₽','Чтобы попробовать',['5 блоков в «Умножении»','Модуль «Состав числа» в «Устном счёте»','Модуль «Сосед и нулик» в «Быстром счёте»','До 10 минут в день','Без регистрации'],free)
+   +col(' free','Бесплатный','0 ₽','Чтобы попробовать',['5 блоков в «Умножении»','Модуль «Состав числа» в «Устном счёте»','Модуль «Сосед и нулик» в «Быстром счёте»','Модуль «Знакомство с абакусом» в «Ментальной арифметике»','До 10 минут в день','Без регистрации'],free)
    +col('','Таблица умножения','от '+PRICE_MULT_STD,'Полный курс умножения и деления',['Все блоки и деление','Безлимитное время','Итоговая проверка','В Продвинутом: игры, повторения через 1, 3, 7 дней, награды, печать'],buy('ghost','Купить Стандарт',PRICE_MULT_STD,PAY_URL_MULT_STD)+buy('','Купить Продвинутый',PRICE_MULT_PRO,PAY_URL_MULT_PRO))
    +col('','Устный счёт',PRICE_MENTAL,'Сложение и вычитание в уме',['Все 9 модулей','Игра «Дай сдачу»','Тренажёр с повторениями','Подробный отчёт для родителя','Без лимита времени'],buy('',  'Купить Устный счёт',PRICE_MENTAL,PAY_URL_MENTAL))
    +col('','Быстрый счёт по Трахтенбергу',PRICE_TRACH,'Система быстрого счёта Якова Трахтенберга',['13 модулей: умножение на 2–9, 11 и 12 без таблицы','Квадрат числа на 5 и метод двух пальцев','Проверка девяткой','Тренажёр с повторениями','Без лимита времени'],buy('','Купить Быстрый счёт',PRICE_TRACH,PAY_URL_TRACH))
-   +col(' combo','Комбо: всё сразу',PRICE_COMBO,'Все три тренажёра по одному коду. Максимальная выгода',['Всё из «Таблицы умножения» (Продвинутый)','Всё из «Устного счёта»','Всё из «Быстрого счёта по Трахтенбергу»','Один код открывает все тренажёры','Доступ навсегда'].concat(save>0?['Дешевле на '+save+' ₽, чем по отдельности']:[]),buy('big','Купить Комбо',PRICE_COMBO,PAY_URL_COMBO),'Выгодно')
+   +col('','Ментальная арифметика',PRICE_ABAK,'Виртуальный абакус и счёт в уме',['13 модулей: от цифр на абакусе до счёта в уме','Помощь брата и друга, двузначные числа','Образ абакуса и цепочки в уме','Тренажёр с повторениями','Без лимита времени'],buy('','Купить Ментальную арифметику',PRICE_ABAK,PAY_URL_ABAK))
+   +col(' combo','Комбо: всё сразу',PRICE_COMBO,'Все четыре тренажёра по одному коду. Максимальная выгода',['Всё из «Таблицы умножения» (Продвинутый)','Всё из «Устного счёта»','Всё из «Быстрого счёта по Трахтенбергу»','Всё из «Ментальной арифметики»','Один код открывает все тренажёры','Доступ навсегда'].concat(save>0?['Дешевле на '+save+' ₽, чем по отдельности']:[]),buy('big','Купить Комбо',PRICE_COMBO,PAY_URL_COMBO),'Выгодно')
    +'</div>';}
 /* Маскот «Клетик»: плоский inline SVG (около 1,5 КБ на экземпляр). Эмоции: joy, think, sorry, party. */
 function clk(e,cls){
@@ -105,7 +111,7 @@ function pl(n,o,f,m){n=Math.abs(n)%100;var d=n%10;if(n>10&&n<20)return m;if(d===
 
 /* ---------- хранение ---------- */
 function fresh(){return {app:'ustny-schet',schemaVersion:1,done:{},stars:{},stats:{},sr:{},rec:{},days:{},alts:{},tier:'free',onboarded:false};}
-var M=fresh(),mainTier='free',mainMult='free',mainTrach='free',storage={mode:'init'};
+var M=fresh(),mainTier='free',mainMult='free',mainTrach='free',mainAbak='free',storage={mode:'init'};
 var Store=(function(){
   var DB='tablica',ST='kv',dbp=null;
   function open(){return new Promise(function(res,rej){
@@ -503,11 +509,12 @@ function applyTier(g){
     var ch=false,ti=function(x){return RANK[x]||0;};
     if(g.mental&&ti(g.mental)>ti(v.tierMental)){v.tierMental=g.mental;ch=true;}
     if(g.trach&&ti(g.trach)>ti(v.tierTrach)){v.tierTrach=g.trach;ch=true;mainTrach=g.trach;}
+    if(g.abak&&ti(g.abak)>ti(v.tierAbak)){v.tierAbak=g.abak;ch=true;mainAbak=g.abak;}
     if(g.mult&&ti(g.mult)>ti(v.tierMult)){v.tierMult=g.mult;v.tier=g.mult;ch=true;mainMult=g.mult;}
     if(ch){v.adv=true;return Store.put('progress',v);}}).catch(function(){});}
 function tryCode(code,msg,ok){
   if(String(code).trim() === '8888'){
-    P.tierMult = 'pro'; P.tierMental = 'pro'; P.tierTrahtenberg = 'pro'; P.tier = 'pro'; P.adv = true;
+    P.tierMult = 'pro'; P.tierMental = 'pro'; P.tierTrahtenberg = 'pro'; P.tierAbakus = 'pro'; P.tier = 'pro'; P.adv = true;
     save(); ok(); return;
   }
 
@@ -516,8 +523,8 @@ function tryCode(code,msg,ok){
   sha256hex(String(code).trim().toUpperCase()).then(function(hx){
     var g=codeGrant(hx);
     if(!g){msg.textContent='Код не подошёл. Проверьте, нет ли лишних символов.';return;}
-    var newMental=g.mental&&RANK[g.mental]>RANK[tier()],newMult=g.mult&&RANK[g.mult]>RANK[mainMult],newTrach=g.trach&&RANK[g.trach]>RANK[mainTrach];
-    if(!newMental&&!newMult&&!newTrach){msg.textContent='Этот код ничего не добавит: у вас уже открыт такой тариф или выше.';return;}
+    var newMental=g.mental&&RANK[g.mental]>RANK[tier()],newMult=g.mult&&RANK[g.mult]>RANK[mainMult],newTrach=g.trach&&RANK[g.trach]>RANK[mainTrach],newAbak=g.abak&&RANK[g.abak]>RANK[mainAbak];
+    if(!newMental&&!newMult&&!newTrach&&!newAbak){msg.textContent='Этот код ничего не добавит: у вас уже открыт такой тариф или выше.';return;}
     applyTier(g);ok();}).catch(function(){msg.textContent='Не удалось проверить код.';});}
 function planHtml(name,price,url,items,pro){
   return '<div class="plan'+(pro?' pro':'')+'"><h3>'+name+'</h3><p class="price">'+price+' <span class="small">один раз</span></p><ul>'+items.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul><a class="btn'+(pro?'':' ghost')+'" href="'+url+'">Купить '+name+'</a></div>';}
@@ -544,7 +551,7 @@ document.addEventListener('click',function(e){
 function boot(){
   Store.get('mental').then(function(v){storage.mode='idb';if(v)M=adopt(v);})
    .catch(function(){storage.mode='memory';})
-   .then(function(){return Store.get('progress').then(function(v){if(v){if(RANK[v.tierMental]!==undefined)mainTier=v.tierMental;if(RANK[v.tierTrach]!==undefined)mainTrach=v.tierTrach;if(RANK[v.tierMult]!==undefined)mainMult=v.tierMult;else if(RANK[v.tier]!==undefined)mainMult=v.tier;}}).catch(function(){});})
+   .then(function(){return Store.get('progress').then(function(v){if(v){if(RANK[v.tierMental]!==undefined)mainTier=v.tierMental;if(RANK[v.tierTrach]!==undefined)mainTrach=v.tierTrach;if(RANK[v.tierAbak]!==undefined)mainAbak=v.tierAbak;if(RANK[v.tierMult]!==undefined)mainMult=v.tierMult;else if(RANK[v.tier]!==undefined)mainMult=v.tier;}}).catch(function(){});})
    .then(function(){render();});}
 if('serviceWorker' in navigator&&location.protocol!=='file:'){window.addEventListener('load',function(){navigator.serviceWorker.register('service-worker.js').catch(function(){});});}
 boot();

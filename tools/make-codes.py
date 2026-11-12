@@ -3,11 +3,12 @@
 
   python3 tools/make-codes.py mental 50    # MNT-XXXX-XXXX: «Устный счёт» целиком (Продвинутый)
   python3 tools/make-codes.py trach 50     # TRX-XXXX-XXXX: «Быстрый счёт по Трахтенбергу» целиком
-  python3 tools/make-codes.py combo 50     # CMB-XXXX-XXXX: все три тренажёра, Продвинутый
+  python3 tools/make-codes.py abak 50      # ABK-XXXX-XXXX: «Ментальная арифметика» целиком
+  python3 tools/make-codes.py combo 50     # CMB-XXXX-XXXX: все четыре тренажёра, Продвинутый
   python3 tools/make-codes.py standard 50  # STANDARD-XXXX-XXXX: «Умножение», Стандарт
   python3 tools/make-codes.py pro 50       # PRO-XXXX-XXXX: «Умножение», Продвинутый
 
-Псевдонимы: mult-std = standard, mult-pro = pro. Коды MNT, TRX и CMB всегда открывают Продвинутый уровень.
+Псевдонимы: mult-std = standard, mult-pro = pro. Коды MNT, TRX, ABK и CMB всегда открывают Продвинутый уровень.
 Регистр при вводе не важен. Скрипт печатает коды и строку SHA-256 для app.js."""
 import hashlib, secrets, sys
 
@@ -15,11 +16,12 @@ import hashlib, secrets, sys
 TYPES = {
     'mental':   ('MNT',      'CODES_MNT', 'Устный счёт целиком (Продвинутый)'),
     'trach':    ('TRX',      'CODES_TRX', 'Быстрый счёт по Трахтенбергу целиком'),
-    'combo':    ('CMB',      'CODES_CMB', 'Все три тренажёра, Продвинутый'),
+    'abak':     ('ABK',      'CODES_ABK', 'Ментальная арифметика целиком'),
+    'combo':    ('CMB',      'CODES_CMB', 'Все четыре тренажёра, Продвинутый'),
     'standard': ('STANDARD', 'CODES_STD', 'Умножение, Стандарт'),
     'pro':      ('PRO',      'CODES_PRO', 'Умножение, Продвинутый'),
 }
-ALIAS = {'mult-std': 'standard', 'mult-pro': 'pro', 'mental-pro': 'mental', 'mental-std': 'mental', 'trach-pro': 'trach', 'combo-pro': 'combo', 'combo-std': 'combo'}
+ALIAS = {'mult-std': 'standard', 'mult-pro': 'pro', 'mental-pro': 'mental', 'mental-std': 'mental', 'trach-pro': 'trach', 'abak-pro': 'abak', 'combo-pro': 'combo', 'combo-std': 'combo'}
 ALPH = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'   # без похожих символов 0/O, 1/I
 
 def grp():

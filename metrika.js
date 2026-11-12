@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   document.addEventListener('click', (e) => {
     if (typeof window.ym === 'undefined') return;
-    if (e.target.closest('a[href*="trainer.html"], a[href*="mental.html"], a[href*="trahtenberg.html"]')) window.ym(YM_ID, 'reachGoal', 'click_try');
+    if (e.target.closest('a[href*="trainer.html"], a[href*="mental.html"], a[href*="trahtenberg.html"], a[href*="abakus.html"]')) window.ym(YM_ID, 'reachGoal', 'click_try');
     if (e.target.closest('a[href*="pay"], .lp-plan .btn, .tact a, a[href="success.html"]')) window.ym(YM_ID, 'reachGoal', 'click_buy');
   });
 });
