@@ -285,6 +285,7 @@ INDEX='''<!doctype html>
 <head>
 '''+HEAD_COMMON+'''
 '''+seo_head('trainer.html',*META['trainer'])+'''
+<script src="url_cleaner.js" defer></script>
 </head>
 <body>
 <div class="wrap">
@@ -320,6 +321,7 @@ def content_page(path,title,desc,kw,inner,ld=(),typ='website',back=True,publishe
 <head>
 '''+HEAD_COMMON+'''
 '''+seo_head(path,title,desc,kw,typ=typ,ld=ld,published=published,image=image)+'''
+<script src="url_cleaner.js" defer></script>
 </head>
 <body class="docpage">
 <div class="wrap">
@@ -474,7 +476,7 @@ def landing_body(preview,hero_src):
 <section class="lp-hero"><div>
 <p class="kicker">Умножение и деление</p>
 <div class="lp-hi">'''+mascot('joy')+'''<p class="clk-bubble">Привет! Я Клетик. Помогу разобраться и не испугаться.</p></div>
-<h1>Таблица умножения без слёз и вечерних скандалов. Ребёнок поймёт, а не просто зазубрит.</h1>
+<h1>Таблица умножения и устный счёт без слёз и зубрёжки</h1>
 <p class="lead">Интерактивный тренажёр для 1–5 классов. Превращает скучные столбики в понятную игру. Всего 10 минут в день.</p>
 <p style="margin:20px 0 10px">'''+free+'''</p>
 <p class="small">Без регистрации. Прогресс хранится на вашем устройстве.</p>
@@ -522,6 +524,7 @@ LANDING=('''<!doctype html>
 '''+HEAD_COMMON+'''
 '''+seo_head('',*META['index'],ld=[SOFTAPP_LD,faq_ld()])+'''
 <style>'''+LCSS+'''</style>
+<script src="url_cleaner.js" defer></script>
 </head>
 <body>
 '''+landing_body(False,'img/hero.png' if _hd else '')+'''
@@ -536,6 +539,7 @@ MENTAL_HTML='''<!doctype html>
 <head>
 '''+HEAD_COMMON+'''
 '''+seo_head('mental.html',*META['mental'],ld=[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Устный счёт","url":abs_url('mental.html'),"applicationCategory":"EducationalApplication","operatingSystem":"Any","inLanguage":"ru","offers":{"@type":"Offer","price":"0","priceCurrency":"RUB"}}])+'''
+<script src="url_cleaner.js" defer></script>
 </head>
 <body>
 <div class="wrap">
@@ -566,6 +570,7 @@ TRACH_HTML='''<!doctype html>
 <head>
 '''+HEAD_COMMON+'''
 '''+seo_head('trahtenberg.html',*META['trach'],ld=[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Быстрый счёт по Трахтенбергу","url":abs_url('trahtenberg.html'),"applicationCategory":"EducationalApplication","operatingSystem":"Any","inLanguage":"ru","offers":{"@type":"Offer","price":"0","priceCurrency":"RUB"}}])+'''
+<script src="url_cleaner.js" defer></script>
 </head>
 <body>
 <div class="wrap">
@@ -594,6 +599,7 @@ ABAK_HTML='''<!doctype html>
 <head>
 '''+HEAD_COMMON+'''
 '''+seo_head('abakus.html',*META['abak'],ld=[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Ментальная арифметика","url":abs_url('abakus.html'),"applicationCategory":"EducationalApplication","operatingSystem":"Any","inLanguage":"ru","offers":{"@type":"Offer","price":"0","priceCurrency":"RUB"}}])+'''
+<script src="url_cleaner.js" defer></script>
 </head>
 <body>
 <div class="wrap">
@@ -732,6 +738,7 @@ PRINT='''<!doctype html>
 .cd .a p{margin:6px 0 0;font-size:15px}
 @media print{.noprint{display:none!important}body{background:#fff}.cd,.pt th,.pt td{border-color:#000}.pt th{background:#eee}.pgb{break-before:page}}
 </style>
+<script src="url_cleaner.js" defer></script>
 </head>
 <body class="docpage">
 <div class="wrap">

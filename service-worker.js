@@ -1,6 +1,6 @@
 /* Офлайн-режим. Меняйте VERSION при каждом обновлении сайта,
    иначе у пользователей останется старая версия из кэша. */
-const VERSION = "v130-2026-11-12";
+const VERSION = "v135-2026-11-23";
 const CACHE = 'tablica-' + VERSION;
 const ASSETS = [
   './', 'app.css', 'fonts.css', 'app.js', 'app_mental.js',
